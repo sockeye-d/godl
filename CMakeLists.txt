@@ -1,0 +1,50 @@
+cmake_minimum_required(VERSION 3.20)
+project(godl)
+
+find_package(ECM 6.0.0 REQUIRED NO_MODULE)
+set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
+
+# Directories where Qt Creator can find QML files.
+# (Not needed for builds, but makes Qt Creator code completion happy.)
+list(APPEND QML_IMPORT_PATH "/usr/lib/qt6/qml")
+
+# Prevent adding duplicate values at each run of CMake.
+list(REMOVE_DUPLICATES QML_IMPORT_PATH)
+
+# The variable is cached in ${BUILD_DIR}/CMakeCache.txt. We need FORCE to
+# change it there immediately. Also, add a comment to the cache file.
+set(QML_IMPORT_PATH ${QML_IMPORT_PATH}
+    CACHE STRING "Qt Creator 4.1 extra qml import paths"
+    FORCE
+)
+
+include(KDEInstallDirs)
+include(KDECMakeSettings)
+include(KDECompilerSettings NO_POLICY_SCOPE)
+include(ECMFindQmlModule)
+include(ECMQmlModule)
+
+find_package(Qt6 REQUIRED COMPONENTS
+    Core
+    Quick
+    Test
+    Gui
+    QuickControls2
+    Widgets
+)
+
+find_package(KF6 REQUIRED COMPONENTS
+    Kirigami
+    I18n
+    CoreAddons
+    QQC2DesktopStyle
+    IconThemes
+)
+
+ecm_find_qmlmodule(org.kde.kirigami REQUIRED)
+
+add_subdirectory(src)
+
+install(PROGRAMS org.fishy.godl.desktop DESTINATION ${KDE_INSTALL_APPDIR})
+
+feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=godl
+Exec=godl
+Icon=kde
+Type=Application
+Terminal=false
+Categories=Utility
