@@ -18,7 +18,7 @@ qt_add_qml_module(godl
     URI org.fishy.godl
     VERSION 0.1
     SOURCES
-        network/chained_json_request.cpp
+        network/chained_json_request.cpp network/chained_json_request.h
     QML_FILES
         Main.qml
 )

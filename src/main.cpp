@@ -3,9 +3,9 @@
 #include <KLocalizedContext>
 #include <KLocalizedString>
 #include <QApplication>
+#include <QMainWindow>
 #include <QQuickStyle>
 #include <QtQml>
-#include <QMainWindow>
 #include <chained_json_request.h>
 
 using namespace Qt::Literals::StringLiterals;
@@ -36,6 +36,8 @@ int main(int argc, char *argv[]) {
         return engine->toScriptValue(
             KAboutData::applicationData());
     });
+    qmlRegisterType<ChainedJsonRequest>("org.fishy.godl", 0, 1,
+                                        "ChainedJsonRequest");
 
     QQmlApplicationEngine engine;
 
@@ -45,8 +47,6 @@ int main(int argc, char *argv[]) {
     if (engine.rootObjects().isEmpty()) {
         return -1;
     }
-
-    auto request = new ChainedJsonRequest();
 
     return app.exec();
 }
