@@ -5,6 +5,6 @@
 #ifndef MACROS_H
 #define MACROS_H
 
-#define token(x) u###x##_s
+#define token(x) u##x##_s
 
 #endif //MACROS_H

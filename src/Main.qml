@@ -40,17 +40,35 @@ Kirigami.ApplicationWindow {
 
     ChainedJsonRequest {
         id: request
+
+        onFinished: result => {
+                        // console.log(JSON.stringify(result[0], null, 4))
+                    }
+
+        Component.onCompleted: {
+            request.add(result => {
+                            let aaaa = result[0].assets.map(x => x.uploader.url)
+                            console.log("result:")
+                            console.log(JSON.stringify(aaaa, null, 4))
+                            return aaaa
+                        })
+        }
     }
 
     // Set the first page that will be loaded when the app opens
     // This can also be set to an id of a Kirigami.Page
     pageStack.initialPage: Kirigami.Page {
-        Controls.Button {
-            anchors.centerIn: parent
-            text: "Hello!"
-            onClicked: {
-                request.execute()
+        Row {
+            anchors.fill: parent
+            Controls.Button {
+                text: "Hello!"
+                onClicked: {
+                    let urls = [Qt.url(
+                                    "https://api.github.com/repos/godotengine/godot-builds/releases/tags/4.4-stable")]
+                    request.execute(urls)
+                }
             }
+            ListView {}
         }
     }
 }

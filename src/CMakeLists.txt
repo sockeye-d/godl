@@ -1,13 +1,13 @@
 add_executable(godl
     network/chained_json_request.cpp network/chained_json_request.h network/macros.h)
 
-if (IS_READABLE "local.properties")
+if (IS_READABLE "${CMAKE_SOURCE_DIR}/local.properties")
     # Read the token from local.properties
-    file(READ "local.properties" LOCAL_PROPS_CONTENT)
+    file(READ "${CMAKE_SOURCE_DIR}/local.properties" LOCAL_PROPS_CONTENT)
     string(REGEX MATCH "GITHUB_TOKEN=([^\n\r]*)" _match "${LOCAL_PROPS_CONTENT}")
     set(GITHUB_TOKEN "${CMAKE_MATCH_1}")
-    add_definitions(-DGITHUB_TOKEN="${GITHUB_TOKEN}")
-endif ()
+    add_definitions(-DGITHUB_TOKEN="${CMAKE_MATCH_1}")
+endif()
 
 # ecm_add_qml_module(godl
 #     URI
@@ -21,6 +21,8 @@ qt_add_qml_module(godl
         network/chained_json_request.cpp network/chained_json_request.h
     QML_FILES
         Main.qml
+        SOURCES util/util.h
+        SOURCES main.h
 )
 
 target_sources(godl

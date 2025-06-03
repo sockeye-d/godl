@@ -7,6 +7,7 @@
 #include <QQuickStyle>
 #include <QtQml>
 #include <chained_json_request.h>
+#include "main.h"
 
 using namespace Qt::Literals::StringLiterals;
 
@@ -40,13 +41,17 @@ int main(int argc, char *argv[]) {
                                         "ChainedJsonRequest");
 
     QQmlApplicationEngine engine;
+    Main::engine = &engine;
 
-    engine.rootContext()->setContextObject(new KLocalizedContext(&engine));
-    engine.loadFromModule(u"org.fishy.godl"_s, u"Main"_s);
+    Main::engine->rootContext()->setContextObject(new KLocalizedContext(&engine));
+    Main::engine->loadFromModule(u"org.fishy.godl"_s, u"Main"_s);
 
     if (engine.rootObjects().isEmpty()) {
+        Main::engine = nullptr;
         return -1;
     }
 
-    return app.exec();
+    auto return_code = app.exec();
+    Main::engine = nullptr;
+    return return_code;
 }

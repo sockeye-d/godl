@@ -34,3 +34,4 @@
 
 local.properties
 build/
+CMakeLists.txt.user*
