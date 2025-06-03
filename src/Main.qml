@@ -42,16 +42,11 @@ Kirigami.ApplicationWindow {
         id: request
 
         onFinished: result => {
-                        // console.log(JSON.stringify(result[0], null, 4))
+                        console.log(JSON.stringify(result, null, 4))
                     }
 
         Component.onCompleted: {
-            request.add(result => {
-                            let aaaa = result[0].assets.map(x => x.uploader.url)
-                            console.log("result:")
-                            console.log(JSON.stringify(aaaa, null, 4))
-                            return aaaa
-                        })
+            request.add(result => result.map(x => x.author.url))
         }
     }
 
@@ -64,7 +59,7 @@ Kirigami.ApplicationWindow {
                 text: "Hello!"
                 onClicked: {
                     let urls = [Qt.url(
-                                    "https://api.github.com/repos/godotengine/godot-builds/releases/tags/4.4-stable")]
+                                    "https://api.github.com/repos/godotengine/godot/releases?per_page=100")]
                     request.execute(urls)
                 }
             }

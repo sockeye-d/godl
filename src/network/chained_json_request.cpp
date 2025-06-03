@@ -32,7 +32,10 @@ void ChainedJsonRequest::execute(const QList<QUrl> &baseUrls) {
 ChainedJsonRequest *ChainedJsonRequest::add(const QJSValue &transformer) {
     // if (transformer.isCallable()) {
     transformers.push_back([transformer](const QVariant &result) -> QVariant {
-        return transformer.call({Main::engine->toScriptValue(result)}).toVariant();
+        auto args = QJSValueList();
+        args << Main::engine->toScriptValue(result);
+        auto ret = transformer.call(args);
+        return ret.toVariant();
     });
     // }
     return this;
@@ -62,16 +65,16 @@ void ChainedJsonRequest::executeInternal(const QList<QUrl> &baseUrls) {
     for (auto &url : baseUrls) {
         QNetworkRequest request(url);
 #ifdef GITHUB_TOKEN
-        qDebug() << GITHUB_TOKEN;
-        request.setRawHeader("Authorization"_ba,
-                             u"Bearer %1"_s.arg(GITHUB_TOKEN).toUtf8());
+        request.setRawHeader("Authorization"_ba, u"Bearer %1"_s.arg(GITHUB_TOKEN).toUtf8());
+        request.setRawHeader("X-GitHub-Api-Version"_ba, "2022-11-28"_ba);
 #endif
         replies.append(nam.get(request));
     }
 
     for (QNetworkReply *reply : std::as_const(replies)) {
-        connect(reply, &QNetworkReply::readyRead, this,
-                [this, reply]() { replyData[reply].append(reply->readAll()); });
+        connect(reply, &QNetworkReply::readyRead, this, [this, reply]() {
+            replyData[reply].append(reply->readAll());
+        });
 
         connect(reply, &QNetworkReply::finished, this, [this, reply]() {
             if (cancel) {
@@ -93,11 +96,12 @@ void ChainedJsonRequest::executeInternal(const QList<QUrl> &baseUrls) {
             }
         });
 
-        connect(reply, &QNetworkReply::errorOccurred, this,
+        connect(reply,
+                &QNetworkReply::errorOccurred,
+                this,
                 [this, reply](const QNetworkReply::NetworkError &networkError) {
-            cancel = true;
-            Q_EMIT error(currentTransformer, networkError,
-                         reply->errorString());
-        });
+                    cancel = true;
+                    Q_EMIT error(currentTransformer, networkError, reply->errorString());
+                });
     }
 }
