@@ -4,15 +4,15 @@ import QtQuick.Layouts
 import QtQuick.Controls as Controls
 import org.kde.kirigami as Kirigami
 
-import org.fishy.godl 0.1
+import org.fishy.godl
 
 // Provides basic features needed for all kirigami applications
 Kirigami.ApplicationWindow {
     // Unique identifier to reference this object
     id: root
 
-    width: 400
-    height: 300
+    width: 800
+    height: 600
 
     // Window title
     // i18nc() makes a string translatable
@@ -41,29 +41,79 @@ Kirigami.ApplicationWindow {
     ChainedJsonRequest {
         id: request
 
+        property var lastResult
+
+        // onLastResultChanged: resultList.update()
         onFinished: result => {
-                        console.log(JSON.stringify(result, null, 4))
+                        lastResult = result[0]
+                        console.debug("got result")
+                        console.debug(JSON.stringify(lastResult, null, 4))
+                        resultModel.clear()
+                        for (let r of lastResult) {
+                            resultModel.append({
+                                                   "url": r.assets[0].browser_download_url
+                                                   // "a": r.assets[0].browser_download_url
+                                               })
+                        }
                     }
 
         Component.onCompleted: {
-            request.add(result => result.map(x => x.author.url))
+
+            // request.add(result => result.map(x => x.author.url))
         }
     }
 
-    // Set the first page that will be loaded when the app opens
-    // This can also be set to an id of a Kirigami.Page
     pageStack.initialPage: Kirigami.Page {
-        Row {
+        ColumnLayout {
             anchors.fill: parent
             Controls.Button {
-                text: "Hello!"
+                Layout.fillWidth: true
+                text: "do fetch stuff"
                 onClicked: {
                     let urls = [Qt.url(
-                                    "https://api.github.com/repos/godotengine/godot/releases?per_page=100")]
+                                    "https://api.github.com/repos/godotengine/godot/releases?per_page=10")]
                     request.execute(urls)
                 }
             }
-            ListView {}
+            Controls.ScrollView {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
+                // contentWidth: availableWidth - 100
+                Controls.ScrollBar.horizontal.policy: Controls.ScrollBar.AlwaysOff
+                Kirigami.CardsListView {
+                    id: resultList
+                    clip: true
+                    model: ListModel {
+                        id: resultModel
+                    }
+
+                    delegate: Kirigami.Card {
+                        required property string url
+
+                        // width: resultList.width
+                        // headerOrientation: Qt.Horizontal
+                        actions: [
+                            Kirigami.Action {
+                                text: i18n("Download")
+                                icon.name: "download"
+                            },
+                            Kirigami.Action {
+                                text: i18n("Open")
+                                icon.name: "link"
+                            }
+                        ]
+
+                        banner {
+                            title: url
+                        }
+
+                        contentItem: Controls.Label {
+                            text: url
+                        }
+                    }
+                }
+            }
         }
     }
 }

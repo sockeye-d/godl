@@ -2,7 +2,7 @@
 // Created by fish on 5/31/25.
 //
 
-#include "chained_json_request.h"
+#include "chainedjsonrequest.h"
 #include "macros.h"
 #include "main.h"
 #include "util/util.h"
@@ -64,10 +64,8 @@ void ChainedJsonRequest::executeInternal(const QList<QUrl> &baseUrls) {
 
     for (auto &url : baseUrls) {
         QNetworkRequest request(url);
-#ifdef GITHUB_TOKEN
-        request.setRawHeader("Authorization"_ba, u"Bearer %1"_s.arg(GITHUB_TOKEN).toUtf8());
+        AUTH(request);
         request.setRawHeader("X-GitHub-Api-Version"_ba, "2022-11-28"_ba);
-#endif
         replies.append(nam.get(request));
     }
 

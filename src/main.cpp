@@ -6,7 +6,7 @@
 #include <QMainWindow>
 #include <QQuickStyle>
 #include <QtQml>
-#include <chained_json_request.h>
+#include <chainedjsonrequest.h>
 #include "main.h"
 
 using namespace Qt::Literals::StringLiterals;
@@ -14,9 +14,9 @@ using namespace Qt::Literals::StringLiterals;
 int main(int argc, char *argv[]) {
     KIconTheme::initTheme();
     QApplication app(argc, argv);
-    KLocalizedString::setApplicationDomain("tutorial");
-    QApplication::setOrganizationName(QStringLiteral("KDE"));
-    QApplication::setOrganizationDomain(QStringLiteral("kde.org"));
+    KLocalizedString::setApplicationDomain("godl");
+    QApplication::setOrganizationName(QStringLiteral("fishy"));
+    QApplication::setOrganizationDomain(QStringLiteral("fishy.org"));
     QApplication::setApplicationName(QStringLiteral("godl"));
     QApplication::setDesktopFileName(QStringLiteral("org.fishy.godl"));
 

@@ -2,8 +2,9 @@
 // Created by fish on 5/31/25.
 //
 
-#ifndef CHAINED_JSON_REQUEST_H
-#define CHAINED_JSON_REQUEST_H
+#ifndef CHAINEDJSONREQUEST_H
+#define CHAINEDJSONREQUEST_H
+
 #include <QJSValue>
 #include <QNetworkReply>
 #include <QtQml/qqmlregistration.h>
@@ -44,4 +45,4 @@ public:
     Q_INVOKABLE Q_SLOT void execute(const QList<QUrl> &baseUrls);
 };
 
-#endif // CHAINED_JSON_REQUEST_H
+#endif // CHAINEDJSONREQUEST_H

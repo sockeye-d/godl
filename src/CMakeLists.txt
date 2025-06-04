@@ -1,5 +1,5 @@
 add_executable(godl
-    network/chained_json_request.cpp network/chained_json_request.h network/macros.h)
+    network/chainedjsonrequest.cpp network/chainedjsonrequest.h network/macros.h)
 
 if (IS_READABLE "${CMAKE_SOURCE_DIR}/local.properties")
     # Read the token from local.properties
@@ -18,11 +18,12 @@ qt_add_qml_module(godl
     URI org.fishy.godl
     VERSION 0.1
     SOURCES
-        network/chained_json_request.cpp network/chained_json_request.h
+    network/chainedjsonrequest.h
     QML_FILES
         Main.qml
         SOURCES util/util.h
         SOURCES main.h
+        SOURCES network/godotdownloadmanager.h network/godotdownloadmanager.cpp
 )
 
 target_sources(godl
