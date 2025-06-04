@@ -5,6 +5,7 @@
 #include "chainedjsonrequest.h"
 #include "macros.h"
 #include "main.h"
+#include "network.h"
 #include "util/util.h"
 #include <QJsonDocument>
 #include <QtLogging>
@@ -66,7 +67,7 @@ void ChainedJsonRequest::executeInternal(const QList<QUrl> &baseUrls) {
         QNetworkRequest request(url);
         AUTH(request);
         request.setRawHeader("X-GitHub-Api-Version"_ba, "2022-11-28"_ba);
-        replies.append(nam.get(request));
+        replies.append(Network::manager().get(request));
     }
 
     for (QNetworkReply *reply : std::as_const(replies)) {

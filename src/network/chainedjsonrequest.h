@@ -25,7 +25,6 @@ class ChainedJsonRequest : public QObject {
     size_t currentTransformer = -1;
     QMap<QNetworkReply *, QByteArray> replyData;
     QList<QUrl> nextUrls;
-    QNetworkAccessManager nam;
     bool cancel = false;
 
     QVariant parse() const;

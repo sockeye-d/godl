@@ -63,6 +63,10 @@ Kirigami.ApplicationWindow {
         }
     }
 
+    DownloadManager {
+        id: dl
+    }
+
     pageStack.initialPage: Kirigami.Page {
         ColumnLayout {
             anchors.fill: parent
@@ -70,9 +74,10 @@ Kirigami.ApplicationWindow {
                 Layout.fillWidth: true
                 text: "do fetch stuff"
                 onClicked: {
-                    let urls = [Qt.url(
-                                    "https://api.github.com/repos/godotengine/godot/releases?per_page=10")]
-                    request.execute(urls)
+                    // let urls = [Qt.url(
+                    //                 "https://api.github.com/repos/godotengine/godot/releases?per_page=10")]
+                    // request.execute(urls)
+                    dl.download(Qt.url("https://api.github.com/"))
                 }
             }
             Controls.ScrollView {

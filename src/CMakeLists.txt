@@ -9,32 +9,24 @@ if (IS_READABLE "${CMAKE_SOURCE_DIR}/local.properties")
     add_definitions(-DGITHUB_TOKEN="${CMAKE_MATCH_1}")
 endif()
 
-# ecm_add_qml_module(godl
-#     URI
-#     org.fishy.godl
-# )
-
 qt_add_qml_module(godl
     URI org.fishy.godl
     VERSION 0.1
-    SOURCES
-    network/chainedjsonrequest.h
     QML_FILES
         Main.qml
         SOURCES util/util.h
         SOURCES main.h
-        SOURCES network/godotdownloadmanager.h network/godotdownloadmanager.cpp
+        SOURCES network/downloadmanager.h network/downloadmanager.cpp
+        SOURCES network/chainedjsonrequest.h
+        SOURCES network/network.h
+        RESOURCES config.kcfg
+        RESOURCES config.kcfgc
 )
 
 target_sources(godl
     PRIVATE
     main.cpp
 )
-
-# ecm_target_qml_sources(godl
-#     SOURCES
-#     Main.qml
-# )
 
 target_link_libraries(godl
     PRIVATE
@@ -46,10 +38,14 @@ target_link_libraries(godl
     KF6::I18n
     KF6::CoreAddons
     KF6::IconThemes
+    KF6::ConfigCore
+    KF6::ConfigGui
 )
 
 target_include_directories(godl
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/network
 )
+
+kconfig_add_kcfg_files(godl GENERATE_MOC config.kcfgc)
 
 install(TARGETS godl ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})

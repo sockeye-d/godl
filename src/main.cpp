@@ -6,7 +6,10 @@
 #include <QMainWindow>
 #include <QQuickStyle>
 #include <QtQml>
+#include <KSharedConfig>
+#include "config.h"
 #include <chainedjsonrequest.h>
+#include <downloadmanager.h>
 #include "main.h"
 
 using namespace Qt::Literals::StringLiterals;
@@ -25,6 +28,9 @@ int main(int argc, char *argv[]) {
         QQuickStyle::setStyle(QStringLiteral("org.kde.desktop"));
     }
 
+    // KSharedConfigPtr config = KSharedConfig::openConfig(u"godl"_s);
+    auto config = Config::self();
+
     KAboutData aboutData(QStringLiteral("godl"), i18nc("@title", "godl"),
                          QStringLiteral("0.1"),
                          i18n("Godot version manager and downloader"),
@@ -39,7 +45,7 @@ int main(int argc, char *argv[]) {
     });
     qmlRegisterType<ChainedJsonRequest>("org.fishy.godl", 0, 1,
                                         "ChainedJsonRequest");
-
+    qmlRegisterType<DownloadManager>("org.fishy.godl", 0, 1, "DownloadManager");
     QQmlApplicationEngine engine;
     Main::engine = &engine;
 

@@ -33,12 +33,14 @@ find_package(Qt6 REQUIRED COMPONENTS
     Widgets
 )
 
+
 find_package(KF6 REQUIRED COMPONENTS
     Kirigami
     I18n
     CoreAddons
     QQC2DesktopStyle
     IconThemes
+    Config
 )
 
 ecm_find_qmlmodule(org.kde.kirigami REQUIRED)

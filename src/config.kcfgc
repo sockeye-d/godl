@@ -1,0 +1,6 @@
+File=config.kcfg
+ClassName=Config
+Mutators=true
+DefaultValueGetters=true
+Singleton=true
+GeneratorProperties=true

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+                          http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+  <group name="General">
+    <entry name="SplitterSizes" type="IntList">
+      <label>How the main window is divided.</label>
+    </entry>
+    <entry name="Width" type="Int">
+      <label>Width of the main window.</label>
+      <default>600</default>
+    </entry>
+    <entry name="Platform" type="Enum">
+      <label>Last operating system used.</label>
+      <choices>
+        <choice name="Linux">
+          <label>Linux</label>
+        </choice>
+        <choice name="FreeBSD">
+          <label>FreeBSD</label>
+        </choice>
+        <choice name="Windows">
+          <label>Windows</label>
+        </choice>
+      </choices>
+      <default>0</default> <!-- Linux -->
+    </entry>
+  </group>
+</kcfg>
