@@ -1,5 +1,7 @@
-add_executable(godl
-    network/chainedjsonrequest.cpp network/chainedjsonrequest.h network/macros.h)
+qt_add_executable(godl
+    main.cpp network/chainedjsonrequest.cpp network/chainedjsonrequest.h network/macros.h)
+
+kconfig_add_kcfg_files(godl config.kcfgc)
 
 if (IS_READABLE "${CMAKE_SOURCE_DIR}/local.properties")
     # Read the token from local.properties
@@ -8,6 +10,7 @@ if (IS_READABLE "${CMAKE_SOURCE_DIR}/local.properties")
     set(GITHUB_TOKEN "${CMAKE_MATCH_1}")
     add_definitions(-DGITHUB_TOKEN="${CMAKE_MATCH_1}")
 endif()
+
 
 qt_add_qml_module(godl
     URI org.fishy.godl
@@ -19,14 +22,15 @@ qt_add_qml_module(godl
         SOURCES network/downloadmanager.h network/downloadmanager.cpp
         SOURCES network/chainedjsonrequest.h
         SOURCES network/network.h
-        RESOURCES config.kcfg
-        RESOURCES config.kcfgc
+        # RESOURCES config.kcfg
+        # RESOURCES Config.kcfgc
 )
 
-target_sources(godl
-    PRIVATE
-    main.cpp
-)
+
+# target_sources(godl
+#     PRIVATE
+#     main.cpp
+# )
 
 target_link_libraries(godl
     PRIVATE
@@ -45,7 +49,5 @@ target_link_libraries(godl
 target_include_directories(godl
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/network
 )
-
-kconfig_add_kcfg_files(godl GENERATE_MOC config.kcfgc)
 
 install(TARGETS godl ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
