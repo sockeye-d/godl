@@ -27,10 +27,10 @@ qt_add_qml_module(godl
 )
 
 
-# target_sources(godl
-#     PRIVATE
-#     main.cpp
-# )
+target_sources(godl
+    PRIVATE
+    main.cpp
+)
 
 target_link_libraries(godl
     PRIVATE

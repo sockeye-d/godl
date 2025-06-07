@@ -43,7 +43,7 @@ find_package(KF6 REQUIRED COMPONENTS
     Config
 )
 
-ecm_find_qmlmodule(org.kde.kirigami REQUIRED)
+ecm_find_qmlmodule(org.kde.kirigami)
 
 add_subdirectory(src)
 

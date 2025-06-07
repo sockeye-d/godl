@@ -16,7 +16,7 @@ void DownloadManager::download(QUrl asset)
         AUTH(request);
     }
     const auto reply = Network::manager().get(request);
-    const auto replyData = std::make_shared<QByteArray>();
+    // const auto replyData = std::make_shared<QByteArray>();
 
     connect(reply, &QNetworkReply::finished, []() {
 

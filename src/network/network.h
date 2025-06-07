@@ -3,7 +3,7 @@
 
 #include <QNetworkAccessManager>
 namespace Network {
-QNetworkAccessManager &manager() {
+inline QNetworkAccessManager &manager() {
     static QNetworkAccessManager m;
     return m;
 }

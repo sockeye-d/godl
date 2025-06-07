@@ -12,19 +12,19 @@ class DownloadInfo : public QObject {
     Q_OBJECT
 
 public:
-    QVariant toVariant() const
-    {
-        QVariantMap map;
-        map[u"url"_s] = QVariant(u"aaaa"_s);
-        return map;
-    }
+    // QVariant toVariant() const
+    // {
+    //     QVariantMap map;
+    //     map[u"url"_s] = QVariant(u"aaaa"_s);
+    //     return map;
+    // }
 };
 
 class DownloadManager : public QStandardItemModel {
     Q_OBJECT
     QML_ELEMENT
 
-    QList<DownloadInfo> m_items;
+    // QList<DownloadInfo> m_items;
 
 public:
     explicit DownloadManager(QObject *parent = nullptr);
