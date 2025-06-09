@@ -112,7 +112,7 @@ Kirigami.ApplicationWindow {
                     onClicked: {
                         request.execute(
                                     [Qt.url(
-                                         "https://api.github.com/repos/godotengine/godot/releases?per_page=3")])
+                                         "https://api.github.com/repos/godotengine/godot/releases?per_page=100")])
                         // dl.download(Qt.url("https://api.github.com/"))
                     }
                 }
@@ -164,6 +164,11 @@ Kirigami.ApplicationWindow {
                             text: description
                             wrapMode: Text.Wrap
                             textFormat: Text.MarkdownText
+
+                            onLinkActivated: link => {
+                                                 Qt.openUrlExternally(
+                                                     Qt.url(link))
+                                             }
                         }
                     }
                 }
