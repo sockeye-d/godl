@@ -7,7 +7,10 @@
 #include <QQuickStyle>
 #include <QtQml>
 #include <KSharedConfig>
+#if __has_include("config.h")
+#define CONFIG
 #include "config.h"
+#endif
 #include <chainedjsonrequest.h>
 #include <downloadmanager.h>
 #include "main.h"
@@ -47,7 +50,9 @@ int main(int argc, char *argv[]) {
     qmlRegisterType<ChainedJsonRequest>("org.fishy.godl", 0, 1,
                                         "ChainedJsonRequest");
     qmlRegisterType<DownloadManager>("org.fishy.godl", 0, 1, "DownloadManager");
+#ifdef CONFIG
     qmlRegisterSingletonInstance("org.fishy.godl", 0, 1, "Config", Config::self());
+#endif
     QQmlApplicationEngine engine;
     Main::engine = &engine;
 

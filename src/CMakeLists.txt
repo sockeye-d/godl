@@ -24,6 +24,7 @@ qt_add_qml_module(godl
         SOURCES network/network.h
         RESOURCES config.kcfg
         RESOURCES config.kcfgc
+        QML_FILES RemoteVersionsPage.qml
 )
 
 ecm_find_qmlmodule(org.kde.kirigami)
