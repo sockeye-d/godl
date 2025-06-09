@@ -22,10 +22,11 @@ qt_add_qml_module(godl
         SOURCES network/downloadmanager.h network/downloadmanager.cpp
         SOURCES network/chainedjsonrequest.h
         SOURCES network/network.h
-        # RESOURCES config.kcfg
-        # RESOURCES Config.kcfgc
+        RESOURCES config.kcfg
+        RESOURCES config.kcfgc
 )
 
+ecm_find_qmlmodule(org.kde.kirigami)
 
 target_sources(godl
     PRIVATE

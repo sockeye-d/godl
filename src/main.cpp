@@ -23,13 +23,15 @@ int main(int argc, char *argv[]) {
     QApplication::setApplicationName(QStringLiteral("godl"));
     QApplication::setDesktopFileName(QStringLiteral("org.fishy.godl"));
 
-    QApplication::setStyle(QStringLiteral("breeze"));
+    // QApplication::setStyle(QStringLiteral("breeze"));
     if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
         QQuickStyle::setStyle(QStringLiteral("org.kde.desktop"));
     }
 
     // KSharedConfigPtr config = KSharedConfig::openConfig(u"godl"_s);
     auto config = Config::self();
+    qDebug() << config->godotLocation();
+    auto a = std::filesystem::canonical("/proc/self/exe");
 
     KAboutData aboutData(QStringLiteral("godl"), i18nc("@title", "godl"),
                          QStringLiteral("0.1"),

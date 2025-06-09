@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 project(godl)
 
-find_package(ECM 6.0.0 REQUIRED NO_MODULE)
+find_package(ECM REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 
 # Directories where Qt Creator can find QML files.
@@ -42,8 +42,6 @@ find_package(KF6 REQUIRED COMPONENTS
     IconThemes
     Config
 )
-
-ecm_find_qmlmodule(org.kde.kirigami)
 
 add_subdirectory(src)
 

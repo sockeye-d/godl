@@ -4,9 +4,9 @@
       xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
                           http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
   <group name="General">
-    <entry name="IconSize" type="Int">
-      <label>Icon size</label>
-      <default code="true">KIconLoader::SizeSmall</default>
+    <entry name="GodotLocation" type="Path">
+      <label>Godot location</label>
+      <default>$HOME/.local/share/godl/versions</default>
     </entry>
   </group>
 </kcfg>
