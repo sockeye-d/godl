@@ -1,7 +1,7 @@
 qt_add_executable(godl
     main.cpp network/chainedjsonrequest.cpp network/chainedjsonrequest.h network/macros.h)
 
-kconfig_add_kcfg_files(godl config.kcfgc)
+kconfig_add_kcfg_files(godl config.kcfgc GENERATE_MOC)
 
 if (IS_READABLE "${CMAKE_SOURCE_DIR}/local.properties")
     # Read the token from local.properties

@@ -4,3 +4,4 @@ Mutators=true
 Singleton=true
 DefaultValueGetters=true
 GeneratorProperties=true
+GenerateProperties=true

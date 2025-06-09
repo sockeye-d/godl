@@ -32,6 +32,10 @@ Kirigami.ApplicationWindow {
         ]
     }
 
+    Component.onCompleted: {
+        console.log(Config.godotLocation)
+    }
+
     Component {
         id: aboutPage
 

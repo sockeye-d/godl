@@ -29,9 +29,8 @@ int main(int argc, char *argv[]) {
     }
 
     // KSharedConfigPtr config = KSharedConfig::openConfig(u"godl"_s);
-    auto config = Config::self();
-    qDebug() << config->godotLocation();
-    auto a = std::filesystem::canonical("/proc/self/exe");
+    // auto config = Config::self();
+    // qDebug() << config->godotLocation();
 
     KAboutData aboutData(QStringLiteral("godl"), i18nc("@title", "godl"),
                          QStringLiteral("0.1"),
@@ -48,6 +47,7 @@ int main(int argc, char *argv[]) {
     qmlRegisterType<ChainedJsonRequest>("org.fishy.godl", 0, 1,
                                         "ChainedJsonRequest");
     qmlRegisterType<DownloadManager>("org.fishy.godl", 0, 1, "DownloadManager");
+    qmlRegisterSingletonInstance("org.fishy.godl", 0, 1, "Config", Config::self());
     QQmlApplicationEngine engine;
     Main::engine = &engine;
 
