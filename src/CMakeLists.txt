@@ -15,16 +15,16 @@ endif()
 qt_add_qml_module(godl
     URI org.fishy.godl
     VERSION 0.1
-    QML_FILES
-        Main.qml
-        SOURCES util/util.h
-        SOURCES main.h
-        SOURCES network/downloadmanager.h network/downloadmanager.cpp
-        SOURCES network/chainedjsonrequest.h
-        SOURCES network/network.h
-        RESOURCES config.kcfg
-        RESOURCES config.kcfgc
-        QML_FILES RemoteVersionsPage.qml
+    QML_FILES Main.qml
+    QML_FILES RemoteVersionsPage.qml
+    SOURCES util/util.h
+    SOURCES main.h
+    SOURCES network/downloadmanager.h network/downloadmanager.cpp
+    SOURCES network/chainedjsonrequest.h
+    SOURCES network/network.h
+    SOURCES network/networkresponsecode.h network/networkresponsecode.cpp
+    RESOURCES config.kcfg
+    RESOURCES config.kcfgc
 )
 
 ecm_find_qmlmodule(org.kde.kirigami)

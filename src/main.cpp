@@ -1,12 +1,13 @@
-#include <KAboutData>
-#include <KIconTheme>
-#include <KLocalizedContext>
-#include <KLocalizedString>
 #include <QApplication>
 #include <QMainWindow>
 #include <QQuickStyle>
 #include <QtQml>
+#include <KAboutData>
+#include <KIconTheme>
+#include <KLocalizedContext>
+#include <KLocalizedString>
 #include <KSharedConfig>
+#include <networkresponsecode.h>
 #if __has_include("config.h")
 #define CONFIG
 #include "config.h"
@@ -53,6 +54,11 @@ int main(int argc, char *argv[]) {
 #ifdef CONFIG
     qmlRegisterSingletonInstance("org.fishy.godl", 0, 1, "Config", Config::self());
 #endif
+    qmlRegisterSingletonInstance("org.fishy.godl",
+                                 0,
+                                 1,
+                                 "NetworkResponseCode",
+                                 new NetworkResponseCode());
     QQmlApplicationEngine engine;
     Main::engine = &engine;
 

@@ -48,7 +48,6 @@ Kirigami.ApplicationWindow {
         id: dlPage
         Component.onCompleted: {
             dlPage.dl = dl
-            dlPage.pageStack = pageStack
         }
     }
 }

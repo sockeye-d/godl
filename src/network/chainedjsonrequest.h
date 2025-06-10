@@ -12,11 +12,11 @@
 using namespace Qt::Literals::StringLiterals;
 
 class ChainedJsonRequest : public QObject {
-    typedef QVariant JsonTransformer(const QVariant &result);
+    typedef QVariant JsonTransformer(const QVariant &result, const QVariant &headers);
 
     Q_OBJECT
     QML_ELEMENT
-    Q_PROPERTY(int running MEMBER m_running)
+    Q_PROPERTY(int running MEMBER m_running NOTIFY runningChanged)
 
     QList<QNetworkReply *> replies;
     std::vector<std::function<JsonTransformer>> transformers;
@@ -32,6 +32,7 @@ class ChainedJsonRequest : public QObject {
     QVariant parse(QNetworkReply *reply) const;
     void executeInternal(const QList<QUrl> &baseUrls);
     bool m_running = false;
+    void setRunning(bool running);
 
 public:
     explicit ChainedJsonRequest(QObject *parent = nullptr) : QObject(parent) {}
@@ -40,6 +41,7 @@ public:
     Q_SIGNAL void error(size_t step, const QNetworkReply::NetworkError &error,
                         const QString &errorString);
     Q_SIGNAL void finished(const QVariant &result);
+    Q_SIGNAL void runningChanged();
 
     Q_INVOKABLE Q_SLOT void execute(const QList<QUrl> &baseUrls);
 };

@@ -11,6 +11,8 @@
 #include <QtLogging>
 #include <qjsonobject.h>
 
+using namespace std::chrono_literals;
+
 QVariant ChainedJsonRequest::parse() const {
     QVariantList result;
     for (const auto &reply : replies) {
@@ -27,17 +29,20 @@ void ChainedJsonRequest::execute(const QList<QUrl> &baseUrls) {
     currentTransformer = -1;
     cancel = false;
     replies.clear();
+    setRunning(true);
     executeInternal(baseUrls);
 }
 
 ChainedJsonRequest *ChainedJsonRequest::add(const QJSValue &transformer) {
     // if (transformer.isCallable()) {
-    transformers.push_back([transformer](const QVariant &result) -> QVariant {
-        auto args = QJSValueList();
-        args << Main::engine->toScriptValue(result);
-        auto ret = transformer.call(args);
-        return ret.toVariant();
-    });
+    transformers.push_back(
+        [transformer](const QVariant &result, const QVariant &headers) -> QVariant {
+            auto args = QJSValueList();
+            args << Main::engine->toScriptValue(result);
+            args << Main::engine->toScriptValue(headers);
+            auto ret = transformer.call(args);
+            return ret.toVariant();
+        });
     // }
     return this;
 }
@@ -46,8 +51,8 @@ void ChainedJsonRequest::executeInternal(const QList<QUrl> &baseUrls) {
     currentTransformer++;
     if (baseUrls.empty()) {
         const auto result = parse();
+        setRunning(false);
         Q_EMIT finished(result);
-        // Q_EMIT finished(u"result"_s);
         return;
     }
 
@@ -67,6 +72,7 @@ void ChainedJsonRequest::executeInternal(const QList<QUrl> &baseUrls) {
         QNetworkRequest request(url);
         AUTH(request);
         request.setRawHeader("X-GitHub-Api-Version"_ba, "2022-11-28"_ba);
+        request.setTransferTimeout(5s);
         replies.append(Network::manager().get(request));
     }
 
@@ -81,7 +87,12 @@ void ChainedJsonRequest::executeInternal(const QList<QUrl> &baseUrls) {
             }
 
             if (currentTransformer < transformers.size()) {
-                auto result = transformers[currentTransformer](parse(reply));
+                auto headers = QVariantMap();
+                for (auto &h : reply->headers().toListOfPairs()) {
+                    headers[QString(h.first)] = QString(h.second);
+                }
+
+                auto result = transformers[currentTransformer](parse(reply), headers);
                 nextUrls.append(convertList<QUrl>(result.toList()));
             }
             completedRequests++;
@@ -100,7 +111,14 @@ void ChainedJsonRequest::executeInternal(const QList<QUrl> &baseUrls) {
                 this,
                 [this, reply](const QNetworkReply::NetworkError &networkError) {
                     cancel = true;
+                    setRunning(false);
                     Q_EMIT error(currentTransformer, networkError, reply->errorString());
                 });
     }
+}
+
+void ChainedJsonRequest::setRunning(bool running)
+{
+    m_running = running;
+    Q_EMIT runningChanged();
 }
