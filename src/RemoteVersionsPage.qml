@@ -107,18 +107,9 @@ Kirigami.Page {
                 onClicked: root.refresh()
             }
 
-            Controls.TextField {
+            Kirigami.SearchField {
                 id: filter
-                property string debouncedText: text
                 Layout.fillWidth: true
-                placeholderText: i18n("Filter")
-                onTextChanged: textFieldDebouncer.restart()
-
-                Timer {
-                    id: textFieldDebouncer
-                    interval: 100 /* ms */
-                    onTriggered: parent.debouncedText = parent.text
-                }
             }
         }
 
@@ -131,7 +122,7 @@ Kirigami.Page {
                 id: resultList
                 property list<var> fullReleases
                 clip: true
-                model: fullReleases.filter(el => filter.debouncedText === ""
+                model: fullReleases.filter(el => filter.text === ""
                                            || el.tag_name.indexOf(
                                                filter.text) !== -1)
                 delegate: Kirigami.Card {
