@@ -22,20 +22,22 @@ Kirigami.ApplicationWindow {
     title: i18nc("@title:window", "Hello World")
 
     globalDrawer: Kirigami.GlobalDrawer {
-        isMenu: false
+        isMenu: true
         actions: [
             Kirigami.Action {
                 text: i18n("About")
                 icon.name: "help-about"
-                onTriggered: pageStack.layers.push(aboutPage)
+                onTriggered: aboutPage.show()
             }
         ]
     }
 
-    Component {
+    Window {
         id: aboutPage
-
+        transientParent: parent
+        modality: Qt.ApplicationModal
         Kirigami.AboutPage {
+            anchors.fill: parent
             aboutData: About
         }
     }

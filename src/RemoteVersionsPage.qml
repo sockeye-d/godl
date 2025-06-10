@@ -23,7 +23,7 @@ Kirigami.Page {
                         lastResult = result[0]
                         console.log("got result")
                         currentPage = 0
-                        resultModel.recompute()
+                        resultList.fullReleases = releases
                     }
         onError: (_, error, _errorString) => {
                      errorString = `${NetworkResponseCode.error(
@@ -45,10 +45,8 @@ Kirigami.Page {
                             }
                         }
 
-                        for (let item of r) {
-                            releases.push(item)
-                        }
-                        resultModel.recompute()
+                        releases.push(...r)
+
                         if (r.length === requestCount) {
                             currentPage++
                             console.log("requesting page", currentPage + 1)
@@ -65,10 +63,10 @@ Kirigami.Page {
     Component.onCompleted: refresh()
 
     function refresh() {
-        resultModel.clear()
         request.releases.length = 0
         request.errorString = ""
         currentPage = 0
+        resultList.fullReleases = []
         request.execute(
                     [Qt.url(
                          `https://api.github.com/repos/godotengine/godot-builds/releases?per_page=${requestCount}`)])
@@ -111,6 +109,7 @@ Kirigami.Page {
 
             Controls.TextField {
                 id: filter
+                property string debouncedText: text
                 Layout.fillWidth: true
                 placeholderText: i18n("Filter")
                 onTextChanged: textFieldDebouncer.restart()
@@ -118,7 +117,7 @@ Kirigami.Page {
                 Timer {
                     id: textFieldDebouncer
                     interval: 100 /* ms */
-                    onTriggered: resultModel.recompute()
+                    onTriggered: parent.debouncedText = parent.text
                 }
             }
         }
@@ -127,49 +126,20 @@ Kirigami.Page {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            // contentWidth: availableWidth - 100
             Controls.ScrollBar.horizontal.policy: Controls.ScrollBar.AlwaysOff
             Kirigami.CardsListView {
                 id: resultList
+                property list<var> fullReleases
                 clip: true
-                model: ListModel {
-                    id: resultModel
-
-                    function recompute() {
-                        clear()
-                        for (let r of request.releases) {
-                            let obj = {
-                                "url": r.html_url,
-                                "description": r.body,
-                                "tagName": r.tag_name,
-                                "authorProfilePicture": r.author.avatar_url,
-                                "assets": r.assets.map(asset => ({
-                                                                     "name": asset.name,
-                                                                     "url": asset.browser_download_url,
-                                                                     "size": asset.size
-                                                                 })),
-                                "date": new Date(r.created_at)
-                            }
-                            if (filter.text !== ""
-                                    && (obj.description.indexOf(
-                                            filter.text) === -1
-                                        || obj.tagName.indexOf(
-                                            filter.text) === -1)) {
-                                continue
-                            }
-
-                            append(obj)
-                        }
-                    }
-                }
-
+                model: fullReleases.filter(el => filter.debouncedText === ""
+                                           || el.tag_name.indexOf(
+                                               filter.text) !== -1)
                 delegate: Kirigami.Card {
-                    required property string url
-                    required property string description
-                    required property string tagName
-                    required property string authorProfilePicture
+                    required property string body
+                    required property string tag_name
                     required property var assets
-                    required property date date
+                    required property string created_at
+                    required property string html_url
 
                     actions: [
                         Kirigami.Action {
@@ -183,14 +153,15 @@ Kirigami.Page {
                         Kirigami.Action {
                             text: i18n("Open")
                             icon.name: "link"
-                            onTriggered: Qt.openUrlExternally(Qt.url(url))
+                            onTriggered: Qt.openUrlExternally(Qt.url(html_url))
                         }
                     ]
 
-                    banner.title: tagName
+                    banner.title: tag_name
 
                     contentItem: Controls.Label {
-                        text: date.toLocaleString() + "\n\n" + description
+                        text: new Date(created_at).toLocaleString(
+                                  ) + "\n\n" + body
                         wrapMode: Text.Wrap
                         textFormat: Text.MarkdownText
 
@@ -204,12 +175,20 @@ Kirigami.Page {
 
         Controls.ProgressBar {
             id: progress
+            // property real currentValue: currentPage
             to: request.totalPages
             value: currentPage
             Layout.fillWidth: true
             Layout.fillHeight: true
             indeterminate: request.totalPages === -1
             visible: request.running
+
+            Behavior on value {
+                NumberAnimation {
+                    duration: 500
+                    easing.type: Easing.OutExpo
+                }
+            }
         }
 
         Kirigami.Heading {
@@ -222,5 +201,17 @@ Kirigami.Page {
             verticalAlignment: Text.AlignVCenter
             wrapMode: Text.Wrap
         }
+
+        Kirigami.Heading {
+            level: 1
+            text: i18n("No results found 😢")
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            visible: resultList.model.length === 0 && !request.running
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            wrapMode: Text.Wrap
+        }
     }
+    // onCurrentPageChanged: progress.value = currentPage
 }
