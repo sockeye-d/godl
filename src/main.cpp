@@ -12,14 +12,14 @@
 #define CONFIG
 #include "config.h"
 #endif
+#include "main.h"
 #include <chainedjsonrequest.h>
 #include <downloadmanager.h>
-#include "main.h"
 
 using namespace Qt::Literals::StringLiterals;
 
-int main(int argc, char *argv[]) {
-    QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar, false);
+int main(int argc, char *argv[])
+{
     KIconTheme::initTheme();
     QApplication app(argc, argv);
     KLocalizedString::setApplicationDomain("godl");
@@ -37,20 +37,26 @@ int main(int argc, char *argv[]) {
     // auto config = Config::self();
     // qDebug() << config->godotLocation();
 
-    KAboutData aboutData(QStringLiteral("godl"), i18nc("@title", "godl"),
+    KAboutData aboutData(QStringLiteral("godl"),
+                         i18nc("@title", "godl"),
                          QStringLiteral("0.1"),
                          i18n("Godot version manager and downloader"),
-                         KAboutLicense::MIT, i18n("(c) 2025"));
+                         KAboutLicense::MIT,
+                         i18n("(c) 2025"));
+
+    aboutData.setHomepage(QStringLiteral("https://github.com/sockeye-d/godl"));
+    aboutData.setBugAddress("https://github.com/sockeye-d/godl/issues/new"_ba);
 
     KAboutData::setApplicationData(aboutData);
 
-    qmlRegisterSingletonType("org.fishy.godl", 0, 1, "About",
+    qmlRegisterSingletonType("org.fishy.godl",
+                             0,
+                             1,
+                             "About",
                              [](QQmlEngine *engine, QJSEngine *) -> QJSValue {
-        return engine->toScriptValue(
-            KAboutData::applicationData());
-    });
-    qmlRegisterType<ChainedJsonRequest>("org.fishy.godl", 0, 1,
-                                        "ChainedJsonRequest");
+                                 return engine->toScriptValue(KAboutData::applicationData());
+                             });
+    qmlRegisterType<ChainedJsonRequest>("org.fishy.godl", 0, 1, "ChainedJsonRequest");
     qmlRegisterType<DownloadManager>("org.fishy.godl", 0, 1, "DownloadManager");
 #ifdef CONFIG
     qmlRegisterSingletonInstance("org.fishy.godl", 0, 1, "Config", Config::self());

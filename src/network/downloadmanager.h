@@ -29,7 +29,7 @@ class DownloadManager : public QStandardItemModel {
 public:
     explicit DownloadManager(QObject *parent = nullptr);
 
-    Q_INVOKABLE void download(QUrl asset);
+    Q_INVOKABLE void download(QUrl asset, QString tagName);
 };
 
 #endif // DOWNLOADMANAGER_H

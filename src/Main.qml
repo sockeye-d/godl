@@ -16,6 +16,9 @@ Kirigami.ApplicationWindow {
     width: Kirigami.Units.gridUnit * 45
     height: Kirigami.Units.gridUnit * 30
 
+    minimumWidth: Kirigami.Units.gridUnit * 10
+    minimumHeight: Kirigami.Units.gridUnit * 10
+
     // Window title
     // i18nc() makes a string translatable
     // and provides additional context for the translators
@@ -27,22 +30,15 @@ Kirigami.ApplicationWindow {
             Kirigami.Action {
                 text: i18n("About")
                 icon.name: "help-about"
-                onTriggered: aboutPage.show()
+                enabled: pageStack.layers.currentItem !== aboutPage
+                onTriggered: pageStack.layers.push(aboutPage)
             }
         ]
     }
 
-    Kirigami.AbstractApplicationWindow {
+    Kirigami.AboutPage {
         id: aboutPage
-        transientParent: parent
-        modality: Qt.ApplicationModal
-        visible: false
-        width: Kirigami.Units.gridUnit * 25
-        height: Kirigami.Units.gridUnit * 20
-        Kirigami.AboutPage {
-            anchors.fill: parent
-            aboutData: About
-        }
+        aboutData: About
     }
 
     DownloadManager {
