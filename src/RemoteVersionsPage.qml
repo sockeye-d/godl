@@ -9,7 +9,6 @@ Kirigami.Page {
     id: root
     property DownloadManager dl
     property int requestCount: 100
-    property int currentPage: 0
 
     ChainedJsonRequest {
         id: request
@@ -17,6 +16,7 @@ Kirigami.Page {
         property var lastResult
         property list<var> releases
         property string errorString: ""
+        property int currentPage: 0
         property int totalPages: -1
 
         onFinished: result => {
@@ -65,7 +65,8 @@ Kirigami.Page {
     function refresh() {
         request.releases.length = 0
         request.errorString = ""
-        currentPage = 0
+        request.currentPage = 0
+        request.totalPages = -1
         resultList.fullReleases = []
         request.execute(
                     [Qt.url(
@@ -164,22 +165,22 @@ Kirigami.Page {
             }
         }
 
-        Controls.ProgressBar {
-            id: progress
-            // property real currentValue: currentPage
-            to: request.totalPages
-            value: currentPage
+        Kirigami.LoadingPlaceholder {
+            determinate: request.totalPages !== -1
+            progressBar.value: request.currentPage
+            progressBar.to: request.totalPages
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            indeterminate: request.totalPages === -1
-            visible: request.running
-
-            Behavior on value {
+            Layout.fillHeight: false
+            Behavior on progressBar.value {
                 NumberAnimation {
                     duration: 500
-                    easing.type: Easing.OutExpo
+
+                    easing.type: Easing.BezierSpline
+                    easing.bezierCurve: [0.25, 0.0, 0.25, 1.0, 1.0, 1.0]
                 }
             }
+            text: i18n("Fetching releases...")
+            visible: request.running
         }
 
         Kirigami.Heading {

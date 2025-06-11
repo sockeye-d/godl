@@ -13,13 +13,13 @@ Kirigami.ApplicationWindow {
 
     property string text
 
-    width: 800
-    height: 600
+    width: Kirigami.Units.gridUnit * 45
+    height: Kirigami.Units.gridUnit * 30
 
     // Window title
     // i18nc() makes a string translatable
     // and provides additional context for the translators
-    title: i18nc("@title:window", "Hello World")
+    title: i18nc("@title:window", "godl")
 
     globalDrawer: Kirigami.GlobalDrawer {
         isMenu: true
@@ -32,10 +32,13 @@ Kirigami.ApplicationWindow {
         ]
     }
 
-    Window {
+    Kirigami.AbstractApplicationWindow {
         id: aboutPage
         transientParent: parent
         modality: Qt.ApplicationModal
+        visible: false
+        width: Kirigami.Units.gridUnit * 25
+        height: Kirigami.Units.gridUnit * 20
         Kirigami.AboutPage {
             anchors.fill: parent
             aboutData: About
@@ -46,10 +49,70 @@ Kirigami.ApplicationWindow {
         id: dl
     }
 
-    pageStack.initialPage: RemoteVersionsPage {
-        id: dlPage
-        Component.onCompleted: {
-            dlPage.dl = dl
+    pageStack.initialPage: Kirigami.Page {
+        id: mainPage
+        property int activePageIndex: 0
+        // anchors.fill: parent
+        Controls.ActionGroup {
+            id: actionGroup
+        }
+
+        actions: [
+            Kirigami.Action {
+                checkable: true
+                icon.name: "edit"
+                text: "Projects"
+                checked: mainPage.activePageIndex === 0
+                onTriggered: mainPage.activePageIndex = 0
+                Controls.ActionGroup.group: actionGroup
+            },
+            Kirigami.Action {
+                checkable: true
+                icon.name: "drive"
+                text: "Local versions"
+                checked: mainPage.activePageIndex === 1
+                onTriggered: mainPage.activePageIndex = 1
+                Controls.ActionGroup.group: actionGroup
+            },
+            Kirigami.Action {
+                checkable: true
+                icon.name: "server-symbolic"
+                text: "Remote versions"
+                checked: mainPage.activePageIndex === 2
+                onTriggered: mainPage.activePageIndex = 2
+                Controls.ActionGroup.group: actionGroup
+            }
+        ]
+
+        ColumnLayout {
+            anchors.fill: parent
+
+            Controls.SwipeView {
+                id: swipeView
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
+                currentIndex: mainPage.activePageIndex
+                onCurrentIndexChanged: {
+                    mainPage.activePageIndex = currentIndex
+                }
+
+                ProjectsPage {
+                    title: "Projects"
+                }
+
+                LocalVersionsPage {
+                    title: "Local versions"
+                }
+
+                RemoteVersionsPage {
+                    id: dlPage
+                    title: "Remote versions"
+                    Component.onCompleted: {
+                        dlPage.dl = dl
+                    }
+                }
+            }
         }
     }
 }

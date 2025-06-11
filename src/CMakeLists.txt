@@ -17,6 +17,8 @@ qt_add_qml_module(godl
     VERSION 0.1
     QML_FILES Main.qml
     QML_FILES RemoteVersionsPage.qml
+    QML_FILES LocalVersionsPage.qml
+    QML_FILES ProjectsPage.qml
     SOURCES util/util.h
     SOURCES main.h
     SOURCES network/downloadmanager.h network/downloadmanager.cpp

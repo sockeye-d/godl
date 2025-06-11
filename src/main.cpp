@@ -19,6 +19,7 @@
 using namespace Qt::Literals::StringLiterals;
 
 int main(int argc, char *argv[]) {
+    QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar, false);
     KIconTheme::initTheme();
     QApplication app(argc, argv);
     KLocalizedString::setApplicationDomain("godl");
