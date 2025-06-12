@@ -15,7 +15,13 @@ class DownloadManagerModel : public QAbstractListModel
     QList<const DownloadInfo *> m_dlInfos;
 
 public:
-    enum DownloadInfoRoles { ProgressRole = Qt::UserRole + 1, AssetNameRole, SourceUrlRole };
+    enum DownloadInfoRoles {
+        ProgressRole = Qt::UserRole + 1,
+        AssetNameRole,
+        SourceUrlRole,
+        IdRole,
+        DownloadSpeedRole,
+    };
 
     void append(const DownloadInfo *info);
     void remove(const DownloadInfo *info);

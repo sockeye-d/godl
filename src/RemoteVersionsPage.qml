@@ -9,6 +9,8 @@ Kirigami.Page {
     id: root
     property DownloadManager dl
     property int requestCount: 100
+    property bool hasContent: false
+    padding: 0
 
     ChainedJsonRequest {
         id: request
@@ -24,6 +26,7 @@ Kirigami.Page {
                         console.log("got result")
                         currentPage = 0
                         resultList.fullReleases = releases
+                        hasContent = true
                     }
         onError: (_, error, _errorString) => {
                      errorString = `${NetworkResponseCode.error(
@@ -60,9 +63,11 @@ Kirigami.Page {
         }
     }
 
-    Component.onCompleted: refresh()
-
     function refresh() {
+        if (request.running) {
+            return
+        }
+
         request.releases.length = 0
         request.errorString = ""
         request.currentPage = 0
@@ -95,7 +100,7 @@ Kirigami.Page {
                         text: i18n("Download")
                         icon.name: "download"
                         onTriggered: {
-                            dlDialog.close()
+                            // dlDialog.close()
                             dl.download(Qt.url(browser_download_url), name)
                         }
                     }
@@ -108,9 +113,17 @@ Kirigami.Page {
         anchors.fill: parent
         RowLayout {
             Controls.Button {
+                id: refreshButton
                 icon.name: "view-refresh"
                 text: i18n("Refresh")
                 onClicked: root.refresh()
+                enabled: !request.running
+                // Connections {
+                //     target: request
+                //     function onRunningChanged() {
+                //         enabled = request.running
+                //     }
+                // }
             }
 
             Kirigami.SearchField {
@@ -131,6 +144,7 @@ Kirigami.Page {
                 model: fullReleases.filter(el => filter.text === ""
                                            || el.tag_name.indexOf(
                                                filter.text) !== -1)
+
                 delegate: Kirigami.Card {
                     required property string body
                     required property string tag_name

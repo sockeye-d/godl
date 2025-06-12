@@ -36,25 +36,43 @@ void DownloadManager::download(const QUrl &asset, const QString &assetName)
     }
 
     QNetworkReply *const reply = Network::manager().get(request);
-    auto info = new DownloadInfo(&assetName, &asset);
+    auto info = new DownloadInfo(assetName, asset);
+    qDebug() << u"Appending info for asset %1"_s.arg(assetName);
     m_model->append(info);
 
+    file->setParent(reply);
+    info->setParent(reply);
+
+    auto time = new QElapsedTimer();
+    time->start();
+
     Q_EMIT downloadStarted();
+
+    connect(this, &DownloadManager::cancellationRequested, this, [info, reply](QUuid id) {
+        if (info->id() == id) {
+            qInfo() << u"Aborting download from %1"_s.arg(reply->url().toString(QUrl::RemoveQuery));
+            reply->abort();
+        }
+    });
 
     connect(reply, &QNetworkReply::readyRead, this, [reply, file]() {
         file->write(reply->readAll());
     });
+
     connect(reply,
             &QNetworkReply::downloadProgress,
             this,
-            [info](auto bytesReceived, auto bytesTotal) {
+            [info, time](auto bytesReceived, auto bytesTotal) {
+                info->setDownloadSpeed(bytesReceived / (time->nsecsElapsed() * 1e-9) / 1048576.0);
+                time->restart();
                 info->setProgress((qreal) bytesReceived / (qreal) bytesTotal);
             });
 
-    connect(reply, &QNetworkReply::finished, this, [reply, file, info, this]() {
+    connect(reply, &QNetworkReply::finished, this, [reply, info, time, this]() {
+        qInfo() << u"Finished request";
+        qDebug() << u"Removing info for asset %1"_s.arg(info->assetName());
         m_model->remove(info);
         reply->deleteLater();
-        file->deleteLater();
-        info->deleteLater();
+        delete time;
     });
 }

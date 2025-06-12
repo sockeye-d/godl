@@ -2,18 +2,25 @@
 
 void DownloadManagerModel::append(const DownloadInfo *info)
 {
-    beginInsertRows(QModelIndex(), 0, 0);
-    m_dlInfos.insert(0, info);
-    Q_EMIT dataChanged(createIndex(0, 0),
-                       createIndex(0, 0),
+    const auto index = m_dlInfos.size();
+    beginInsertRows(QModelIndex(), index, index);
+    m_dlInfos.append(info);
+    Q_EMIT dataChanged(createIndex(index, 0),
+                       createIndex(index, 0),
                        {
                            ProgressRole,
                            AssetNameRole,
                            SourceUrlRole,
+                           IdRole,
+                           DownloadSpeedRole,
                        });
     connect(info, &DownloadInfo::progressChanged, this, [this, info]() {
         QModelIndex index = createIndex(m_dlInfos.indexOf(info), 0);
         Q_EMIT dataChanged(index, index, {ProgressRole});
+    });
+    connect(info, &DownloadInfo::downloadSpeedChanged, this, [this, info]() {
+        QModelIndex index = createIndex(m_dlInfos.indexOf(info), 0);
+        Q_EMIT dataChanged(index, index, {DownloadSpeedRole});
     });
     endInsertRows();
 }
@@ -22,7 +29,7 @@ void DownloadManagerModel::remove(const DownloadInfo *info)
 {
     const auto index = m_dlInfos.indexOf(info);
     beginRemoveRows(QModelIndex(), index, index);
-    m_dlInfos.removeOne(info);
+    m_dlInfos.remove(index);
     endRemoveRows();
 }
 
@@ -33,6 +40,8 @@ QHash<int, QByteArray> DownloadManagerModel::roleNames() const
     roles[ProgressRole] = "progress";
     roles[AssetNameRole] = "assetName";
     roles[SourceUrlRole] = "sourceUrl";
+    roles[IdRole] = "id";
+    roles[DownloadSpeedRole] = "downloadSpeed";
     qDebug() << roles;
     return roles;
 }
@@ -45,9 +54,13 @@ QVariant DownloadManagerModel::data(const QModelIndex &index, int role) const
         return info->progress();
     case AssetNameRole:
         qDebug() << info->assetName();
-        return *info->assetName();
+        return info->assetName();
     case SourceUrlRole:
-        return *info->sourceUrl();
+        return info->sourceUrl();
+    case IdRole:
+        return info->id();
+    case DownloadSpeedRole:
+        return info->downloadSpeed();
     }
     return {};
 }

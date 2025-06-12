@@ -69,35 +69,72 @@ Kirigami.ApplicationWindow {
                 id: notificationPopup
                 x: parent.width - width
                 y: -height
-                width: Kirigami.Units.gridUnit * 10.0
-                height: parent.checked
-                        && visible ? Kirigami.Units.gridUnit * 20.0 : 0.0
+                width: Kirigami.Units.gridUnit * 20.0
+                height: notificationCardsScroll.height
+                z: 10000
 
                 Behavior on height {
                     NumberAnimation {
                         duration: Kirigami.Units.longDuration
-                        easing.type: Easing.BezierSpline
-                        easing.bezierCurve: [0.25, 0.0, 0.25, 1.0, 1.0, 1.0]
+                        easing.type: Easing.OutExpo
                     }
                 }
 
-                ListView {
-                    anchors.fill: parent
+                Controls.ScrollView {
+                    id: notificationCardsScroll
+                    width: parent.width
+                    height: Math.min(notificationCards.height,
+                                     Kirigami.Units.gridUnit * 15.0)
+                    Controls.ScrollBar.horizontal.policy: Controls.ScrollBar.AlwaysOff
+                    ColumnLayout {
+                        id: notificationCards
+                        width: parent.width
+                        spacing: Kirigami.Units.largeSpacing * 2
 
-                    model: dl.model
+                        Repeater {
+                            width: notificationCards.width
+                            model: dl.model
 
-                    delegate: RowLayout {
-                        required property var assetName
-                        required property var progress
-                        Layout.fillWidth: true
-                        Controls.Label {
-                            text: assetName === null ? "null name??" : assetName
-                        }
+                            delegate: Kirigami.AbstractCard {
+                                required property var assetName
+                                required property var progress
+                                required property var id
+                                required property var downloadSpeed
 
-                        Controls.ProgressBar {
-                            width: Kirigami.Units.gridUnit * 2.0
-                            value: progress
-                            indeterminate: progress < 0.0
+                                width: notificationCards.width
+
+                                headerOrientation: Qt.Horizontal
+
+                                header: Kirigami.Heading {
+                                    level: 2
+                                    text: assetName
+                                }
+
+                                contentItem: RowLayout {
+                                    width: notificationCards.width
+                                    Controls.Label {
+                                        text: `${downloadSpeed.toFixed(
+                                                  2)} MiB/s`
+                                    }
+
+                                    Kirigami.Separator {
+                                        Layout.fillHeight: true
+                                    }
+
+                                    Controls.ProgressBar {
+                                        Layout.fillWidth: true
+                                        width: Kirigami.Units.gridUnit * 2.0
+                                        value: progress
+                                        indeterminate: progress < 0.0
+                                    }
+
+                                    Controls.Button {
+                                        text: i18n("Cancel")
+                                        icon.name: "stop"
+                                        onClicked: dl.cancel(id)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -140,34 +177,32 @@ Kirigami.ApplicationWindow {
             }
         ]
 
-        ColumnLayout {
+        StackLayout {
+            id: swipeView
             anchors.fill: parent
 
-            Controls.SwipeView {
-                id: swipeView
-                Layout.fillWidth: true
-                Layout.fillHeight: true
+            currentIndex: mainPage.activePageIndex
+            onCurrentIndexChanged: mainPage.activePageIndex = currentIndex
 
-                currentIndex: mainPage.activePageIndex
-                onCurrentIndexChanged: {
-                    mainPage.activePageIndex = currentIndex
+            ProjectsPage {
+                title: "Projects"
+            }
+
+            LocalVersionsPage {
+                title: "Local versions"
+            }
+
+            RemoteVersionsPage {
+                id: dlPage
+                title: "Remote versions"
+                Component.onCompleted: {
+                    dlPage.dl = dl
                 }
 
-                ProjectsPage {
-                    title: "Projects"
-                }
-
-                LocalVersionsPage {
-                    title: "Local versions"
-                }
-
-                RemoteVersionsPage {
-                    id: dlPage
-                    title: "Remote versions"
-                    Component.onCompleted: {
-                        dlPage.dl = dl
-                    }
-                }
+                StackLayout.onIsCurrentItemChanged: if (!hasContent
+                                                            && StackLayout.isCurrentItem) {
+                                                        refresh()
+                                                    }
             }
         }
     }

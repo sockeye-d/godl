@@ -16,6 +16,8 @@ class DownloadManager : public QObject
 
     DownloadManagerModel *m_model = new DownloadManagerModel();
 
+    Q_SIGNAL void cancellationRequested(QUuid id);
+
 public:
     explicit DownloadManager(QObject *parent = nullptr)
         : QObject(parent)
@@ -28,6 +30,7 @@ public:
 
     DownloadManagerModel *model() { return m_model; }
     Q_INVOKABLE void download(const QUrl &asset, const QString &assetName);
+    Q_INVOKABLE void cancel(const QUuid &id) { Q_EMIT cancellationRequested(id); }
 };
 
 #endif // DOWNLOADMANAGER_H
