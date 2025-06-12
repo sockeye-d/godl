@@ -2,34 +2,32 @@
 #define DOWNLOADMANAGER_H
 
 #include <QStandardItemModel>
+#include <QUrl>
 #include <QtQml/qqmlregistration.h>
-#include <QJSValue>
-#include <QObject>
+#include "downloadmanagermodel.h"
 
 using namespace Qt::Literals::StringLiterals;
 
-class DownloadInfo : public QObject {
-    Q_OBJECT
-
-public:
-    // QVariant toVariant() const
-    // {
-    //     QVariantMap map;
-    //     map[u"url"_s] = QVariant(u"aaaa"_s);
-    //     return map;
-    // }
-};
-
-class DownloadManager : public QStandardItemModel {
+class DownloadManager : public QObject
+{
     Q_OBJECT
     QML_ELEMENT
+    Q_PROPERTY(DownloadManagerModel *model READ model NOTIFY modelChanged FINAL)
 
-    // QList<DownloadInfo> m_items;
+    DownloadManagerModel *m_model = new DownloadManagerModel();
 
 public:
-    explicit DownloadManager(QObject *parent = nullptr);
+    explicit DownloadManager(QObject *parent = nullptr)
+        : QObject(parent)
+    {
+        Q_EMIT modelChanged();
+    }
 
-    Q_INVOKABLE void download(QUrl asset, QString tagName);
+    Q_SIGNAL void modelChanged();
+    Q_SIGNAL void downloadStarted();
+
+    DownloadManagerModel *model() { return m_model; }
+    Q_INVOKABLE void download(const QUrl &asset, const QString &assetName);
 };
 
 #endif // DOWNLOADMANAGER_H

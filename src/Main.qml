@@ -43,6 +43,66 @@ Kirigami.ApplicationWindow {
 
     DownloadManager {
         id: dl
+        onDownloadStarted: notificationPopup.open()
+    }
+
+    footer: RowLayout {
+        Layout.fillWidth: true
+        Item {
+            Layout.fillWidth: true
+        }
+
+        Controls.Button {
+            id: notificationPopupToggle
+            checkable: true
+            checked: notificationPopup.visible
+            onCheckedChanged: if (checked) {
+                                  notificationPopup.open()
+                              } else {
+                                  notificationPopup.close()
+                              }
+
+            flat: true
+            icon.name: "download"
+
+            Controls.Popup {
+                id: notificationPopup
+                x: parent.width - width
+                y: -height
+                width: Kirigami.Units.gridUnit * 10.0
+                height: parent.checked
+                        && visible ? Kirigami.Units.gridUnit * 20.0 : 0.0
+
+                Behavior on height {
+                    NumberAnimation {
+                        duration: Kirigami.Units.longDuration
+                        easing.type: Easing.BezierSpline
+                        easing.bezierCurve: [0.25, 0.0, 0.25, 1.0, 1.0, 1.0]
+                    }
+                }
+
+                ListView {
+                    anchors.fill: parent
+
+                    model: dl.model
+
+                    delegate: RowLayout {
+                        required property var assetName
+                        required property var progress
+                        Layout.fillWidth: true
+                        Controls.Label {
+                            text: assetName === null ? "null name??" : assetName
+                        }
+
+                        Controls.ProgressBar {
+                            width: Kirigami.Units.gridUnit * 2.0
+                            value: progress
+                            indeterminate: progress < 0.0
+                        }
+                    }
+                }
+            }
+        }
     }
 
     pageStack.initialPage: Kirigami.Page {

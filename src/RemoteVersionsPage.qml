@@ -82,17 +82,22 @@ Kirigami.Page {
             delegate: Kirigami.Card {
                 required property string name
                 required property string url
+                required property string browser_download_url
                 required property int size
 
                 banner.title: name
                 contentItem: Controls.Label {
-                    text: url
+                    text: browser_download_url
                     elide: Text.ElideLeft
                 }
                 actions: [
                     Kirigami.Action {
                         text: i18n("Download")
                         icon.name: "download"
+                        onTriggered: {
+                            dlDialog.close()
+                            dl.download(Qt.url(browser_download_url), name)
+                        }
                     }
                 ]
             }
@@ -140,6 +145,8 @@ Kirigami.Page {
                             onTriggered: {
                                 dlDialog.open()
                                 dlDialogModel.model = assets
+                                dlDialog.title = `${i18n(
+                                    "Assets for")} ${tag_name}`
                             }
                         },
                         Kirigami.Action {
@@ -173,7 +180,7 @@ Kirigami.Page {
             Layout.fillHeight: false
             Behavior on progressBar.value {
                 NumberAnimation {
-                    duration: 500
+                    duration: Kirigami.Units.longDuration
 
                     easing.type: Easing.BezierSpline
                     easing.bezierCurve: [0.25, 0.0, 0.25, 1.0, 1.0, 1.0]

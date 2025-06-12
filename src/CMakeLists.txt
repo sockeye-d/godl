@@ -19,9 +19,11 @@ qt_add_qml_module(godl
     QML_FILES RemoteVersionsPage.qml
     QML_FILES LocalVersionsPage.qml
     QML_FILES ProjectsPage.qml
-    SOURCES util/util.h
+    SOURCES util/util.h util/util.cpp
     SOURCES main.h
     SOURCES network/downloadmanager.h network/downloadmanager.cpp
+    SOURCES network/downloadmanagermodel.h network/downloadmanagermodel.cpp
+    SOURCES network/downloadinfo.h
     SOURCES network/chainedjsonrequest.h
     SOURCES network/network.h
     SOURCES network/networkresponsecode.h network/networkresponsecode.cpp
