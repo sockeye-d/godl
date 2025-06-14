@@ -21,14 +21,18 @@ qt_add_qml_module(godl
     QML_FILES ProjectsPage.qml
     SOURCES util/util.h util/util.cpp
     SOURCES main.h
+    SOURCES model/downloadmanagermodel.h model/downloadmanagermodel.cpp
     SOURCES network/downloadmanager.h network/downloadmanager.cpp
-    SOURCES network/downloadmanagermodel.h network/downloadmanagermodel.cpp
     SOURCES network/downloadinfo.h
     SOURCES network/chainedjsonrequest.h
     SOURCES network/network.h
     SOURCES network/networkresponsecode.h network/networkresponsecode.cpp
     RESOURCES config.kcfg
     RESOURCES config.kcfgc
+    SOURCES util/circularbuffer.h util/circularbuffer.cpp
+    SOURCES
+    SOURCES model/downloadmanagermodel.cpp model/downloadmanagermodel.h
+    SOURCES model/listbasedmodel.h model/listbasedmodel.cpp
 )
 
 ecm_find_qmlmodule(org.kde.kirigami)

@@ -4,7 +4,7 @@
 #include <QStandardItemModel>
 #include <QUrl>
 #include <QtQml/qqmlregistration.h>
-#include "downloadmanagermodel.h"
+#include "model/downloadmanagermodel.h"
 
 using namespace Qt::Literals::StringLiterals;
 
@@ -31,6 +31,7 @@ public:
     DownloadManagerModel *model() { return m_model; }
     Q_INVOKABLE void download(const QUrl &asset, const QString &assetName);
     Q_INVOKABLE void cancel(const QUuid &id) { Q_EMIT cancellationRequested(id); }
+    Q_INVOKABLE void addSomething() { model()->append(new DownloadInfo("tag name", QUrl())); }
 };
 
 #endif // DOWNLOADMANAGER_H

@@ -49,6 +49,7 @@ Kirigami.Page {
                         }
 
                         releases.push(...r)
+                        resultList.fullReleases = releases
 
                         if (r.length === requestCount) {
                             currentPage++

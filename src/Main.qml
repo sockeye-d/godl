@@ -67,11 +67,24 @@ Kirigami.ApplicationWindow {
 
             Controls.Popup {
                 id: notificationPopup
+
+                property real wantedHeight
+
                 x: parent.width - width
                 y: -height
-                width: Kirigami.Units.gridUnit * 20.0
-                height: notificationCardsScroll.height
+                width: Math.min(Kirigami.Units.gridUnit * 20.0,
+                                Math.round(root.width / 2))
+                // this is so cursed... but it works
+                height: wantedHeight == -1 ? (visible ? notificationCardsScroll.height + padding
+                                                        * 2.0 : 0.0) : wantedHeight
                 z: 10000
+
+                onAboutToShow: wantedHeight = -1
+                onAboutToHide: wantedHeight = 0
+
+                closePolicy: Controls.Popup.NoAutoClose
+
+                rightPadding: 0
 
                 Behavior on height {
                     NumberAnimation {
@@ -82,17 +95,23 @@ Kirigami.ApplicationWindow {
 
                 Controls.ScrollView {
                     id: notificationCardsScroll
-                    width: parent.width
-                    height: Math.min(notificationCards.height,
-                                     Kirigami.Units.gridUnit * 15.0)
+                    width: notificationPopup.availableWidth
+                    height: Math.min(
+                                notificationCards.height + notificationPopup.padding * 2.0,
+                                Math.min(Kirigami.Units.gridUnit * 15.0,
+                                         Math.round(root.height / 2)))
                     Controls.ScrollBar.horizontal.policy: Controls.ScrollBar.AlwaysOff
+
+                    clip: true
+
                     ColumnLayout {
                         id: notificationCards
-                        width: parent.width
+                        width: notificationCardsScroll.availableWidth - Kirigami.Units.largeSpacing
                         spacing: Kirigami.Units.largeSpacing * 2
 
                         Repeater {
-                            width: notificationCards.width
+                            id: repeater
+                            Layout.fillWidth: true
                             model: dl.model
 
                             delegate: Kirigami.AbstractCard {
@@ -101,13 +120,15 @@ Kirigami.ApplicationWindow {
                                 required property var id
                                 required property var downloadSpeed
 
-                                width: notificationCards.width
+                                Layout.fillWidth: true
 
                                 headerOrientation: Qt.Horizontal
+                                clip: true
 
                                 header: Kirigami.Heading {
                                     level: 2
                                     text: assetName
+                                    elide: Text.ElideRight
                                 }
 
                                 contentItem: RowLayout {
@@ -115,6 +136,7 @@ Kirigami.ApplicationWindow {
                                     Controls.Label {
                                         text: `${downloadSpeed.toFixed(
                                                   2)} MiB/s`
+                                        elide: Text.ElideRight
                                     }
 
                                     Kirigami.Separator {
@@ -137,6 +159,12 @@ Kirigami.ApplicationWindow {
                             }
                         }
                     }
+                }
+
+                Controls.Label {
+                    text: i18n("No active downloads")
+                    anchors.centerIn: parent
+                    visible: repeater.count === 0
                 }
             }
         }

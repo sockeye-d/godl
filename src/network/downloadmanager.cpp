@@ -34,45 +34,77 @@ void DownloadManager::download(const QUrl &asset, const QString &assetName)
     if (asset.host() == u"api.github.com"_s) {
         AUTH(request);
     }
+    request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false);
+    request.setRawHeader("Connection", "close");
 
     QNetworkReply *const reply = Network::manager().get(request);
     auto info = new DownloadInfo(assetName, asset);
     qDebug() << u"Appending info for asset %1"_s.arg(assetName);
     m_model->append(info);
 
+    reply->setReadBufferSize(128);
+
     file->setParent(reply);
     info->setParent(reply);
 
     auto time = new QElapsedTimer();
     time->start();
+    auto bytesReceivedLast = new int;
+    *bytesReceivedLast = 0;
 
     Q_EMIT downloadStarted();
 
-    connect(this, &DownloadManager::cancellationRequested, this, [info, reply](QUuid id) {
-        if (info->id() == id) {
-            qInfo() << u"Aborting download from %1"_s.arg(reply->url().toString(QUrl::RemoveQuery));
-            reply->abort();
-        }
-    });
+    connect(
+        this,
+        &DownloadManager::cancellationRequested,
+        this,
+        [info, reply](QUuid id) {
+            if (info->id() == id) {
+                qInfo() << u"Aborting download from %1"_s.arg(
+                    reply->url().toString(QUrl::RemoveQuery));
+                reply->abort();
+            }
+        },
+        Qt::QueuedConnection);
 
-    connect(reply, &QNetworkReply::readyRead, this, [reply, file]() {
-        file->write(reply->readAll());
-    });
+    connect(
+        reply,
+        &QNetworkReply::readyRead,
+        this,
+        [reply, file, info, time, bytesReceivedLast]() {
+            auto data = reply->readAll();
+            file->write(data);
 
-    connect(reply,
-            &QNetworkReply::downloadProgress,
-            this,
-            [info, time](auto bytesReceived, auto bytesTotal) {
-                info->setDownloadSpeed(bytesReceived / (time->nsecsElapsed() * 1e-9) / 1048576.0);
+            *bytesReceivedLast = *bytesReceivedLast + data.size();
+            if (time->nsecsElapsed() > 100000000) {
+                info->setDownloadSpeed(*bytesReceivedLast / (time->nsecsElapsed() * 1e-9)
+                                       / 1048576.0);
                 time->restart();
-                info->setProgress((qreal) bytesReceived / (qreal) bytesTotal);
-            });
+                *bytesReceivedLast = 0;
+            }
+        },
+        Qt::QueuedConnection);
 
-    connect(reply, &QNetworkReply::finished, this, [reply, info, time, this]() {
-        qInfo() << u"Finished request";
-        qDebug() << u"Removing info for asset %1"_s.arg(info->assetName());
-        m_model->remove(info);
-        reply->deleteLater();
-        delete time;
-    });
+    connect(
+        reply,
+        &QNetworkReply::downloadProgress,
+        this,
+        [info](auto bytesReceived, auto bytesTotal) {
+            info->setProgress((qreal) bytesReceived / (qreal) bytesTotal);
+        },
+        Qt::QueuedConnection);
+
+    connect(
+        reply,
+        &QNetworkReply::finished,
+        this,
+        [reply, info, time, bytesReceivedLast, this]() {
+            qInfo() << u"Finished request";
+            qDebug() << u"Removing info for asset %1"_s.arg(info->assetName());
+            m_model->remove(info);
+            reply->deleteLater();
+            delete time;
+            delete bytesReceivedLast;
+        },
+        Qt::QueuedConnection);
 }

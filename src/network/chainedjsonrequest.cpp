@@ -77,6 +77,7 @@ void ChainedJsonRequest::executeInternal(const QList<QUrl> &baseUrls) {
     }
 
     for (QNetworkReply *reply : std::as_const(replies)) {
+        reply->setReadBufferSize(0);
         connect(reply, &QNetworkReply::readyRead, this, [this, reply]() {
             replyData[reply].append(reply->readAll());
         });

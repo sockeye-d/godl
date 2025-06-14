@@ -5,6 +5,7 @@
 #include <QUrl>
 #include <QUuid>
 #include <QtQml/qqmlregistration.h>
+#include "util/circularbuffer.h"
 
 using namespace Qt::Literals::StringLiterals;
 
@@ -21,9 +22,10 @@ class DownloadInfo : public QObject
 
     qreal m_progress = -1.0;
     qreal m_downloadSpeed = 0;
-    QUuid m_id = QUuid::createUuid();
+    const QUuid m_id = QUuid::createUuid();
     const QString m_assetName;
     const QUrl m_sourceUrl;
+    CircularBuffer<qreal, 128> m_buf;
 
     void setProgress(qreal progress)
     {
@@ -35,9 +37,8 @@ class DownloadInfo : public QObject
 
     void setDownloadSpeed(qreal downloadSpeed)
     {
-        if (qFuzzyCompare(downloadSpeed, m_downloadSpeed))
-            return;
-        m_downloadSpeed = downloadSpeed;
+        m_buf.append(downloadSpeed);
+        m_downloadSpeed = std::accumulate(m_buf.begin(), m_buf.end(), 0.0) / m_buf.size();
         Q_EMIT downloadSpeedChanged();
     }
 

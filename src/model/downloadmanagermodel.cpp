@@ -5,15 +5,6 @@ void DownloadManagerModel::append(const DownloadInfo *info)
     const auto index = m_dlInfos.size();
     beginInsertRows(QModelIndex(), index, index);
     m_dlInfos.append(info);
-    Q_EMIT dataChanged(createIndex(index, 0),
-                       createIndex(index, 0),
-                       {
-                           ProgressRole,
-                           AssetNameRole,
-                           SourceUrlRole,
-                           IdRole,
-                           DownloadSpeedRole,
-                       });
     connect(info, &DownloadInfo::progressChanged, this, [this, info]() {
         QModelIndex index = createIndex(m_dlInfos.indexOf(info), 0);
         Q_EMIT dataChanged(index, index, {ProgressRole});
@@ -35,14 +26,12 @@ void DownloadManagerModel::remove(const DownloadInfo *info)
 
 QHash<int, QByteArray> DownloadManagerModel::roleNames() const
 {
-    qDebug() << "getting role names";
     QHash<int, QByteArray> roles;
     roles[ProgressRole] = "progress";
     roles[AssetNameRole] = "assetName";
     roles[SourceUrlRole] = "sourceUrl";
     roles[IdRole] = "id";
     roles[DownloadSpeedRole] = "downloadSpeed";
-    qDebug() << roles;
     return roles;
 }
 
@@ -53,7 +42,6 @@ QVariant DownloadManagerModel::data(const QModelIndex &index, int role) const
     case ProgressRole:
         return info->progress();
     case AssetNameRole:
-        qDebug() << info->assetName();
         return info->assetName();
     case SourceUrlRole:
         return info->sourceUrl();

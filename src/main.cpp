@@ -13,6 +13,7 @@
 #include "config.h"
 #endif
 #include "main.h"
+#include "model/listbasedmodel.h"
 #include <chainedjsonrequest.h>
 #include <downloadmanager.h>
 
