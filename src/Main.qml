@@ -32,6 +32,12 @@ Kirigami.ApplicationWindow {
                 icon.name: "help-about"
                 enabled: pageStack.layers.currentItem !== aboutPage
                 onTriggered: pageStack.layers.push(aboutPage)
+            },
+
+            Kirigami.Action {
+                text: i18n("Settings")
+                icon.name: "settings"
+                onTriggered: ConfigDialog.open()
             }
         ]
     }

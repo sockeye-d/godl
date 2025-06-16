@@ -54,6 +54,7 @@ target_link_libraries(godl
     KF6::IconThemes
     KF6::ConfigCore
     KF6::ConfigGui
+    KF6::ConfigWidgets
 )
 
 target_include_directories(godl

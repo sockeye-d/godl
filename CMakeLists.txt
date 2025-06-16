@@ -44,6 +44,7 @@ find_package(KF6 REQUIRED COMPONENTS
     QQC2DesktopStyle
     IconThemes
     Config
+    ConfigWidgets
 )
 
 add_subdirectory(src)

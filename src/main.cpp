@@ -13,7 +13,7 @@
 #include "config.h"
 #endif
 #include "main.h"
-#include "model/listbasedmodel.h"
+#include <KConfigDialog>
 #include <chainedjsonrequest.h>
 #include <downloadmanager.h>
 
@@ -61,6 +61,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<DownloadManager>("org.fishy.godl", 0, 1, "DownloadManager");
 #ifdef CONFIG
     qmlRegisterSingletonInstance("org.fishy.godl", 0, 1, "Config", Config::self());
+    auto dialog = new KConfigDialog(nullptr, u"godl settings"_s, Config::self());
+    qmlRegisterSingletonInstance("org.fishy.godl", 0, 1, "ConfigDialog", dialog);
 #endif
     qmlRegisterSingletonInstance("org.fishy.godl",
                                  0,

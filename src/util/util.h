@@ -15,4 +15,6 @@ QList<T> convertList(QVariantList list) {
 
 QString joinPath(const QString &a, const QString &b);
 
+QStringList sysInfo();
+
 #endif // UTIL_H
