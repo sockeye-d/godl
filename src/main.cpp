@@ -2,6 +2,7 @@
 #include <QMainWindow>
 #include <QQuickStyle>
 #include <QtQml>
+#include "util/util.h"
 #include <KAboutData>
 #include <KIconTheme>
 #include <KLocalizedContext>
@@ -61,6 +62,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<DownloadManager>("org.fishy.godl", 0, 1, "DownloadManager");
 #ifdef CONFIG
     qmlRegisterSingletonInstance("org.fishy.godl", 0, 1, "Config", Config::self());
+    qDebug() << Config::downloadFilter();
     auto dialog = new KConfigDialog(nullptr, u"godl settings"_s, Config::self());
     qmlRegisterSingletonInstance("org.fishy.godl", 0, 1, "ConfigDialog", dialog);
 #endif

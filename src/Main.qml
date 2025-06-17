@@ -13,84 +13,49 @@ Kirigami.ApplicationWindow {
 
     property string text
 
-    width: Kirigami.Units.gridUnit * 45
     height: Kirigami.Units.gridUnit * 30
-
-    minimumWidth: Kirigami.Units.gridUnit * 10
     minimumHeight: Kirigami.Units.gridUnit * 10
+    minimumWidth: Kirigami.Units.gridUnit * 10
 
     // Window title
     // i18nc() makes a string translatable
     // and provides additional context for the translators
     title: i18nc("@title:window", "godl")
-
-    globalDrawer: Kirigami.GlobalDrawer {
-        isMenu: true
-        actions: [
-            Kirigami.Action {
-                text: i18n("About")
-                icon.name: "help-about"
-                enabled: pageStack.layers.currentItem !== aboutPage
-                onTriggered: pageStack.layers.push(aboutPage)
-            },
-
-            Kirigami.Action {
-                text: i18n("Settings")
-                icon.name: "settings"
-                onTriggered: ConfigDialog.open()
-            }
-        ]
-    }
-
-    Kirigami.AboutPage {
-        id: aboutPage
-        aboutData: About
-    }
-
-    DownloadManager {
-        id: dl
-        onDownloadStarted: notificationPopup.open()
-    }
+    width: Kirigami.Units.gridUnit * 45
 
     footer: RowLayout {
         Layout.fillWidth: true
+
         Item {
             Layout.fillWidth: true
         }
-
         Controls.Button {
             id: notificationPopupToggle
+
             checkable: true
             checked: notificationPopup.visible
-            onCheckedChanged: if (checked) {
-                                  notificationPopup.open()
-                              } else {
-                                  notificationPopup.close()
-                              }
-
             flat: true
             icon.name: "download"
+
+            onCheckedChanged: if (checked) {
+                notificationPopup.open();
+            } else {
+                notificationPopup.close();
+            }
 
             Controls.Popup {
                 id: notificationPopup
 
                 property real wantedHeight
 
+                closePolicy: Controls.Popup.NoAutoClose
+                // this is so cursed... but it works
+                height: wantedHeight == -1 ? (visible ? notificationCardsScroll.height + padding * 2.0 : 0.0) : wantedHeight
+                rightPadding: 0
+                width: Math.min(Kirigami.Units.gridUnit * 20.0, Math.round(root.width / 2))
                 x: parent.width - width
                 y: -height
-                width: Math.min(Kirigami.Units.gridUnit * 20.0,
-                                Math.round(root.width / 2))
-                // this is so cursed... but it works
-                height: wantedHeight == -1 ? (visible ? notificationCardsScroll.height + padding
-                                                        * 2.0 : 0.0) : wantedHeight
                 z: 10000
-
-                onAboutToShow: wantedHeight = -1
-                onAboutToHide: wantedHeight = 0
-
-                closePolicy: Controls.Popup.NoAutoClose
-
-                rightPadding: 0
 
                 Behavior on height {
                     NumberAnimation {
@@ -99,145 +64,176 @@ Kirigami.ApplicationWindow {
                     }
                 }
 
+                onAboutToHide: wantedHeight = 0
+                onAboutToShow: wantedHeight = -1
+
                 Controls.ScrollView {
                     id: notificationCardsScroll
-                    width: notificationPopup.availableWidth
-                    height: Math.min(
-                                notificationCards.height + notificationPopup.padding * 2.0,
-                                Math.min(Kirigami.Units.gridUnit * 15.0,
-                                         Math.round(root.height / 2)))
-                    Controls.ScrollBar.horizontal.policy: Controls.ScrollBar.AlwaysOff
 
+                    Controls.ScrollBar.horizontal.policy: Controls.ScrollBar.AlwaysOff
                     clip: true
+                    height: Math.min(notificationCards.height + notificationPopup.padding * 2.0, Math.min(Kirigami.Units.gridUnit * 15.0, Math.round(root.height / 2)))
+                    width: notificationPopup.availableWidth
 
                     ColumnLayout {
                         id: notificationCards
-                        width: notificationCardsScroll.availableWidth - Kirigami.Units.largeSpacing
+
                         spacing: Kirigami.Units.largeSpacing * 2
+                        width: notificationCardsScroll.availableWidth - Kirigami.Units.largeSpacing
 
                         Repeater {
                             id: repeater
+
                             Layout.fillWidth: true
                             model: dl.model
 
                             delegate: Kirigami.AbstractCard {
                                 required property var assetName
-                                required property var progress
-                                required property var id
                                 required property var downloadSpeed
+                                required property var id
+                                required property var progress
 
                                 Layout.fillWidth: true
-
-                                headerOrientation: Qt.Horizontal
                                 clip: true
-
-                                header: Kirigami.Heading {
-                                    level: 2
-                                    text: assetName
-                                    elide: Text.ElideRight
-                                }
+                                headerOrientation: Qt.Horizontal
 
                                 contentItem: RowLayout {
                                     width: notificationCards.width
-                                    Controls.Label {
-                                        text: `${downloadSpeed.toFixed(
-                                                  2)} MiB/s`
-                                        elide: Text.ElideRight
-                                    }
 
+                                    Controls.Label {
+                                        elide: Text.ElideRight
+                                        text: `${downloadSpeed.toFixed(2)} MiB/s`
+                                    }
                                     Kirigami.Separator {
                                         Layout.fillHeight: true
                                     }
-
                                     Controls.ProgressBar {
                                         Layout.fillWidth: true
-                                        width: Kirigami.Units.gridUnit * 2.0
-                                        value: progress
                                         indeterminate: progress < 0.0
+                                        value: progress
+                                        width: Kirigami.Units.gridUnit * 2.0
                                     }
-
                                     Controls.Button {
-                                        text: i18n("Cancel")
                                         icon.name: "stop"
+                                        text: i18n("Cancel")
+
                                         onClicked: dl.cancel(id)
                                     }
+                                }
+                                header: Kirigami.Heading {
+                                    elide: Text.ElideRight
+                                    level: 2
+                                    text: assetName
                                 }
                             }
                         }
                     }
                 }
-
                 Controls.Label {
-                    text: i18n("No active downloads")
                     anchors.centerIn: parent
+                    text: i18n("No active downloads")
                     visible: repeater.count === 0
                 }
             }
         }
     }
-
-    pageStack.initialPage: Kirigami.Page {
-        id: mainPage
-        property int activePageIndex: 0
-        // anchors.fill: parent
-        Controls.ActionGroup {
-            id: actionGroup
-        }
+    globalDrawer: Kirigami.GlobalDrawer {
+        isMenu: true
 
         actions: [
             Kirigami.Action {
+                enabled: pageStack.layers.currentItem !== aboutPage
+                icon.name: "help-about"
+                text: i18n("About")
+
+                onTriggered: pageStack.layers.push(aboutPage)
+            },
+            Kirigami.Action {
+                icon.name: "settings"
+                text: i18n("Settings")
+
+                onTriggered: ConfigDialog.open()
+            }
+        ]
+    }
+    pageStack.initialPage: Kirigami.Page {
+        id: mainPage
+
+        property int activePageIndex: 0
+        property list<Kirigami.Action> baseActions: [
+            Kirigami.Action {
+                Controls.ActionGroup.group: actionGroup
                 checkable: true
+                checked: mainPage.activePageIndex === 0
                 icon.name: "edit"
                 text: "Projects"
-                checked: mainPage.activePageIndex === 0
+
                 onTriggered: mainPage.activePageIndex = 0
-                Controls.ActionGroup.group: actionGroup
             },
             Kirigami.Action {
+                Controls.ActionGroup.group: actionGroup
                 checkable: true
+                checked: mainPage.activePageIndex === 1
                 icon.name: "drive"
                 text: "Local versions"
-                checked: mainPage.activePageIndex === 1
+
                 onTriggered: mainPage.activePageIndex = 1
-                Controls.ActionGroup.group: actionGroup
             },
             Kirigami.Action {
+                Controls.ActionGroup.group: actionGroup
                 checkable: true
+                checked: mainPage.activePageIndex === 2
                 icon.name: "server-symbolic"
                 text: "Remote versions"
-                checked: mainPage.activePageIndex === 2
+
                 onTriggered: mainPage.activePageIndex = 2
-                Controls.ActionGroup.group: actionGroup
             }
         ]
 
+        actions: swipeView.children[swipeView.currentIndex].actions.concat(baseActions)
+
+        // anchors.fill: parent
+        Controls.ActionGroup {
+            id: actionGroup
+
+        }
         StackLayout {
             id: swipeView
-            anchors.fill: parent
 
+            anchors.fill: parent
             currentIndex: mainPage.activePageIndex
+
             onCurrentIndexChanged: mainPage.activePageIndex = currentIndex
 
             ProjectsPage {
                 title: "Projects"
             }
-
             LocalVersionsPage {
                 title: "Local versions"
             }
-
             RemoteVersionsPage {
                 id: dlPage
-                title: "Remote versions"
-                Component.onCompleted: {
-                    dlPage.dl = dl
-                }
 
-                StackLayout.onIsCurrentItemChanged: if (!hasContent
-                                                            && StackLayout.isCurrentItem) {
-                                                        refresh()
-                                                    }
+                title: "Remote versions"
+
+                Component.onCompleted: {
+                    dlPage.dl = dl;
+                }
+                StackLayout.onIsCurrentItemChanged: if (!hasContent && StackLayout.isCurrentItem) {
+                    refresh();
+                }
             }
         }
+    }
+
+    Kirigami.AboutPage {
+        id: aboutPage
+
+        aboutData: About
+    }
+    DownloadManager {
+        id: dl
+
+        onDownloadStarted: notificationPopup.open()
     }
 }

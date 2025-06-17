@@ -3,10 +3,15 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
                           http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+  <include>util/util.h</include>
   <group name="General">
-    <entry name="GodotLocation" type="Path">
+    <entry name="godotLocation" type="Path">
       <label>Godot location</label>
       <default>$HOME/.local/share/godl/versions</default>
+    </entry>
+    <entry name="downloadFilter" type="StringList">
+      <label>Substrings to look for in remote asset names to highlight the one you most likely want</label>
+      <default code="true">sysInfo()</default>
     </entry>
   </group>
 </kcfg>

@@ -33,6 +33,7 @@ qt_add_qml_module(godl
     SOURCES
     SOURCES model/downloadmanagermodel.cpp model/downloadmanagermodel.h
     SOURCES model/listbasedmodel.h model/listbasedmodel.cpp
+    QML_FILES Settings.qml
 )
 
 ecm_find_qmlmodule(org.kde.kirigami)
