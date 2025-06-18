@@ -4,8 +4,11 @@ import QtQuick.Layouts
 import QtQuick.Controls as Controls
 import org.kde.kirigami as Kirigami
 import org.kde.kirigamiaddons.formcard as FormCard
+import org.kde.kirigamiaddons.settings as KirigamiSettings
 
 import org.fishy.godl
+
+import "config"
 
 // Provides basic features needed for all kirigami applications
 Kirigami.ApplicationWindow {
@@ -154,7 +157,7 @@ Kirigami.ApplicationWindow {
                 icon.name: "settings"
                 text: i18n("Settings")
 
-                onTriggered: configPage.show()
+                onTriggered: configurationView.open()
             }
         ]
     }
@@ -239,18 +242,51 @@ Kirigami.ApplicationWindow {
         pageStack.initialPage: FormCard.AboutPage {
         }
     }
-    Kirigami.ApplicationWindow {
-        id: configPage
+    // Kirigami.ApplicationWindow {
+    //     id: configPage
 
-        height: Kirigami.Units.gridUnit * 25
-        modality: Qt.WindowModal
-        pageStack.defaultColumnWidth: Kirigami.Units.gridUnit * 10
-        pageStack.interactive: false
-        visible: false
-        width: Kirigami.Units.gridUnit * 40
+    //     height: Kirigami.Units.gridUnit * 25
+    //     modality: Qt.WindowModal
+    //     pageStack.defaultColumnWidth: Kirigami.Units.gridUnit * 10
+    //     pageStack.interactive: false
+    //     visible: false
+    //     width: Kirigami.Units.gridUnit * 40
 
-        pageStack.initialPage: ConfigPage {
-            pageRow: configPage.pageStack
+    //     pageStack.initialPage: MainConfigPage {
+    //     }
+    // }
+    KirigamiSettings.ConfigurationView {
+        id: configurationView
+
+        window: parent
+
+        modules: [
+            KirigamiSettings.ConfigurationModule {
+                // @disable-check M17
+                icon.name: "settings"
+                moduleId: "general"
+                page: () => generalPage
+                text: i18n("General")
+            },
+            KirigamiSettings.ConfigurationModule {
+                // @disable-check M17
+                icon.name: "download"
+                moduleId: "downloads"
+                page: () => downloadsPage
+                text: i18n("Downloads")
+            }
+        ]
+    }
+    Component {
+        id: generalPage
+
+        GeneralPage {
+        }
+    }
+    Component {
+        id: downloadsPage
+
+        DownloadsPage {
         }
     }
     DownloadManager {

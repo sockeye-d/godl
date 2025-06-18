@@ -18,7 +18,9 @@ qt_add_qml_module(godl
     QML_FILES ui/RemoteVersionsPage.qml
     QML_FILES ui/LocalVersionsPage.qml
     QML_FILES ui/ProjectsPage.qml
-    QML_FILES ui/config/ConfigPage.qml
+    QML_FILES
+    QML_FILES
+    QML_FILES ui/config/GeneralPage.qml
     SOURCES util/util.h util/util.cpp
     SOURCES main.h
     SOURCES model/downloadmanagermodel.h model/downloadmanagermodel.cpp
@@ -33,7 +35,7 @@ qt_add_qml_module(godl
     SOURCES ${config_SRCS}
     RESOURCES config.kcfg
     RESOURCES config.kcfgc
-    QML_FILES ui/config/ConfigPageFormCard.qml
+    QML_FILES ui/config/DownloadsPage.qml
 )
 
 ecm_find_qmlmodule(org.kde.kirigami)
