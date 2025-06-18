@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls as Controls
 import org.kde.kirigami as Kirigami
+import org.kde.kirigamiaddons.formcard as FormCard
 
 import org.fishy.godl
 
@@ -142,17 +143,18 @@ Kirigami.ApplicationWindow {
 
         actions: [
             Kirigami.Action {
-                enabled: pageStack.layers.currentItem !== aboutPage
+                // enabled: pageStack.layers.indexOf(aboutPage) === -1
                 icon.name: "help-about"
                 text: i18n("About")
 
-                onTriggered: pageStack.layers.push(aboutPage)
+                onTriggered: aboutPage.show()
             },
             Kirigami.Action {
+                // enabled: pageStack.layers.indexOf(configPage) === -1
                 icon.name: "settings"
                 text: i18n("Settings")
 
-                onTriggered: ConfigDialog.open()
+                onTriggered: configPage.show()
             }
         ]
     }
@@ -226,10 +228,30 @@ Kirigami.ApplicationWindow {
         }
     }
 
-    Kirigami.AboutPage {
+    Kirigami.ApplicationWindow {
         id: aboutPage
 
-        aboutData: About
+        height: Kirigami.Units.gridUnit * 25
+        modality: Qt.WindowModal
+        visible: false
+        width: Kirigami.Units.gridUnit * 40
+
+        pageStack.initialPage: FormCard.AboutPage {
+        }
+    }
+    Kirigami.ApplicationWindow {
+        id: configPage
+
+        height: Kirigami.Units.gridUnit * 25
+        modality: Qt.WindowModal
+        pageStack.defaultColumnWidth: Kirigami.Units.gridUnit * 10
+        pageStack.interactive: false
+        visible: false
+        width: Kirigami.Units.gridUnit * 40
+
+        pageStack.initialPage: ConfigPage {
+            pageRow: configPage.pageStack
+        }
     }
     DownloadManager {
         id: dl

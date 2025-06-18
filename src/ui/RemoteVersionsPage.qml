@@ -46,9 +46,9 @@ Kirigami.Page {
         },
         Kirigami.Action {
             icon.name: "view-filter"
+            text: i18n("Filters")
 
             Kirigami.Action {
-                Layout.fillHeight: true
                 checkable: true
                 checked: show_stable
                 text: i18n("Show stable")
@@ -56,10 +56,13 @@ Kirigami.Page {
                 onTriggered: show_stable = checked
             }
             Kirigami.Action {
-                Layout.fillHeight: true
                 checkable: true
-                checked: true
                 text: i18n("Show unstable")
+
+                Binding on checked {
+                    delayed: true
+                    value: show_dev || show_alpha || show_beta || show_rc
+                }
 
                 onTriggered: {
                     show_dev = checked;
@@ -69,7 +72,6 @@ Kirigami.Page {
                 }
             }
             Kirigami.Action {
-                Layout.fillHeight: true
                 checkable: true
                 checked: show_dev
                 text: i18n("Show dev snapshots")
@@ -77,7 +79,6 @@ Kirigami.Page {
                 onTriggered: show_dev = checked
             }
             Kirigami.Action {
-                Layout.fillHeight: true
                 checkable: true
                 checked: show_alpha
                 text: i18n("Show alphas")
@@ -85,7 +86,6 @@ Kirigami.Page {
                 onTriggered: show_alpha = checked
             }
             Kirigami.Action {
-                Layout.fillHeight: true
                 checkable: true
                 checked: show_beta
                 text: i18n("Show betas")
@@ -93,7 +93,6 @@ Kirigami.Page {
                 onTriggered: show_beta = checked
             }
             Kirigami.Action {
-                Layout.fillHeight: true
                 checkable: true
                 checked: show_rc
                 text: i18n("Show release candidates")
@@ -246,11 +245,10 @@ Kirigami.Page {
 
                 Rectangle {
                     anchors.fill: parent
-                    anchors.margins: -Kirigami.Units.smallSpacing
                     border.color: Kirigami.Theme.highlightColor
                     border.width: 2
                     color: "transparent"
-                    radius: parent.background.radius + Kirigami.Units.smallSpacing
+                    radius: parent.background.radius
                     visible: dlDialogModel.highlightedIndices.includes(parent.index)
                 }
             }

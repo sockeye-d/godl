@@ -1,7 +1,7 @@
 qt_add_executable(godl
     main.cpp network/chainedjsonrequest.cpp network/chainedjsonrequest.h network/macros.h)
 
-kconfig_add_kcfg_files(godl config.kcfgc GENERATE_MOC)
+kconfig_add_kcfg_files(config_SRCS config.kcfgc GENERATE_MOC)
 
 if (IS_READABLE "${CMAKE_SOURCE_DIR}/local.properties")
     # Read the token from local.properties
@@ -11,14 +11,14 @@ if (IS_READABLE "${CMAKE_SOURCE_DIR}/local.properties")
     add_definitions(-DGITHUB_TOKEN="${CMAKE_MATCH_1}")
 endif()
 
-
 qt_add_qml_module(godl
     URI org.fishy.godl
     VERSION 0.1
-    QML_FILES Main.qml
-    QML_FILES RemoteVersionsPage.qml
-    QML_FILES LocalVersionsPage.qml
-    QML_FILES ProjectsPage.qml
+    QML_FILES ui/Main.qml
+    QML_FILES ui/RemoteVersionsPage.qml
+    QML_FILES ui/LocalVersionsPage.qml
+    QML_FILES ui/ProjectsPage.qml
+    QML_FILES ui/config/ConfigPage.qml
     SOURCES util/util.h util/util.cpp
     SOURCES main.h
     SOURCES model/downloadmanagermodel.h model/downloadmanagermodel.cpp
@@ -27,16 +27,17 @@ qt_add_qml_module(godl
     SOURCES network/chainedjsonrequest.h
     SOURCES network/network.h
     SOURCES network/networkresponsecode.h network/networkresponsecode.cpp
-    RESOURCES config.kcfg
-    RESOURCES config.kcfgc
     SOURCES util/circularbuffer.h util/circularbuffer.cpp
-    SOURCES
     SOURCES model/downloadmanagermodel.cpp model/downloadmanagermodel.h
     SOURCES model/listbasedmodel.h model/listbasedmodel.cpp
-    QML_FILES Settings.qml
+    SOURCES ${config_SRCS}
+    RESOURCES config.kcfg
+    RESOURCES config.kcfgc
+    QML_FILES ui/config/ConfigPageFormCard.qml
 )
 
 ecm_find_qmlmodule(org.kde.kirigami)
+ecm_find_qmlmodule(org.kde.kirigamiaddons)
 
 target_sources(godl
     PRIVATE

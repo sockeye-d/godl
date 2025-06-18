@@ -48,6 +48,7 @@ int main(int argc, char *argv[])
 
     aboutData.setHomepage(QStringLiteral("https://github.com/sockeye-d/godl"));
     aboutData.setBugAddress("https://github.com/sockeye-d/godl/issues/new"_ba);
+    aboutData.setDesktopFileName("org.fishy.godl");
 
     KAboutData::setApplicationData(aboutData);
 
@@ -62,7 +63,6 @@ int main(int argc, char *argv[])
     qmlRegisterType<DownloadManager>("org.fishy.godl", 0, 1, "DownloadManager");
 #ifdef CONFIG
     qmlRegisterSingletonInstance("org.fishy.godl", 0, 1, "Config", Config::self());
-    qDebug() << Config::downloadFilter();
     auto dialog = new KConfigDialog(nullptr, u"godl settings"_s, Config::self());
     qmlRegisterSingletonInstance("org.fishy.godl", 0, 1, "ConfigDialog", dialog);
 #endif
