@@ -8,13 +8,25 @@ import org.kde.kirigamiaddons.settings as KirigamiSettings
 import org.fishy.godl
 
 Kirigami.Page {
+    id: root
+
     title: i18n("General")
 
     FormCard.FormCard {
-        id: formCard
+        id: downloadFiltersCard
+
+        property list<string> filters
+
+        function refreshFilters() {
+            filters = Config.downloadFilter.slice();
+        }
 
         anchors.left: parent.left
         anchors.right: parent.right
+
+        Component.onCompleted: {
+            refreshFilters();
+        }
 
         // Controls.Button {
         //     Layout.fillWidth: true
@@ -26,11 +38,8 @@ Kirigami.Page {
             trailingLogo.visible: false
 
             onClicked: {
-                for (let filter of Config.downloadFilter) {
-                    console.log(filter);
-                }
-
                 Config.downloadFilter.push("");
+                downloadFiltersCard.refreshFilters();
             }
         }
         ColumnLayout {
@@ -43,7 +52,7 @@ Kirigami.Page {
             // spacing: 0
 
             Repeater {
-                model: Config.downloadFilter
+                model: downloadFiltersCard.filters
 
                 delegate: Item {
                     id: item
@@ -65,13 +74,14 @@ Kirigami.Page {
                             Kirigami.Action {
                                 icon.name: "list-remove"
 
-                                onTriggered: Config.downloadFilter.splice(item.index, 1)
+                                onTriggered: {
+                                    Config.downloadFilter.splice(item.index, 1);
+                                    downloadFiltersCard.refreshFilters();
+                                }
                             }
                         ]
 
-                        onTextChanged: {
-                            Config.downloadFilter[item.index] = text;
-                        }
+                        onTextChanged: Config.downloadFilter[item.index] = text
                     }
                 }
             }

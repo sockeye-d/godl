@@ -258,7 +258,7 @@ Kirigami.ApplicationWindow {
     KirigamiSettings.ConfigurationView {
         id: configurationView
 
-        window: parent
+        window: root
 
         modules: [
             KirigamiSettings.ConfigurationModule {
@@ -277,6 +277,16 @@ Kirigami.ApplicationWindow {
             }
         ]
     }
+    // Kirigami.ApplicationWindow {
+    //     id: configWindow
+
+    //     flags: Qt.Dialog
+    //     height: Kirigami.Units.gridUnit * 25
+    //     modality: Qt.WindowModal
+    //     transientParent: root
+    //     visible: false
+    //     width: Kirigami.Units.gridUnit * 40
+    // }
     Component {
         id: generalPage
 
