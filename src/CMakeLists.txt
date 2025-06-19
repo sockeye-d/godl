@@ -36,6 +36,7 @@ qt_add_qml_module(godl
     RESOURCES config.kcfg
     RESOURCES config.kcfgc
     QML_FILES ui/config/DownloadsPage.qml
+    SOURCES godlapp.h godlapp.cpp
 )
 
 ecm_find_qmlmodule(org.kde.kirigami)
@@ -59,6 +60,7 @@ target_link_libraries(godl
     KF6::ConfigCore
     KF6::ConfigGui
     KF6::ConfigWidgets
+    KirigamiAddonsStatefulApp
 )
 
 target_include_directories(godl

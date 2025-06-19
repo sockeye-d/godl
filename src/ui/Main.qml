@@ -5,13 +5,14 @@ import QtQuick.Controls as Controls
 import org.kde.kirigami as Kirigami
 import org.kde.kirigamiaddons.formcard as FormCard
 import org.kde.kirigamiaddons.settings as KirigamiSettings
+import org.kde.kirigamiaddons.statefulapp as StatefulApp
 
 import org.fishy.godl
 
 import "config"
 
 // Provides basic features needed for all kirigami applications
-Kirigami.ApplicationWindow {
+StatefulApp.StatefulWindow {
     // Unique identifier to reference this object
     id: root
 
@@ -20,13 +21,33 @@ Kirigami.ApplicationWindow {
     height: Kirigami.Units.gridUnit * 30
     minimumHeight: Kirigami.Units.gridUnit * 10
     minimumWidth: Kirigami.Units.gridUnit * 10
-
-    // Window title
-    // i18nc() makes a string translatable
-    // and provides additional context for the translators
-    title: i18nc("@title:window", "godl")
     width: Kirigami.Units.gridUnit * 45
+    windowName: i18nc("@title:window", "godl")
 
+    application: GodlApp {
+        configurationView: KirigamiSettings.ConfigurationView {
+            // window: root
+
+            modules: [
+                KirigamiSettings.ConfigurationModule {
+                    category: "general"
+                    // @disable-check M17
+                    icon.name: "settings"
+                    moduleId: "general"
+                    page: () => generalPage
+                    text: i18n("General")
+                },
+                KirigamiSettings.ConfigurationModule {
+                    category: "downloads"
+                    // @disable-check M17
+                    icon.name: "download"
+                    moduleId: "downloads"
+                    page: () => downloadsPage
+                    text: i18n("Downloads")
+                }
+            ]
+        }
+    }
     footer: RowLayout {
         Layout.fillWidth: true
 
@@ -146,18 +167,13 @@ Kirigami.ApplicationWindow {
 
         actions: [
             Kirigami.Action {
-                // enabled: pageStack.layers.indexOf(aboutPage) === -1
-                icon.name: "help-about"
-                text: i18n("About")
-
-                onTriggered: aboutPage.show()
+                fromQAction: root.application.action("open_about_page")
             },
             Kirigami.Action {
-                // enabled: pageStack.layers.indexOf(configPage) === -1
-                icon.name: "settings"
-                text: i18n("Settings")
-
-                onTriggered: configurationView.open()
+                fromQAction: root.application.action("options_configure_keybinding")
+            },
+            Kirigami.Action {
+                fromQAction: root.application.action("options_configure")
             }
         ]
     }
@@ -241,41 +257,6 @@ Kirigami.ApplicationWindow {
 
         pageStack.initialPage: FormCard.AboutPage {
         }
-    }
-    // Kirigami.ApplicationWindow {
-    //     id: configPage
-
-    //     height: Kirigami.Units.gridUnit * 25
-    //     modality: Qt.WindowModal
-    //     pageStack.defaultColumnWidth: Kirigami.Units.gridUnit * 10
-    //     pageStack.interactive: false
-    //     visible: false
-    //     width: Kirigami.Units.gridUnit * 40
-
-    //     pageStack.initialPage: MainConfigPage {
-    //     }
-    // }
-    KirigamiSettings.ConfigurationView {
-        id: configurationView
-
-        window: root
-
-        modules: [
-            KirigamiSettings.ConfigurationModule {
-                // @disable-check M17
-                icon.name: "settings"
-                moduleId: "general"
-                page: () => generalPage
-                text: i18n("General")
-            },
-            KirigamiSettings.ConfigurationModule {
-                // @disable-check M17
-                icon.name: "download"
-                moduleId: "downloads"
-                page: () => downloadsPage
-                text: i18n("Downloads")
-            }
-        ]
     }
     // Kirigami.ApplicationWindow {
     //     id: configWindow

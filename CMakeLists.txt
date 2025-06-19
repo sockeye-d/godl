@@ -45,6 +45,7 @@ find_package(KF6 REQUIRED COMPONENTS
     IconThemes
     Config
     ConfigWidgets
+    KirigamiAddons
 )
 
 add_subdirectory(src)
