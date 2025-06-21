@@ -46,6 +46,19 @@ StatefulApp.StatefulWindow {
                     text: i18n("Downloads")
                 }
             ]
+
+            // hey so this is cursed
+            onConfigViewItemChanged: {
+                if (!configViewItem)
+                    return;
+                configViewItem.flags = Qt.Dialog;
+                configViewItem.transientParent = root;
+                configViewItem.modality = Qt.ApplicationModal;
+                // hey so this is more cursed
+                // never do this
+                configViewItem.visible = false;
+                configViewItem.visible = true;
+            }
         }
     }
     footer: RowLayout {
@@ -118,6 +131,8 @@ StatefulApp.StatefulWindow {
                                 required property var id
                                 required property var progress
 
+                                // required property var stage
+
                                 Layout.fillWidth: true
                                 clip: true
                                 headerOrientation: Qt.Horizontal
@@ -125,7 +140,15 @@ StatefulApp.StatefulWindow {
                                 contentItem: RowLayout {
                                     width: notificationCards.width
 
+                                    Kirigami.Icon {
+                                        // source: stage === DownloadInfo.Downloading ? "download" : "archive-extract"
+                                        source: "archive-extract"
+                                    }
+                                    Kirigami.Separator {
+                                        Layout.fillHeight: true
+                                    }
                                     Controls.Label {
+                                        Layout.preferredWidth: Kirigami.Units.gridUnit * 4
                                         elide: Text.ElideRight
                                         text: `${downloadSpeed.toFixed(2)} MiB/s`
                                     }

@@ -4,30 +4,104 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QUrl>
+#include <QtConcurrent/QtConcurrent>
 #include "macros.h"
 #include "network.h"
 #include "util/util.h"
+#include <KArchive>
+#include <KTar>
+#include <KZip>
 #include <config.h>
+
+int countZipEntries(const KArchiveEntry *entry)
+{
+    if (!entry->isDirectory())
+        return 1;
+    int entries = 1;
+    auto dir = (KArchiveDirectory *) entry;
+    for (auto &subentryPath : dir->entries()) {
+        qDebug() << subentryPath;
+        entries += countZipEntries(dir->entry(subentryPath));
+    }
+    return entries;
+}
+
+void unzipDir(QPromise<void> &promise,
+              const KArchiveDirectory *dir,
+              QString destination,
+              int entryCount)
+{
+    promise.finish();
+}
+
+void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString destFilePath)
+{
+    info->setStage(DownloadInfo::Unzipping);
+    auto archive = openArchive(sourceFilePath);
+    if (!archive) {
+        qDebug() << "Failed to open archive";
+        model()->remove(info);
+        return;
+    }
+
+    info->setProgress(-1.0);
+
+    auto future = QtConcurrent::run(
+        [archive = std::move(archive), destFilePath](QPromise<void> &promise) {
+            int entries = countZipEntries(archive->directory());
+            qDebug() << entries;
+            unzipDir(promise, archive->directory(), destFilePath, entries);
+        });
+
+    // connect(
+    //     this,
+    //     &DownloadManager::cancellationRequested,
+    //     this,
+    //     [info, &future](QUuid id) {
+    //         if (info->id() == id) {
+    //             future.cancel();
+    //         }
+    //     },
+    //     Qt::QueuedConnection);
+
+    auto watcher = new QFutureWatcher<void>();
+    connect(watcher, &QFutureWatcher<void>::finished, this, [info, watcher, this]() {
+        model()->remove(info);
+        watcher->deleteLater();
+    });
+    watcher->setFuture(future);
+}
 
 void DownloadManager::download(const QUrl &asset, const QString &assetName)
 {
-    auto basePath = Config::godotLocation();
-    auto path = joinPath(basePath, assetName);
+    auto downloadLocation = QStandardPaths::standardLocations(QStandardPaths::TempLocation)
+                                .constFirst();
+    auto path = downloadLocation / assetName;
 
-    if (!QDir(basePath).exists()) {
-        qCritical() << u"Godot versions path doesn't exist, attempting to create...";
-        if (!QDir().mkpath(basePath)) {
+    if (!QDir(downloadLocation).exists()) {
+        qWarning() << u"Godot versions path doesn't exist, attempting to create...";
+        if (!QDir().mkpath(downloadLocation)) {
             qCritical() << u"Failed to create godot path :(";
             return;
         }
     }
 
+    auto info = new DownloadInfo(assetName, asset);
+    m_model->append(info);
+
     qInfo() << u"Saving Godot version %1 from %2 at %3"_s.arg(assetName, asset.toString(), path);
-    auto file = new QFile(path);
-    if (!file->open(QFile::WriteOnly)) {
-        qCritical() << u"Failed to open file at %1"_s.arg(path);
-        file->deleteLater();
+    QFile *file = nullptr;
+    if (QFile(path).exists()) {
+        qInfo() << "Already found downloaded godot, not downloading";
+        unzip(info, path, Config::godotLocation());
         return;
+    } else {
+        auto file = new QFile(path);
+        if (!file->open(QFile::WriteOnly)) {
+            qCritical() << u"Failed to open file at %1"_s.arg(path);
+            file->deleteLater();
+            return;
+        }
     }
 
     QNetworkRequest request(asset);
@@ -38,9 +112,6 @@ void DownloadManager::download(const QUrl &asset, const QString &assetName)
     request.setRawHeader("Connection", "close");
 
     QNetworkReply *const reply = Network::manager().get(request);
-    auto info = new DownloadInfo(assetName, asset);
-    qDebug() << u"Appending info for asset %1"_s.arg(assetName);
-    m_model->append(info);
 
     reply->setReadBufferSize(128);
 
@@ -54,14 +125,12 @@ void DownloadManager::download(const QUrl &asset, const QString &assetName)
 
     Q_EMIT downloadStarted();
 
-    connect(
+    auto cancelConnection = connect(
         this,
         &DownloadManager::cancellationRequested,
         this,
         [info, reply](QUuid id) {
             if (info->id() == id) {
-                qInfo() << u"Aborting download from %1"_s.arg(
-                    reply->url().toString(QUrl::RemoveQuery));
                 reply->abort();
             }
         },
@@ -98,13 +167,12 @@ void DownloadManager::download(const QUrl &asset, const QString &assetName)
         reply,
         &QNetworkReply::finished,
         this,
-        [reply, info, time, bytesReceivedLast, this]() {
-            qInfo() << u"Finished request";
-            qDebug() << u"Removing info for asset %1"_s.arg(info->assetName());
-            m_model->remove(info);
+        [reply, info, time, bytesReceivedLast, path, cancelConnection, this]() {
+            disconnect(cancelConnection);
             reply->deleteLater();
             delete time;
             delete bytesReceivedLast;
+            unzip(info, path, Config::godotLocation());
         },
         Qt::QueuedConnection);
 }

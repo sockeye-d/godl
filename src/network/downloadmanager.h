@@ -18,6 +18,8 @@ class DownloadManager : public QObject
 
     Q_SIGNAL void cancellationRequested(QUuid id);
 
+    void unzip(DownloadInfo *info, QString sourceFilePath, QString destFilePath);
+
 public:
     explicit DownloadManager(QObject *parent = nullptr)
         : QObject(parent)

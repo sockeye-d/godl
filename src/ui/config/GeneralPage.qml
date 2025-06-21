@@ -7,7 +7,7 @@ import org.kde.kirigamiaddons.settings as KirigamiSettings
 
 import org.fishy.godl
 
-Kirigami.Page {
+GodlConfigPage {
     title: i18n("General")
 
     FormCard.FormCard {
@@ -21,6 +21,8 @@ Kirigami.Page {
             action: Kirigami.Action {
                 text: "action"
             }
+
+            onTextChanged: Config.godotLocation = text
         }
     }
 }

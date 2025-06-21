@@ -19,8 +19,18 @@ class DownloadInfo : public QObject
     Q_PROPERTY(const QUuid id READ id CONSTANT)
     Q_PROPERTY(const QString assetName READ assetName CONSTANT)
     Q_PROPERTY(const QUrl sourceUrl READ sourceUrl CONSTANT)
+    Q_PROPERTY(int stage MEMBER m_stage NOTIFY stageChanged)
 
+public:
+    enum Stage {
+        Downloading,
+        Unzipping,
+    };
+
+    Q_ENUM(Stage)
+private:
     qreal m_progress = -1.0;
+    int m_stage = Downloading;
     qreal m_downloadSpeed = 0;
     const QUuid m_id = QUuid::createUuid();
     const QString m_assetName;
@@ -33,6 +43,13 @@ class DownloadInfo : public QObject
             return;
         m_progress = progress;
         Q_EMIT progressChanged();
+    }
+    void setStage(int stage)
+    {
+        if (m_stage == stage)
+            return;
+        m_stage = stage;
+        Q_EMIT stageChanged();
     }
 
     void setDownloadSpeed(qreal downloadSpeed)
@@ -53,6 +70,7 @@ public:
 
     qreal progress() const { return m_progress; }
     qreal downloadSpeed() const { return m_downloadSpeed; }
+    int stage() const { return m_stage; }
     const QUuid id() const { return m_id; }
 
     const QString assetName() const { return m_assetName; }
@@ -60,6 +78,7 @@ public:
 
     Q_SIGNAL void progressChanged();
     Q_SIGNAL void downloadSpeedChanged();
+    Q_SIGNAL void stageChanged();
 };
 
 #endif // DOWNLOADINFO_H

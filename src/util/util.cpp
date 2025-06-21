@@ -1,5 +1,8 @@
 #include "util.h"
+#include <QFile>
 #include <QSysInfo>
+#include <KTar>
+#include <KZip>
 
 using namespace Qt::Literals::StringLiterals;
 
@@ -40,4 +43,26 @@ QStringList sysInfo()
         }
     }
     return {};
+}
+
+QString operator/(const QString &a, const QString &b)
+{
+    return joinPath(a, b);
+}
+
+std::unique_ptr<KArchive> openArchive(const QString &filePath)
+{
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "Failed to open archive";
+        return nullptr;
+    }
+    if (file.peek(2).startsWith("\x50\x4B")) {
+        // ah it must be a zip
+        auto archive = std::make_unique<KZip>(filePath);
+        archive->open(QIODevice::ReadOnly);
+        return archive;
+    }
+
+    return nullptr;
 }

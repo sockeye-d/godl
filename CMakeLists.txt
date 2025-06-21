@@ -34,6 +34,7 @@ find_package(Qt6 REQUIRED COMPONENTS
     Gui
     QuickControls2
     Widgets
+    Concurrent
 )
 
 
@@ -46,6 +47,7 @@ find_package(KF6 REQUIRED COMPONENTS
     Config
     ConfigWidgets
     KirigamiAddons
+    Archive
 )
 
 add_subdirectory(src)

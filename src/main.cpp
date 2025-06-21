@@ -2,6 +2,7 @@
 #include <QMainWindow>
 #include <QQuickStyle>
 #include <QtQml>
+#include "configsignals.h"
 #include "godlapp.h"
 #include <KAboutData>
 #include <KIconTheme>
@@ -61,11 +62,15 @@ int main(int argc, char *argv[])
                              });
     qmlRegisterType<ChainedJsonRequest>("org.fishy.godl", 0, 1, "ChainedJsonRequest");
     qmlRegisterType<DownloadManager>("org.fishy.godl", 0, 1, "DownloadManager");
+    qmlRegisterType<DownloadInfo>("org.fishy.godl", 0, 1, "DownloadInfo");
     qmlRegisterType<GodlApp>("org.fishy.godl", 0, 1, "GodlApp");
 #ifdef CONFIG
     qmlRegisterSingletonInstance("org.fishy.godl", 0, 1, "Config", Config::self());
-    auto dialog = new KConfigDialog(nullptr, u"godl settings"_s, Config::self());
-    qmlRegisterSingletonInstance("org.fishy.godl", 0, 1, "ConfigDialog", dialog);
+    qmlRegisterSingletonInstance("org.fishy.godl",
+                                 0,
+                                 1,
+                                 "ConfigSignals",
+                                 new ConfigSignals(Config::self()));
 #endif
     qmlRegisterSingletonInstance("org.fishy.godl",
                                  0,

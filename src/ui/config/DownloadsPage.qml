@@ -7,7 +7,7 @@ import org.kde.kirigamiaddons.settings as KirigamiSettings
 
 import org.fishy.godl
 
-Kirigami.Page {
+GodlConfigPage {
     id: root
 
     title: i18n("General")
