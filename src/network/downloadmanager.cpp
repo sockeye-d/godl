@@ -13,60 +13,45 @@
 #include <KZip>
 #include <config.h>
 
-int countZipEntries(const KArchiveEntry *entry)
-{
-    if (!entry->isDirectory())
-        return 1;
-    int entries = 1;
-    auto dir = (KArchiveDirectory *) entry;
-    for (auto &subentryPath : dir->entries()) {
-        qDebug() << subentryPath;
-        entries += countZipEntries(dir->entry(subentryPath));
-    }
-    return entries;
-}
-
-void unzipDir(QPromise<void> &promise,
-              const KArchiveDirectory *dir,
-              QString destination,
-              int entryCount)
-{
-    promise.finish();
-}
-
 void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString destFilePath)
 {
+    using namespace std::chrono_literals;
+    qDebug() << "Opening archive";
     info->setStage(DownloadInfo::Unzipping);
     auto archive = openArchive(sourceFilePath);
+    info->setProgress(-1.0);
+
     if (!archive) {
         qDebug() << "Failed to open archive";
-        model()->remove(info);
+        m_model->remove(info);
+        info->deleteLater();
         return;
     }
 
-    info->setProgress(-1.0);
-
     auto future = QtConcurrent::run(
-        [archive = std::move(archive), destFilePath](QPromise<void> &promise) {
-            int entries = countZipEntries(archive->directory());
-            qDebug() << entries;
-            unzipDir(promise, archive->directory(), destFilePath, entries);
+        [sourceFilePath, archive = std::move(archive), destFilePath](QPromise<bool> &promise) {
+            auto dest = destFilePath;
+            if (archive->directory()->entries().size() <= 1
+                && archive->directory()->entry(archive->directory()->entries().first())->isFile()) {
+                dest = getDirNameFromFilePath(sourceFilePath);
+                QDir(destFilePath).mkpath(sourceFilePath.split(u"/"_s).last());
+                dest = destFilePath / dest;
+            }
+            if (archive->directory()->copyTo(destFilePath)) {
+                promise.addResult(true);
+            } else {
+                qDebug() << "Extraction failed";
+                promise.addResult(false);
+            }
+            QFile(sourceFilePath).remove();
+            QThread::sleep(250ms);
+            promise.finish();
         });
 
-    // connect(
-    //     this,
-    //     &DownloadManager::cancellationRequested,
-    //     this,
-    //     [info, &future](QUuid id) {
-    //         if (info->id() == id) {
-    //             future.cancel();
-    //         }
-    //     },
-    //     Qt::QueuedConnection);
-
-    auto watcher = new QFutureWatcher<void>();
-    connect(watcher, &QFutureWatcher<void>::finished, this, [info, watcher, this]() {
-        model()->remove(info);
+    auto watcher = new QFutureWatcher<bool>();
+    connect(watcher, &QFutureWatcher<bool>::finished, this, [info, watcher, this]() {
+        m_model->remove(info);
+        info->deleteLater();
         watcher->deleteLater();
     });
     watcher->setFuture(future);
@@ -87,21 +72,21 @@ void DownloadManager::download(const QUrl &asset, const QString &assetName)
     }
 
     auto info = new DownloadInfo(assetName, asset);
-    m_model->append(info);
 
     qInfo() << u"Saving Godot version %1 from %2 at %3"_s.arg(assetName, asset.toString(), path);
-    QFile *file = nullptr;
-    if (QFile(path).exists()) {
-        qInfo() << "Already found downloaded godot, not downloading";
-        unzip(info, path, Config::godotLocation());
+    auto file = new QFile(path);
+    // if (file->exists()) {
+    //     qInfo() << "Already found downloaded godot, not downloading";
+    //     m_model->append(info);
+    //     unzip(info, path, Config::godotLocation());
+    //     return;
+    // }
+
+    if (!file->open(QFile::WriteOnly)) {
+        qCritical() << u"Failed to open file at %1"_s.arg(path);
+        file->deleteLater();
+        info->deleteLater();
         return;
-    } else {
-        auto file = new QFile(path);
-        if (!file->open(QFile::WriteOnly)) {
-            qCritical() << u"Failed to open file at %1"_s.arg(path);
-            file->deleteLater();
-            return;
-        }
     }
 
     QNetworkRequest request(asset);
@@ -113,16 +98,14 @@ void DownloadManager::download(const QUrl &asset, const QString &assetName)
 
     QNetworkReply *const reply = Network::manager().get(request);
 
-    reply->setReadBufferSize(128);
-
     file->setParent(reply);
-    info->setParent(reply);
 
     auto time = new QElapsedTimer();
     time->start();
     auto bytesReceivedLast = new int;
     *bytesReceivedLast = 0;
 
+    m_model->append(info);
     Q_EMIT downloadStarted();
 
     auto cancelConnection = connect(

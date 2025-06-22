@@ -21,6 +21,7 @@ public:
         SourceUrlRole,
         IdRole,
         DownloadSpeedRole,
+        StageRole,
     };
 
     void append(const DownloadInfo *info);
@@ -28,7 +29,10 @@ public:
 
 public:
     QHash<int, QByteArray> roleNames() const override;
-    int rowCount(const QModelIndex &parent) const override { return m_dlInfos.length(); }
+    int rowCount(const QModelIndex &parent) const override
+    {
+        return parent.isValid() ? 0 : m_dlInfos.length();
+    }
     QVariant data(const QModelIndex &index, int role) const override;
 };
 

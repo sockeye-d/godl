@@ -3,17 +3,27 @@
 void DownloadManagerModel::append(const DownloadInfo *info)
 {
     const auto index = m_dlInfos.size();
+
     beginInsertRows(QModelIndex(), index, index);
     m_dlInfos.append(info);
+    endInsertRows();
+
     connect(info, &DownloadInfo::progressChanged, this, [this, info]() {
         QModelIndex index = createIndex(m_dlInfos.indexOf(info), 0);
+        if (index.row() == -1) {
+            qCritical() << "wtf";
+            return;
+        }
         Q_EMIT dataChanged(index, index, {ProgressRole});
     });
     connect(info, &DownloadInfo::downloadSpeedChanged, this, [this, info]() {
         QModelIndex index = createIndex(m_dlInfos.indexOf(info), 0);
+        if (index.row() == -1) {
+            qCritical() << "wtf";
+            return;
+        }
         Q_EMIT dataChanged(index, index, {DownloadSpeedRole});
     });
-    endInsertRows();
 }
 
 void DownloadManagerModel::remove(const DownloadInfo *info)
@@ -32,12 +42,18 @@ QHash<int, QByteArray> DownloadManagerModel::roleNames() const
     roles[SourceUrlRole] = "sourceUrl";
     roles[IdRole] = "id";
     roles[DownloadSpeedRole] = "downloadSpeed";
+    roles[StageRole] = "stage";
     return roles;
 }
 
 QVariant DownloadManagerModel::data(const QModelIndex &index, int role) const
 {
-    const auto info = m_dlInfos.at(index.row());
+    const auto info = m_dlInfos.value(index.row());
+    if (!info) {
+        qDebug() << "whyy";
+        return QVariant();
+    }
+
     switch (role) {
     case ProgressRole:
         return info->progress();
@@ -49,6 +65,9 @@ QVariant DownloadManagerModel::data(const QModelIndex &index, int role) const
         return info->id();
     case DownloadSpeedRole:
         return info->downloadSpeed();
+    case StageRole:
+        return info->stage();
     }
+    qDebug() << "couldn't find anything";
     return {};
 }

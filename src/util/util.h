@@ -18,6 +18,8 @@ QString joinPath(const QString &a, const QString &b);
 
 QString operator/(const QString &a, const QString &b);
 
+QString getDirNameFromFilePath(const QString &filepath);
+
 QStringList sysInfo();
 
 std::unique_ptr<KArchive> openArchive(const QString &filePath);

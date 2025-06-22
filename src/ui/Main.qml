@@ -26,8 +26,8 @@ StatefulApp.StatefulWindow {
 
     application: GodlApp {
         configurationView: KirigamiSettings.ConfigurationView {
-            // window: root
 
+            // window: root
             modules: [
                 KirigamiSettings.ConfigurationModule {
                     category: "general"
@@ -125,49 +125,53 @@ StatefulApp.StatefulWindow {
                             Layout.fillWidth: true
                             model: dl.model
 
-                            delegate: Kirigami.AbstractCard {
+                            delegate: Kirigami.Card {
+                                id: card
                                 required property var assetName
                                 required property var downloadSpeed
                                 required property var id
                                 required property var progress
-
-                                // required property var stage
-
+                                required property var stage
                                 Layout.fillWidth: true
+
                                 clip: true
                                 headerOrientation: Qt.Horizontal
 
-                                contentItem: RowLayout {
+                                contentItem: ColumnLayout {
                                     width: notificationCards.width
-
-                                    Kirigami.Icon {
-                                        // source: stage === DownloadInfo.Downloading ? "download" : "archive-extract"
-                                        source: "archive-extract"
-                                    }
-                                    Kirigami.Separator {
-                                        Layout.fillHeight: true
-                                    }
-                                    Controls.Label {
-                                        Layout.preferredWidth: Kirigami.Units.gridUnit * 4
-                                        elide: Text.ElideRight
-                                        text: `${downloadSpeed.toFixed(2)} MiB/s`
-                                    }
-                                    Kirigami.Separator {
-                                        Layout.fillHeight: true
-                                    }
-                                    Controls.ProgressBar {
+                                    Kirigami.InlineMessage {
+                                        id: message
                                         Layout.fillWidth: true
-                                        indeterminate: progress < 0.0
-                                        value: progress
-                                        width: Kirigami.Units.gridUnit * 2.0
+                                        text: "Something went wrong"
+                                        type: Kirigami.MessageType.Error
                                     }
-                                    Controls.Button {
-                                        icon.name: "stop"
-                                        text: i18n("Cancel")
 
-                                        onClicked: dl.cancel(id)
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        Controls.Label {
+                                            Layout.preferredWidth: Kirigami.Units.gridUnit * 4
+                                            elide: Text.ElideRight
+                                            text: stage === DownloadInfo.Downloading ? `${card.downloadSpeed.toFixed(2)} MiB/s` : i18n("Extracting")
+                                        }
+                                        Kirigami.Separator {
+                                            Layout.fillHeight: true
+                                        }
+                                        Controls.ProgressBar {
+                                            Layout.fillWidth: true
+                                            indeterminate: card.progress < 0.0
+                                            value: card.progress
+                                            width: Kirigami.Units.gridUnit * 2.0
+                                        }
                                     }
                                 }
+                                actions: [
+                                    Kirigami.Action {
+                                        icon.name: "cancel"
+                                        text: i18n("Cancel")
+                                        onTriggered: dl.cancel(card.id)
+                                        enabled: card.progress >= 0.0
+                                    }
+                                ]
                                 header: Kirigami.Heading {
                                     elide: Text.ElideRight
                                     level: 2
@@ -239,7 +243,6 @@ StatefulApp.StatefulWindow {
         // anchors.fill: parent
         Controls.ActionGroup {
             id: actionGroup
-
         }
         StackLayout {
             id: swipeView
@@ -278,8 +281,7 @@ StatefulApp.StatefulWindow {
         visible: false
         width: Kirigami.Units.gridUnit * 40
 
-        pageStack.initialPage: FormCard.AboutPage {
-        }
+        pageStack.initialPage: FormCard.AboutPage {}
     }
     // Kirigami.ApplicationWindow {
     //     id: configWindow
@@ -294,14 +296,12 @@ StatefulApp.StatefulWindow {
     Component {
         id: generalPage
 
-        GeneralPage {
-        }
+        GeneralPage {}
     }
     Component {
         id: downloadsPage
 
-        DownloadsPage {
-        }
+        DownloadsPage {}
     }
     DownloadManager {
         id: dl

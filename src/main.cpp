@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
                              });
     qmlRegisterType<ChainedJsonRequest>("org.fishy.godl", 0, 1, "ChainedJsonRequest");
     qmlRegisterType<DownloadManager>("org.fishy.godl", 0, 1, "DownloadManager");
+    qmlRegisterType<DownloadManagerModel>("org.fishy.godl", 0, 1, "DownloadManagerModel");
     qmlRegisterType<DownloadInfo>("org.fishy.godl", 0, 1, "DownloadInfo");
     qmlRegisterType<GodlApp>("org.fishy.godl", 0, 1, "GodlApp");
 #ifdef CONFIG

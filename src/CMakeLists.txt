@@ -18,8 +18,6 @@ qt_add_qml_module(godl
     QML_FILES ui/RemoteVersionsPage.qml
     QML_FILES ui/LocalVersionsPage.qml
     QML_FILES ui/ProjectsPage.qml
-    QML_FILES
-    QML_FILES
     QML_FILES ui/config/GeneralPage.qml
     SOURCES util/util.h util/util.cpp
     SOURCES main.h
@@ -39,6 +37,7 @@ qt_add_qml_module(godl
     SOURCES godlapp.h godlapp.cpp
     QML_FILES ui/config/GodlConfigPage.qml
     SOURCES configsignals.h configsignals.cpp
+    SOURCES network/versionregistry.h network/versionregistry.cpp
 )
 
 ecm_find_qmlmodule(org.kde.kirigami)

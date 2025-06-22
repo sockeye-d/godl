@@ -60,7 +60,7 @@ private:
     }
 
 public:
-    DownloadInfo(const QString &m_tagName, const QUrl &sourceUrl, QObject *parent = nullptr)
+    DownloadInfo(const QString m_tagName, const QUrl sourceUrl, QObject *parent = nullptr)
         : QObject{parent}
         , m_assetName(m_tagName)
         , m_sourceUrl(sourceUrl)

@@ -66,3 +66,18 @@ std::unique_ptr<KArchive> openArchive(const QString &filePath)
 
     return nullptr;
 }
+
+QString getDirNameFromFilePath(const QString &filepath)
+{
+    using namespace Qt::StringLiterals;
+    auto dirsplit = filepath.split(u"/"_s);
+    if (dirsplit.isEmpty()) {
+        return filepath;
+    }
+    auto filesplit = dirsplit.last().split(u"."_s);
+    if (filesplit.isEmpty()) {
+        return dirsplit.last();
+    }
+
+    return filesplit.sliced(0, filesplit.size() - 1).join(u"."_s);
+}
