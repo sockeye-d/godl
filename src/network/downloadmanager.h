@@ -16,9 +16,10 @@ class DownloadManager : public QObject
 
     DownloadManagerModel *m_model = new DownloadManagerModel();
 
-    Q_SIGNAL void cancellationRequested(QUuid id);
+    Q_SIGNAL void cancelRequested(QUuid id);
 
     void unzip(DownloadInfo *info, QString sourceFilePath, QString destFilePath);
+    DownloadInfo *createDlInfo(const QString &assetName, const QString &tagName, const QUrl &asset);
 
 public:
     explicit DownloadManager(QObject *parent = nullptr)
@@ -31,9 +32,8 @@ public:
     Q_SIGNAL void downloadStarted();
 
     DownloadManagerModel *model() { return m_model; }
-    Q_INVOKABLE void download(const QUrl &asset, const QString &assetName);
-    Q_INVOKABLE void cancel(const QUuid &id) { Q_EMIT cancellationRequested(id); }
-    Q_INVOKABLE void addSomething() { model()->append(new DownloadInfo("tag name", QUrl())); }
+    Q_INVOKABLE void download(const QString &assetName, const QString &tagName, const QUrl &asset);
+    Q_INVOKABLE void cancel(const QUuid &id) { Q_EMIT cancelRequested(id); }
 };
 
 #endif // DOWNLOADMANAGER_H

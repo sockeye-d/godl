@@ -22,6 +22,7 @@ public:
         IdRole,
         DownloadSpeedRole,
         StageRole,
+        ErrorRole,
     };
 
     void append(const DownloadInfo *info);

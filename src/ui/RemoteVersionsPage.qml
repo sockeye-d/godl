@@ -166,6 +166,7 @@ Kirigami.Page {
         id: dlDialog
 
         property var assets: []
+        property string tagName
 
         header: RowLayout {
             Kirigami.Heading {
@@ -234,7 +235,7 @@ Kirigami.Page {
 
                         onTriggered: {
                             // dlDialog.close()
-                            dl.download(Qt.url(browser_download_url), name);
+                            dl.download(name, dlDialog.tagName, Qt.url(browser_download_url));
                         }
                     }
                 ]
@@ -303,6 +304,7 @@ Kirigami.Page {
                             onTriggered: {
                                 dlDialog.assets = assets;
                                 dlDialog.title = `${i18n("Assets for")} ${tag_name}`;
+                                dlDialog.tagName = tag_name;
                                 dlDialog.open();
                             }
                         },

@@ -24,7 +24,7 @@ QStringList sysInfo()
         arch = "x86_32";
     }
     if (os == "linux") {
-        return {"linux_" % arch, "linux." % arch};
+        return {"linux_" % arch, "linux." % arch, "x11"};
     } else if (os == "darwin") {
         // by the way this will never run on mac this is just for completeness
         return {"macos"};
@@ -35,11 +35,9 @@ QStringList sysInfo()
             return {"win32"};
         } else if (arch == "x86_64") {
             return {"win64"};
-        } else if (arch == "arm32") {
+        } else {
             // why arm isn't winarm32/winarm64 boggles the mind
-            return {"windows_arm32"};
-        } else if (arch == "arm64") {
-            return {"windows_arm64"};
+            return {"windows_" % arch};
         }
     }
     return {};
@@ -54,17 +52,23 @@ std::unique_ptr<KArchive> openArchive(const QString &filePath)
 {
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly)) {
-        qWarning() << "Failed to open archive";
+        qWarning() << "Failed to open file to peek at the header";
         return nullptr;
     }
+
+    std::unique_ptr<KArchive> archive = nullptr;
     if (file.peek(2).startsWith("\x50\x4B")) {
         // ah it must be a zip
-        auto archive = std::make_unique<KZip>(filePath);
-        archive->open(QIODevice::ReadOnly);
-        return archive;
+        qDebug() << "Detected as zip";
+        archive = std::make_unique<KZip>(filePath);
+    } else if (filePath.endsWith(u".tar.xz"_s)) {
+        qDebug() << "Detected as xz-ed tarball";
+        archive = std::make_unique<KTar>(filePath);
     }
 
-    return nullptr;
+    qDebug() << archive->open(QIODevice::ReadWrite);
+
+    return archive;
 }
 
 QString getDirNameFromFilePath(const QString &filepath)
@@ -80,4 +84,22 @@ QString getDirNameFromFilePath(const QString &filepath)
     }
 
     return filesplit.sliced(0, filesplit.size() - 1).join(u"."_s);
+}
+
+QString removePrefix(const QString &string, const QString &prefix)
+{
+    if (!string.startsWith(prefix)) {
+        return string;
+    }
+
+    return string.sliced(prefix.length());
+}
+
+QString normalizeDirectoryPath(const QString &dirpath)
+{
+    if (dirpath.endsWith("/")) {
+        return dirpath;
+    }
+
+    return dirpath + "/";
 }

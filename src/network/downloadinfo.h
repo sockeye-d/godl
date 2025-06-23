@@ -20,11 +20,16 @@ class DownloadInfo : public QObject
     Q_PROPERTY(const QString assetName READ assetName CONSTANT)
     Q_PROPERTY(const QUrl sourceUrl READ sourceUrl CONSTANT)
     Q_PROPERTY(int stage MEMBER m_stage NOTIFY stageChanged)
+    Q_PROPERTY(QString error READ error NOTIFY errorChanged FINAL)
 
 public:
     enum Stage {
         Downloading,
         Unzipping,
+        Finished,
+        DownloadError,
+        UnzipError,
+        UnknownError,
     };
 
     Q_ENUM(Stage)
@@ -32,10 +37,21 @@ private:
     qreal m_progress = -1.0;
     int m_stage = Downloading;
     qreal m_downloadSpeed = 0;
+    bool m_hasError = false;
     const QUuid m_id = QUuid::createUuid();
     const QString m_assetName;
+    const QString m_tagName;
     const QUrl m_sourceUrl;
     CircularBuffer<qreal, 128> m_buf;
+    QString m_error = "";
+
+    void setError(QString error)
+    {
+        if (m_error == error)
+            return;
+        m_error = error;
+        Q_EMIT errorChanged();
+    }
 
     void setProgress(qreal progress)
     {
@@ -44,6 +60,7 @@ private:
         m_progress = progress;
         Q_EMIT progressChanged();
     }
+
     void setStage(int stage)
     {
         if (m_stage == stage)
@@ -60,9 +77,13 @@ private:
     }
 
 public:
-    DownloadInfo(const QString m_tagName, const QUrl sourceUrl, QObject *parent = nullptr)
+    DownloadInfo(const QString assetName,
+                 const QString tagName,
+                 const QUrl sourceUrl,
+                 QObject *parent = nullptr)
         : QObject{parent}
-        , m_assetName(m_tagName)
+        , m_assetName(assetName)
+        , m_tagName(tagName)
         , m_sourceUrl(sourceUrl)
     {}
 
@@ -75,10 +96,13 @@ public:
 
     const QString assetName() const { return m_assetName; }
     const QUrl sourceUrl() const { return m_sourceUrl; }
+    QString error() const { return m_error; }
+    QString tagName() const { return m_tagName; }
 
     Q_SIGNAL void progressChanged();
     Q_SIGNAL void downloadSpeedChanged();
     Q_SIGNAL void stageChanged();
+    Q_SIGNAL void errorChanged();
 };
 
 #endif // DOWNLOADINFO_H

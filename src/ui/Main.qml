@@ -127,31 +127,49 @@ StatefulApp.StatefulWindow {
 
                             delegate: Kirigami.Card {
                                 id: card
-                                required property var assetName
-                                required property var downloadSpeed
-                                required property var id
-                                required property var progress
-                                required property var stage
-                                Layout.fillWidth: true
 
+                                required property string assetName
+                                required property real downloadSpeed
+                                required property string error
+                                required property var id
+                                required property real progress
+                                required property int stage
+
+                                Layout.fillWidth: true
                                 clip: true
                                 headerOrientation: Qt.Horizontal
 
+                                actions: [
+                                    Kirigami.Action {
+                                        enabled: card.stage !== DownloadInfo.Unzipping
+                                        icon.name: "dialog-cancel"
+
+                                        onTriggered: dl.cancel(card.id)
+                                    }
+                                ]
                                 contentItem: ColumnLayout {
                                     width: notificationCards.width
-                                    Kirigami.InlineMessage {
-                                        id: message
-                                        Layout.fillWidth: true
-                                        text: "Something went wrong"
-                                        type: Kirigami.MessageType.Error
-                                    }
 
+                                    Kirigami.InlineMessage {
+                                        Layout.fillWidth: true
+                                        text: card.error
+                                        type: Kirigami.MessageType.Error
+                                        visible: card.error != ""
+                                    }
+                                    Kirigami.InlineMessage {
+                                        Layout.fillWidth: true
+                                        text: i18n("Installation complete")
+                                        type: Kirigami.MessageType.Positive
+                                        visible: card.stage === DownloadInfo.Finished
+                                    }
                                     RowLayout {
                                         Layout.fillWidth: true
+                                        visible: card.stage !== DownloadInfo.Finished && card.error === ""
+
                                         Controls.Label {
                                             Layout.preferredWidth: Kirigami.Units.gridUnit * 4
                                             elide: Text.ElideRight
-                                            text: stage === DownloadInfo.Downloading ? `${card.downloadSpeed.toFixed(2)} MiB/s` : i18n("Extracting")
+                                            text: card.stage === DownloadInfo.Downloading ? `${card.downloadSpeed.toFixed(2)} MiB/s` : i18n("Extracting")
                                         }
                                         Kirigami.Separator {
                                             Layout.fillHeight: true
@@ -164,18 +182,10 @@ StatefulApp.StatefulWindow {
                                         }
                                     }
                                 }
-                                actions: [
-                                    Kirigami.Action {
-                                        icon.name: "cancel"
-                                        text: i18n("Cancel")
-                                        onTriggered: dl.cancel(card.id)
-                                        enabled: card.progress >= 0.0
-                                    }
-                                ]
                                 header: Kirigami.Heading {
                                     elide: Text.ElideRight
                                     level: 2
-                                    text: assetName
+                                    text: card.assetName
                                 }
                             }
                         }
@@ -243,6 +253,7 @@ StatefulApp.StatefulWindow {
         // anchors.fill: parent
         Controls.ActionGroup {
             id: actionGroup
+
         }
         StackLayout {
             id: swipeView
@@ -281,7 +292,8 @@ StatefulApp.StatefulWindow {
         visible: false
         width: Kirigami.Units.gridUnit * 40
 
-        pageStack.initialPage: FormCard.AboutPage {}
+        pageStack.initialPage: FormCard.AboutPage {
+        }
     }
     // Kirigami.ApplicationWindow {
     //     id: configWindow
@@ -296,12 +308,14 @@ StatefulApp.StatefulWindow {
     Component {
         id: generalPage
 
-        GeneralPage {}
+        GeneralPage {
+        }
     }
     Component {
         id: downloadsPage
 
-        DownloadsPage {}
+        DownloadsPage {
+        }
     }
     DownloadManager {
         id: dl
