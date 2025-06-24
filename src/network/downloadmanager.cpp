@@ -87,7 +87,7 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
                 info->setStage(DownloadInfo::UnknownError);
                 info->setError("Couldn't find Godot executable in archive");
             } else {
-                VersionRegistry::registerVersion(info->tagName(), future.result());
+                VersionRegistry::instance().registerVersion(info->tagName(), future.result());
                 info->setStage(DownloadInfo::Finished);
             }
         }

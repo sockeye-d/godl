@@ -37,9 +37,7 @@ public:
     {
         auto meta = config->metaObject();
         // die stupid warning
-        [[clang::suppress]]
-        auto onNotifySignal
-            = metaObject()->method(metaObject()->indexOfMethod("onNotifySignal()"));
+        auto onNotifySignal = metaObject()->method(metaObject()->indexOfMethod("onNotifySignal()"));
         for (int i = 0; i < meta->propertyCount(); i++) {
             auto prop = meta->property(i);
             if (prop.hasNotifySignal()) {

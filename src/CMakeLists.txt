@@ -19,6 +19,9 @@ qt_add_qml_module(godl
     QML_FILES ui/LocalVersionsPage.qml
     QML_FILES ui/ProjectsPage.qml
     QML_FILES ui/config/GeneralPage.qml
+    QML_FILES ui/config/DownloadsPage.qml
+    QML_FILES ui/config/GodlConfigPage.qml
+    QML_FILES ui/config/FormActionTextFieldDelegate.qml
     SOURCES util/util.h util/util.cpp
     SOURCES main.h
     SOURCES model/downloadmanagermodel.h model/downloadmanagermodel.cpp
@@ -31,13 +34,12 @@ qt_add_qml_module(godl
     SOURCES model/downloadmanagermodel.cpp model/downloadmanagermodel.h
     SOURCES model/listbasedmodel.h model/listbasedmodel.cpp
     SOURCES ${config_SRCS}
-    RESOURCES config.kcfg
-    RESOURCES config.kcfgc
-    QML_FILES ui/config/DownloadsPage.qml
+    SOURCES widgets/betterfiledialog.h widgets/betterfiledialog.cpp
     SOURCES godlapp.h godlapp.cpp
-    QML_FILES ui/config/GodlConfigPage.qml
     SOURCES configsignals.h configsignals.cpp
     SOURCES network/versionregistry.h network/versionregistry.cpp
+    RESOURCES config.kcfg
+    RESOURCES config.kcfgc
 )
 
 ecm_find_qmlmodule(org.kde.kirigami)
@@ -68,6 +70,9 @@ target_link_libraries(godl
 
 target_include_directories(godl
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/network
+)
+target_include_directories(godl
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/widgets
 )
 
 install(TARGETS godl ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})

@@ -4,20 +4,22 @@
 #include <QtQml>
 #include "configsignals.h"
 #include "godlapp.h"
+#include "networkresponsecode.h"
+#include "widgets/betterfiledialog.h"
 #include <KAboutData>
 #include <KIconTheme>
 #include <KLocalizedContext>
 #include <KLocalizedString>
 #include <KSharedConfig>
-#include <networkresponsecode.h>
 #if __has_include("config.h")
 #define CONFIG
 #include "config.h"
 #endif
+#include "chainedjsonrequest.h"
+#include "downloadmanager.h"
 #include "main.h"
+#include "versionregistry.h"
 #include <KConfigDialog>
-#include <chainedjsonrequest.h>
-#include <downloadmanager.h>
 
 using namespace Qt::Literals::StringLiterals;
 
@@ -65,6 +67,9 @@ int main(int argc, char *argv[])
     qmlRegisterType<DownloadManagerModel>("org.fishy.godl", 0, 1, "DownloadManagerModel");
     qmlRegisterType<DownloadInfo>("org.fishy.godl", 0, 1, "DownloadInfo");
     qmlRegisterType<GodlApp>("org.fishy.godl", 0, 1, "GodlApp");
+    qmlRegisterType<BetterFileDialog>("org.fishy.godl", 0, 1, "BetterFileDialog");
+    qmlRegisterType<QFileDialog>("org.fishy.godl.qwidgets", 0, 1, "FileDialog");
+    qmlRegisterType<QDir>("org.fishy.godl.qwidgets", 0, 1, "QDir");
 #ifdef CONFIG
     qmlRegisterSingletonInstance("org.fishy.godl", 0, 1, "Config", Config::self());
     qmlRegisterSingletonInstance("org.fishy.godl",
@@ -78,6 +83,11 @@ int main(int argc, char *argv[])
                                  1,
                                  "NetworkResponseCode",
                                  new NetworkResponseCode());
+    qmlRegisterSingletonInstance("org.fishy.godl",
+                                 0,
+                                 1,
+                                 "VersionRegistry",
+                                 &VersionRegistry::instance());
     QQmlApplicationEngine engine;
     Main::engine = &engine;
 
