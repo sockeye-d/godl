@@ -2,9 +2,9 @@
 #include <QMainWindow>
 #include <QQuickStyle>
 #include <QtQml>
-#include "configsignals.h"
 #include "godlapp.h"
 #include "networkresponsecode.h"
+#include "util/iconconverter.h"
 #include "widgets/betterfiledialog.h"
 #include <KAboutData>
 #include <KIconTheme>
@@ -14,6 +14,7 @@
 #if __has_include("config.h")
 #define CONFIG
 #include "config.h"
+#include "configsignals.h"
 #endif
 #include "chainedjsonrequest.h"
 #include "downloadmanager.h"
@@ -62,14 +63,18 @@ int main(int argc, char *argv[])
                              [](QQmlEngine *engine, QJSEngine *) -> QJSValue {
                                  return engine->toScriptValue(KAboutData::applicationData());
                              });
+    qmlRegisterSingletonInstance("org.fishy.godl", 0, 1, "IconConverter", new IconConverter);
     qmlRegisterType<ChainedJsonRequest>("org.fishy.godl", 0, 1, "ChainedJsonRequest");
     qmlRegisterType<DownloadManager>("org.fishy.godl", 0, 1, "DownloadManager");
     qmlRegisterType<DownloadManagerModel>("org.fishy.godl", 0, 1, "DownloadManagerModel");
     qmlRegisterType<DownloadInfo>("org.fishy.godl", 0, 1, "DownloadInfo");
     qmlRegisterType<GodlApp>("org.fishy.godl", 0, 1, "GodlApp");
     qmlRegisterType<BetterFileDialog>("org.fishy.godl", 0, 1, "BetterFileDialog");
+    qmlRegisterType<GodotVersion>("org.fishy.godl", 0, 1, "GodotVersion");
     qmlRegisterType<QFileDialog>("org.fishy.godl.qwidgets", 0, 1, "FileDialog");
     qmlRegisterType<QDir>("org.fishy.godl.qwidgets", 0, 1, "QDir");
+    qmlRegisterType<QAction>("org.fishy.godl.qwidgets", 0, 1, "QAction");
+    qmlRegisterType<QIcon>("org.fishy.godl.qwidgets", 0, 1, "QIcon");
 #ifdef CONFIG
     qmlRegisterSingletonInstance("org.fishy.godl", 0, 1, "Config", Config::self());
     qmlRegisterSingletonInstance("org.fishy.godl",
@@ -83,11 +88,18 @@ int main(int argc, char *argv[])
                                  1,
                                  "NetworkResponseCode",
                                  new NetworkResponseCode());
-    qmlRegisterSingletonInstance("org.fishy.godl",
-                                 0,
-                                 1,
-                                 "VersionRegistry",
-                                 &VersionRegistry::instance());
+    qmlRegisterSingletonType("org.fishy.godl",
+                             0,
+                             1,
+                             "VersionRegistry",
+                             [](QQmlEngine *engine, QJSEngine *) {
+                                 return engine->toScriptValue(&VersionRegistry::instance());
+                             });
+    // qmlRegisterSingletonInstance("org.fishy.godl",
+    //                              0,
+    //                              1,
+    //                              "VersionRegistry",
+    //                              &VersionRegistry::instance());
     QQmlApplicationEngine engine;
     Main::engine = &engine;
 
@@ -100,6 +112,9 @@ int main(int argc, char *argv[])
     }
 
     auto return_code = app.exec();
+
+    Config::self()->save();
+
     Main::engine = nullptr;
     return return_code;
 }

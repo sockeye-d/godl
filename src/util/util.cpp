@@ -53,10 +53,10 @@ std::unique_ptr<KArchive> openArchive(const QString &filePath)
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly)) {
         qWarning() << "Failed to open file to peek at the header";
-        return nullptr;
+        return {};
     }
 
-    std::unique_ptr<KArchive> archive = nullptr;
+    std::unique_ptr<KArchive> archive;
     if (file.peek(2).startsWith("\x50\x4B")) {
         // ah it must be a zip
         qDebug() << "Detected as zip";
@@ -66,7 +66,9 @@ std::unique_ptr<KArchive> openArchive(const QString &filePath)
         archive = std::make_unique<KTar>(filePath);
     }
 
-    qDebug() << archive->open(QIODevice::ReadWrite);
+    if (!archive->open(QIODevice::ReadWrite)) {
+        return {};
+    }
 
     return archive;
 }
@@ -95,6 +97,13 @@ QString removePrefix(const QString &string, const QString &prefix)
     return string.sliced(prefix.length());
 }
 
+/**
+ * @brief Ensures the path has a '/' at the end. If it has one, nothing is
+ * changed, but if it doesn't, a slash is appended. This doesn't handle any sort
+ * of resolution of dots and dot-dots.
+ * @param dirpath The path to normalize.
+ * @return The normalized path.
+ */
 QString normalizeDirectoryPath(const QString &dirpath)
 {
     if (dirpath.endsWith("/")) {

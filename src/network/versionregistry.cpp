@@ -4,9 +4,10 @@
 
 using namespace Qt::StringLiterals;
 
-void VersionRegistry::registerVersion(QString versionTag, QString executable)
+void VersionRegistry::registerVersion(QString versionTag, QString executable, bool isMono)
 {
     config->group("").writeEntry(versionTag, executable);
+    config->group("").writeEntry(versionTag, isMono);
     config->sync();
 }
 

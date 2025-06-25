@@ -6,10 +6,15 @@ import org.kde.kirigami as Kirigami
 import org.fishy.godl
 
 Kirigami.Page {
-    Controls.Label {
-        anchors.fill: parent
-        text: "local versions page"
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
-    }
+    title: i18n("Local versions")
+
+    // Kirigami.CardsListView {
+    //     model: VersionRegistry.model
+
+    //     delegate: Kirigami.Card {
+    //         required property GodotVersion data
+
+    //         banner.title: data.assetName
+    //     }
+    // }
 }

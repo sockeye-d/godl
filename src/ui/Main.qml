@@ -1,7 +1,8 @@
 // Includes relevant modules used by the QML
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Controls as Controls
+import Qt.labs.platform as Platform
+import QtQuick.Controls
 import org.kde.kirigami as Kirigami
 import org.kde.kirigamiaddons.formcard as FormCard
 import org.kde.kirigamiaddons.settings as KirigamiSettings
@@ -25,6 +26,8 @@ StatefulApp.StatefulWindow {
     windowName: i18nc("@title:window", "godl")
 
     application: GodlApp {
+        id: app
+
         configurationView: KirigamiSettings.ConfigurationView {
 
             // window: root
@@ -67,7 +70,7 @@ StatefulApp.StatefulWindow {
         Item {
             Layout.fillWidth: true
         }
-        Controls.Button {
+        Button {
             id: notificationPopupToggle
 
             checkable: true
@@ -81,12 +84,12 @@ StatefulApp.StatefulWindow {
                 notificationPopup.close();
             }
 
-            Controls.Popup {
+            Popup {
                 id: notificationPopup
 
                 property real wantedHeight
 
-                closePolicy: Controls.Popup.NoAutoClose
+                closePolicy: Popup.NoAutoClose
                 // this is so cursed... but it works
                 height: wantedHeight == -1 ? (visible ? notificationCardsScroll.height + padding * 2.0 : 0.0) : wantedHeight
                 rightPadding: 0
@@ -105,10 +108,10 @@ StatefulApp.StatefulWindow {
                 onAboutToHide: wantedHeight = 0
                 onAboutToShow: wantedHeight = -1
 
-                Controls.ScrollView {
+                ScrollView {
                     id: notificationCardsScroll
 
-                    Controls.ScrollBar.horizontal.policy: Controls.ScrollBar.AlwaysOff
+                    ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
                     clip: true
                     height: Math.min(notificationCards.height + notificationPopup.padding * 2.0, Math.min(Kirigami.Units.gridUnit * 15.0, Math.round(root.height / 2)))
                     width: notificationPopup.availableWidth
@@ -166,7 +169,7 @@ StatefulApp.StatefulWindow {
                                         Layout.fillWidth: true
                                         visible: card.stage !== DownloadInfo.Finished && card.error === ""
 
-                                        Controls.Label {
+                                        Label {
                                             Layout.preferredWidth: Kirigami.Units.gridUnit * 4
                                             elide: Text.ElideRight
                                             text: card.stage === DownloadInfo.Downloading ? `${card.downloadSpeed.toFixed(2)} MiB/s` : i18n("Extracting")
@@ -174,7 +177,7 @@ StatefulApp.StatefulWindow {
                                         Kirigami.Separator {
                                             Layout.fillHeight: true
                                         }
-                                        Controls.ProgressBar {
+                                        ProgressBar {
                                             Layout.fillWidth: true
                                             indeterminate: card.progress < 0.0
                                             value: card.progress
@@ -191,7 +194,7 @@ StatefulApp.StatefulWindow {
                         }
                     }
                 }
-                Controls.Label {
+                Label {
                     anchors.centerIn: parent
                     text: i18n("No active downloads")
                     visible: repeater.count === 0
@@ -200,7 +203,7 @@ StatefulApp.StatefulWindow {
         }
     }
     globalDrawer: Kirigami.GlobalDrawer {
-        isMenu: true
+        isMenu: false
 
         actions: [
             Kirigami.Action {
@@ -220,7 +223,7 @@ StatefulApp.StatefulWindow {
         property int activePageIndex: 0
         property list<Kirigami.Action> baseActions: [
             Kirigami.Action {
-                Controls.ActionGroup.group: actionGroup
+                ActionGroup.group: actionGroup
                 checkable: true
                 checked: mainPage.activePageIndex === 0
                 icon.name: "edit"
@@ -229,7 +232,7 @@ StatefulApp.StatefulWindow {
                 onTriggered: mainPage.activePageIndex = 0
             },
             Kirigami.Action {
-                Controls.ActionGroup.group: actionGroup
+                ActionGroup.group: actionGroup
                 checkable: true
                 checked: mainPage.activePageIndex === 1
                 icon.name: "drive"
@@ -238,7 +241,7 @@ StatefulApp.StatefulWindow {
                 onTriggered: mainPage.activePageIndex = 1
             },
             Kirigami.Action {
-                Controls.ActionGroup.group: actionGroup
+                ActionGroup.group: actionGroup
                 checkable: true
                 checked: mainPage.activePageIndex === 2
                 icon.name: "server-symbolic"
@@ -250,8 +253,9 @@ StatefulApp.StatefulWindow {
 
         actions: swipeView.children[swipeView.currentIndex].actions.concat(baseActions)
 
-        // anchors.fill: parent
-        Controls.ActionGroup {
+        // title: swipeView.children[swipeView.currentIndex].title
+
+        ActionGroup {
             id: actionGroup
 
         }
@@ -284,6 +288,25 @@ StatefulApp.StatefulWindow {
         }
     }
 
+    Platform.MenuBar {
+        Platform.Menu {
+            title: "Edit"
+
+            PlatformActionMenuItem {
+                action: root.application.action("options_configure")
+            }
+            PlatformActionMenuItem {
+                action: root.application.action("options_configure_keybinding")
+            }
+        }
+        Platform.Menu {
+            title: "Help"
+
+            PlatformActionMenuItem {
+                action: root.application.action("open_about_page")
+            }
+        }
+    }
     Kirigami.ApplicationWindow {
         id: aboutPage
 
@@ -295,16 +318,6 @@ StatefulApp.StatefulWindow {
         pageStack.initialPage: FormCard.AboutPage {
         }
     }
-    // Kirigami.ApplicationWindow {
-    //     id: configWindow
-
-    //     flags: Qt.Dialog
-    //     height: Kirigami.Units.gridUnit * 25
-    //     modality: Qt.WindowModal
-    //     transientParent: root
-    //     visible: false
-    //     width: Kirigami.Units.gridUnit * 40
-    // }
     Component {
         id: generalPage
 

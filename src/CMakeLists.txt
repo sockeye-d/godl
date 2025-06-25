@@ -1,5 +1,4 @@
-qt_add_executable(godl
-    main.cpp network/chainedjsonrequest.cpp network/chainedjsonrequest.h network/macros.h)
+qt_add_executable(godl)
 
 kconfig_add_kcfg_files(config_SRCS config.kcfgc GENERATE_MOC)
 
@@ -22,8 +21,9 @@ qt_add_qml_module(godl
     QML_FILES ui/config/DownloadsPage.qml
     QML_FILES ui/config/GodlConfigPage.qml
     QML_FILES ui/config/FormActionTextFieldDelegate.qml
+    QML_FILES ui/PlatformActionMenuItem.qml
+    SOURCES main.cpp main.h
     SOURCES util/util.h util/util.cpp
-    SOURCES main.h
     SOURCES model/downloadmanagermodel.h model/downloadmanagermodel.cpp
     SOURCES network/downloadmanager.h network/downloadmanager.cpp
     SOURCES network/downloadinfo.h
@@ -32,12 +32,14 @@ qt_add_qml_module(godl
     SOURCES network/networkresponsecode.h network/networkresponsecode.cpp
     SOURCES util/circularbuffer.h util/circularbuffer.cpp
     SOURCES model/downloadmanagermodel.cpp model/downloadmanagermodel.h
-    SOURCES model/listbasedmodel.h model/listbasedmodel.cpp
     SOURCES ${config_SRCS}
     SOURCES widgets/betterfiledialog.h widgets/betterfiledialog.cpp
     SOURCES godlapp.h godlapp.cpp
     SOURCES configsignals.h configsignals.cpp
     SOURCES network/versionregistry.h network/versionregistry.cpp
+    SOURCES util/iconconverter.h util/iconconverter.cpp
+    SOURCES network/godotversion.h network/godotversion.cpp
+    SOURCES model/versionregistrymodel.h model/versionregistrymodel.cpp
     RESOURCES config.kcfg
     RESOURCES config.kcfgc
 )

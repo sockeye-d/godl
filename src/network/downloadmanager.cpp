@@ -38,61 +38,72 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
 {
     qDebug() << "Opening archive";
     info->setStage(DownloadInfo::Unzipping);
-    auto archive = openArchive(sourceFilePath);
     info->setProgress(-1.0);
 
-    if (!archive) {
-        qDebug() << "Failed to open archive at " << sourceFilePath;
-        info->setStage(DownloadInfo::UnzipError);
-        info->setError(i18n("Failed to unzip archive"));
-        return;
-    }
-
-    auto future = QtConcurrent::run(
-        [sourceFilePath, archive = std::move(archive), destFilePath, info](
-            QPromise<QString> &promise) {
-            using namespace std::chrono_literals;
-            auto dest = destFilePath;
-            qDebug() << archive->directory()->entries().size();
-            if (archive->directory()->entries().size() == 1) {
-                auto entryName = archive->directory()->entries().first();
-                if (archive->directory()->entry(entryName)->isFile()) {
-                    qDebug() << "Single file zip";
-                    dest = getDirNameFromFilePath(sourceFilePath);
-                    QDir(destFilePath).mkpath(dest);
-                    dest = destFilePath / dest;
-                }
-            }
-            qInfo() << "Copying file path to " << dest;
-            if (!archive->directory()->copyTo(dest)) {
-                info->setStage(DownloadInfo::UnzipError);
-            } else {
-                for (QFileInfo file : QDir(dest).entryInfoList(QDir::Files | QDir::Executable)) {
-                    qDebug() << file.canonicalFilePath();
-                    if (!file.fileName().contains("console")) {
-                        promise.addResult(removePrefix(file.absoluteFilePath(),
-                                                       normalizeDirectoryPath(destFilePath)));
-                        break;
-                    }
-                }
-            }
-            // QFile(sourceFilePath).remove();
+    auto future = QtConcurrent::run([sourceFilePath, destFilePath, info](
+                                        QPromise<QString> &promise) {
+        using namespace std::chrono_literals;
+        QThread::sleep(500ms);
+        auto archive = openArchive(sourceFilePath);
+        if (!archive) {
+            qDebug() << "Failed to open archive at " << sourceFilePath;
+            info->setStage(DownloadInfo::UnzipError);
+            info->setError(i18n("Failed to unzip archive"));
             promise.finish();
-        });
-
-    auto watcher = new QFutureWatcher<QString>();
-    connect(watcher, &QFutureWatcher<QString>::finished, this, [info, watcher, future]() {
-        if (info->stage() != DownloadInfo::UnzipError) {
-            if (future.results().isEmpty()) {
-                info->setStage(DownloadInfo::UnknownError);
-                info->setError("Couldn't find Godot executable in archive");
-            } else {
-                VersionRegistry::instance().registerVersion(info->tagName(), future.result());
-                info->setStage(DownloadInfo::Finished);
+            return;
+        }
+        auto dest = destFilePath;
+        qDebug() << archive->directory()->entries().size();
+        if (archive->directory()->entries().size() == 1) {
+            auto entryName = archive->directory()->entries().first();
+            if (archive->directory()->entry(entryName)->isFile()) {
+                qDebug() << "Single file zip";
+                dest = QFileInfo(sourceFilePath).completeBaseName();
+                QDir(destFilePath).mkpath(dest);
+                dest = destFilePath / dest;
             }
         }
-        watcher->deleteLater();
+        qInfo() << "Copying file path to " << dest;
+        if (!archive->directory()->copyTo(dest)) {
+            info->setStage(DownloadInfo::UnzipError);
+        } else {
+            if (archive->directory()->entry(archive->directory()->entries().first())->isDirectory()) {
+                dest = dest / archive->directory()->entries().first();
+            }
+            auto entries = QDir(dest).entryInfoList(QDir::Files);
+            for (const QFileInfo &file : std::as_const(entries)) {
+                qDebug() << file.canonicalFilePath();
+                qDebug() << file.isExecutable();
+                if (!file.fileName().contains("console")) {
+                    promise.addResult(removePrefix(file.absoluteFilePath(),
+                                                   normalizeDirectoryPath(destFilePath)));
+                    break;
+                }
+            }
+        }
+        // QFile(sourceFilePath).remove();
+        promise.finish();
     });
+
+    auto watcher = new QFutureWatcher<QString>();
+    connect(watcher,
+            &QFutureWatcher<QString>::finished,
+            this,
+            [info, watcher, future, sourceFilePath]() {
+                if (info->stage() != DownloadInfo::UnzipError) {
+                    if (future.results().isEmpty()) {
+                        info->setStage(DownloadInfo::UnknownError);
+                        info->setError("Couldn't find Godot executable");
+                    } else {
+                        bool isMono = QFileInfo(sourceFilePath).completeBaseName().contains("mono");
+                        VersionRegistry::instance().registerVersion(info->tagName(),
+                                                                    future.result(),
+                                                                    isMono);
+                        info->setStage(DownloadInfo::Finished);
+                    }
+                }
+                watcher->deleteLater();
+            });
     watcher->setFuture(future);
 }
 
@@ -121,7 +132,7 @@ void DownloadManager::download(const QString &assetName, const QString &tagName,
         return;
     }
 
-    if (!file->open(QFile::WriteOnly)) {
+    if (!file->open(QIODeviceBase::WriteOnly | QIODeviceBase::Truncate)) {
         qCritical() << u"Failed to open file at %1"_s.arg(path);
         file->deleteLater();
         info->deleteLater();
@@ -134,10 +145,11 @@ void DownloadManager::download(const QString &assetName, const QString &tagName,
     }
     request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false);
     request.setRawHeader("Connection", "close");
+    request.setRawHeader("Accept-Encoding", "identity");
+    request.setHeader(QNetworkRequest::UserAgentHeader,
+                      "Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0");
 
     QNetworkReply *const reply = Network::manager().get(request);
-
-    file->setParent(reply);
 
     auto time = new QElapsedTimer();
     time->start();
@@ -151,28 +163,23 @@ void DownloadManager::download(const QString &assetName, const QString &tagName,
                                     &DownloadManager::cancelRequested,
                                     this,
                                     [info, reply](QUuid id) {
+                                        qDebug() << reply->headers().toMultiMap();
                                         if (info->id() == id) {
                                             reply->abort();
                                         }
                                     });
 
-    connect(
-        reply,
-        &QNetworkReply::readyRead,
-        this,
-        [reply, file, info, time, bytesReceivedLast]() {
-            auto data = reply->readAll();
-            file->write(data);
+    connect(reply, &QNetworkReply::readyRead, this, [reply, file, info, time, bytesReceivedLast]() {
+        auto data = reply->readAll();
+        file->write(data);
 
-            *bytesReceivedLast = *bytesReceivedLast + data.size();
-            if (time->nsecsElapsed() > 100000000) {
-                info->setDownloadSpeed(*bytesReceivedLast / (time->nsecsElapsed() * 1e-9)
-                                       / 1048576.0);
-                time->restart();
-                *bytesReceivedLast = 0;
-            }
-        },
-        Qt::QueuedConnection);
+        *bytesReceivedLast = *bytesReceivedLast + data.size();
+        if (time->nsecsElapsed() > 100000000) {
+            info->setDownloadSpeed(*bytesReceivedLast / (time->nsecsElapsed() * 1e-9) / 1048576.0);
+            time->restart();
+            *bytesReceivedLast = 0;
+        }
+    });
 
     connect(
         reply,
@@ -187,9 +194,11 @@ void DownloadManager::download(const QString &assetName, const QString &tagName,
         reply,
         &QNetworkReply::finished,
         this,
-        [reply, info, time, bytesReceivedLast, path, cancelConnection, this]() {
+        [reply, info, time, bytesReceivedLast, path, cancelConnection, this, file]() {
             disconnect(cancelConnection);
             reply->deleteLater();
+            file->close();
+            file->deleteLater();
             delete time;
             delete bytesReceivedLast;
             if (reply->error() != QNetworkReply::NoError) {
