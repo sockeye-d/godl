@@ -2,31 +2,52 @@
 
 #include <KSharedConfig>
 
-using namespace Qt::StringLiterals;
-
-void VersionRegistry::registerVersion(QString versionTag, QString executable, bool isMono)
+void VersionRegistry::add(std::shared_ptr<GodotVersion> version)
 {
-    config->group("").writeEntry(versionTag, executable);
-    config->group("").writeEntry(versionTag, isMono);
-    config->sync();
+    connect(version.get(),
+            &GodotVersion::cmdChanged,
+            this,
+            [weak_version = (std::weak_ptr<GodotVersion>) version, this]() {
+                auto ptr = weak_version.lock();
+                if (ptr)
+                    ptr->writeTo(config());
+            });
+    model()->append(version);
 }
 
-QMap<QString, QString> VersionRegistry::registeredVersions() const
+void VersionRegistry::registerVersion(std::shared_ptr<GodotVersion> version)
 {
-    return config->entryMap();
+    version->writeTo(m_config);
+    add(version);
 }
 
-QStringList VersionRegistry::registeredVersionTags() const
+QMap<QString, std::shared_ptr<GodotVersion>> VersionRegistry::versions() const
 {
-    return config->entryMap().keys();
+    QMap<QString, std::shared_ptr<GodotVersion>> map;
+    for (const QString &assetName : assets()) {
+        map[assetName] = version(assetName);
+    }
+    return map;
 }
 
-QString VersionRegistry::versionPath(QString versionTag) const
+std::shared_ptr<GodotVersion> VersionRegistry::version(QString assetName) const
 {
-    return config->group("").readEntry(versionTag, "");
+    const KConfigGroup &group = m_config->group(assetName);
+    const auto version = std::make_shared<GodotVersion>();
+    version->setAssetName(assetName);
+    version->setTag(group.readEntry("tag"));
+    version->setPath(group.readEntry("path"));
+    version->setSourceUrl(group.readEntry("sourceUrl"));
+    version->setIsMono(group.readEntry("isMono", version->isMono()));
+    version->setCmd(group.readEntry("cmd"));
+    return version;
 }
 
-QString VersionRegistry::absoluteVersionPath(QString versionTag) const
+const QStringList VersionRegistry::assets() const
 {
-    return config->name() / versionPath(versionTag);
+    return m_config->groupList();
+}
+Q_INVOKABLE GodotVersion *VersionRegistry::qversion(QString versionTag) const
+{
+    return version(versionTag).get();
 }

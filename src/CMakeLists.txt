@@ -17,6 +17,7 @@ qt_add_qml_module(godl
     URI org.fishy.godl
     VERSION 0.1
     IMPORT_PATH /usr/lib/qt6/qml
+    NO_CACHEGEN
     QML_FILES ui/Main.qml
     QML_FILES ui/RemoteVersionsPage.qml
     QML_FILES ui/LocalVersionsPage.qml

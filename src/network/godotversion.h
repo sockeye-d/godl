@@ -3,9 +3,13 @@
 
 #include <QObject>
 #include <QQmlEngine>
+#include <config.h>
+// #include "config.h"
+#include <KSharedConfig>
 
 class GodotVersion : public QObject
 {
+    friend class VersionRegistry;
     Q_OBJECT
     QML_ELEMENT
 private:
@@ -59,10 +63,72 @@ public:
 
     Q_SIGNAL void sourceUrlChanged();
 
+private:
+    Q_PROPERTY(QString path READ path NOTIFY pathChanged FINAL)
+    QString m_path = "";
+
+    void setPath(QString path)
+    {
+        if (m_path == path)
+            return;
+        m_path = path;
+        Q_EMIT pathChanged();
+    }
+
+public:
+    QString path() const { return m_path; }
+
+    Q_SIGNAL void pathChanged();
+
+private:
+    Q_PROPERTY(QString tag READ tag NOTIFY tagChanged FINAL)
+    QString m_tag = "";
+
+    void setTag(QString tag)
+    {
+        if (m_tag == tag)
+            return;
+        m_tag = tag;
+        Q_EMIT tagChanged();
+    }
+
+public:
+    QString tag() const { return m_tag; }
+
+    Q_SIGNAL void tagChanged();
+
+private:
+    Q_PROPERTY(QString cmd READ cmd WRITE setCmd NOTIFY cmdChanged FINAL)
+    // available replacements are
+    // {executable}, {projectPath}
+    QString m_cmd = Config::defaultCommand();
+
+public:
+    void setCmd(QString cmd)
+    {
+        if (m_cmd == cmd)
+            return;
+        m_cmd = cmd;
+        Q_EMIT cmdChanged();
+    }
+    QString cmd() const { return m_cmd; }
+
+    Q_SIGNAL void cmdChanged();
+
 public:
     explicit GodotVersion(QObject *parent = nullptr);
+    explicit GodotVersion(QString tag,
+                          QString assetName,
+                          QString sourceUrl,
+                          QString path,
+                          bool isMono,
+                          QObject *parent = nullptr);
+
+    void writeTo(KSharedConfig::Ptr config) const;
 };
 
 bool operator==(const GodotVersion &left, const GodotVersion &right);
+
+QDebug operator<<(QDebug dbg, const GodotVersion &godotVersion);
 
 #endif // GODOTVERSION_H

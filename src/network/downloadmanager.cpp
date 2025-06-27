@@ -96,9 +96,12 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
                         info->setError("Couldn't find Godot executable");
                     } else {
                         bool isMono = QFileInfo(sourceFilePath).completeBaseName().contains("mono");
-                        VersionRegistry::instance().registerVersion(info->tagName(),
-                                                                    future.result(),
-                                                                    isMono);
+                        VersionRegistry::instance().registerVersion(
+                            std::make_shared<GodotVersion>(info->tagName(),
+                                                           info->assetName(),
+                                                           info->sourceUrl().toString(),
+                                                           future.result(),
+                                                           isMono));
                         info->setStage(DownloadInfo::Finished);
                     }
                 }

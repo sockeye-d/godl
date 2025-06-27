@@ -4,7 +4,7 @@ VersionRegistryModel::VersionRegistryModel(QObject *parent)
     : QAbstractListModel{parent}
 {}
 
-void VersionRegistryModel::append(const GodotVersion *info)
+void VersionRegistryModel::append(std::shared_ptr<const GodotVersion> info)
 {
     const auto index = m_data.size();
 
@@ -13,10 +13,17 @@ void VersionRegistryModel::append(const GodotVersion *info)
     endInsertRows();
 }
 
-void VersionRegistryModel::remove(const GodotVersion *info)
+void VersionRegistryModel::remove(std::shared_ptr<const GodotVersion> info)
 {
     const auto index = m_data.indexOf(info);
     beginRemoveRows(QModelIndex(), index, index);
     m_data.remove(index);
+    endRemoveRows();
+}
+
+void VersionRegistryModel::clear()
+{
+    beginRemoveRows(QModelIndex(), 0, m_data.size() - 1);
+    m_data.clear();
     endRemoveRows();
 }

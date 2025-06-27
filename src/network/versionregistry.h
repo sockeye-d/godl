@@ -16,17 +16,33 @@ class VersionRegistry : public QObject
     QML_ELEMENT
     Q_PROPERTY(VersionRegistryModel *model READ model CONSTANT FINAL)
 
-    KSharedConfig::Ptr config = KSharedConfig::openConfig(Config::godotLocation() / "godlversions");
+    KSharedConfig::Ptr m_config;
 
     VersionRegistryModel *m_model = new VersionRegistryModel(this);
+
+    void add(std::shared_ptr<GodotVersion> version);
+
+    void refreshConfigFile()
+    {
+        m_config = KSharedConfig::openConfig(Config::godotLocation() / "godlversions",
+                                             KSharedConfig::SimpleConfig);
+        model()->clear();
+        for (auto &version : versions()) {
+            add(version);
+        }
+    }
+
+    KSharedConfig::Ptr config() const { return m_config; }
 
 public:
     VersionRegistry(QObject *parent = nullptr)
         : QObject(parent)
     {
-        connect(Config::self(), &Config::godotLocationChanged, this, [this]() {
-            config = KSharedConfig::openConfig(Config::godotLocation() / "godlversions");
-        });
+        refreshConfigFile();
+        connect(Config::self(),
+                &Config::godotLocationChanged,
+                this,
+                &VersionRegistry::refreshConfigFile);
     }
     static VersionRegistry &instance()
     {
@@ -36,12 +52,12 @@ public:
 
     VersionRegistryModel *model() const { return m_model; }
 
-    Q_INVOKABLE QString versionPath(QString versionTag) const;
-    Q_INVOKABLE QString absoluteVersionPath(QString versionTag) const;
-    Q_INVOKABLE void registerVersion(QString versionTag, QString executable, bool isMono);
+    Q_INVOKABLE GodotVersion *qversion(QString versionTag) const;
+    void registerVersion(std::shared_ptr<GodotVersion> version);
 
-    Q_INVOKABLE QMap<QString, QString> registeredVersions() const;
-    Q_INVOKABLE QStringList registeredVersionTags() const;
+    QMap<QString, std::shared_ptr<GodotVersion>> versions() const;
+    std::shared_ptr<GodotVersion> version(QString assetName) const;
+    const QStringList assets() const;
 };
 
 #endif // VERSIONREGISTRY_H

@@ -8,23 +8,25 @@ class VersionRegistryModel : public QAbstractListModel
 {
     Q_OBJECT
 
-    QList<const GodotVersion *> m_data;
+    QList<std::shared_ptr<const GodotVersion>> m_data;
 
 public:
+    static constexpr int DataRole = Qt::UserRole + 1;
     explicit VersionRegistryModel(QObject *parent = nullptr);
 
-    void append(const GodotVersion *info);
-    void remove(const GodotVersion *info);
+    void append(std::shared_ptr<const GodotVersion> info);
+    void remove(std::shared_ptr<const GodotVersion> info);
+    void clear();
 
-    QHash<int, QByteArray> roleNames() const override { return {{Qt::UserRole + 1, "data"}}; }
+    QHash<int, QByteArray> roleNames() const override { return {{DataRole, "modelData"}}; }
     int rowCount(const QModelIndex &parent) const override
     {
         return parent.isValid() ? 0 : m_data.length();
     }
     QVariant data(const QModelIndex &index, int role) const override
     {
-        if (role == Qt::UserRole + 1) {
-            return QVariant::fromValue(m_data[index.row()]);
+        if (role == DataRole) {
+            return QVariant::fromValue(m_data[index.row()].get());
         }
         return {};
     };
