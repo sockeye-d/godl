@@ -27,7 +27,7 @@ Kirigami.Page {
         request.currentPage = 0;
         request.totalPages = -1;
         resultList.fullReleases = [];
-        request.execute([Qt.url(`https://api.github.com/repos/godotengine/godot-builds/releases?per_page=${requestCount}`)]);
+        request.execute([Qt.url(`https://api.github.com/repos/redot-engine/redot-engine/releases?per_page=${requestCount}`)]);
     }
 
     padding: 0
@@ -288,6 +288,8 @@ Kirigami.Page {
                 model: fullReleases.filter(el => filterText === "" || el.tag_name.indexOf(filterText) !== -1).filter(getFilter("stable")).filter(getFilter("dev")).filter(getFilter("alpha")).filter(getFilter("beta")).filter(getFilter("rc"))
 
                 delegate: Kirigami.Card {
+                    id: card
+
                     required property var assets
                     required property string body
                     required property string created_at
@@ -315,13 +317,28 @@ Kirigami.Page {
                             onTriggered: Qt.openUrlExternally(Qt.url(html_url))
                         }
                     ]
-                    contentItem: Controls.Label {
-                        text: new Date(created_at).toLocaleString() + "\n\n" + body
-                        textFormat: Text.MarkdownText
-                        wrapMode: Text.Wrap
+                    contentItem: ColumnLayout {
+                        Controls.Button {
+                            id: patchNotesToggle
 
-                        onLinkActivated: link => {
-                            Qt.openUrlExternally(Qt.url(link));
+                            Layout.fillWidth: true
+                            checkable: true
+                            checked: label.text.split(/[\r\n]|\r|\n/).length < 20
+                            text: i18n("Show patch notes")
+                        }
+                        Controls.Label {
+                            id: label
+
+                            Layout.fillWidth: true
+                            clip: true
+                            text: new Date(created_at).toLocaleString() + "\n\n" + body
+                            textFormat: Text.MarkdownText
+                            visible: patchNotesToggle.checked
+                            wrapMode: Text.Wrap
+
+                            onLinkActivated: link => {
+                                Qt.openUrlExternally(Qt.url(link));
+                            }
                         }
                     }
                 }

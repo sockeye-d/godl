@@ -1,10 +1,8 @@
 #include "godotversion.h"
 
+#include <QDesktopServices>
+#include <QFileInfo>
 #include <KConfigGroup>
-
-GodotVersion::GodotVersion(QObject *parent)
-    : QObject{parent}
-{}
 
 GodotVersion::GodotVersion(
     QString tag, QString assetName, QString sourceUrl, QString path, bool isMono, QObject *parent)
@@ -14,7 +12,9 @@ GodotVersion::GodotVersion(
     , m_sourceUrl{sourceUrl}
     , m_path{path}
     , m_tag{tag}
-{}
+{
+    connect(Config::self(), &Config::godotLocationChanged, this, &GodotVersion::absolutePathChanged);
+}
 
 void GodotVersion::writeTo(KSharedConfig::Ptr config) const
 {
@@ -37,4 +37,8 @@ QDebug operator<<(QDebug dbg, const GodotVersion &godotVersion)
 {
     dbg << "GodotVersion(" << godotVersion.assetName() << ")";
     return dbg;
+}
+void GodotVersion::showExternally() const
+{
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(absolutePath()).absolutePath()));
 }

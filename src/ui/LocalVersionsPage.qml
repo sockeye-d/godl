@@ -6,6 +6,7 @@ import org.kde.kirigami as Kirigami
 import org.fishy.godl
 
 Kirigami.Page {
+    padding: 0
     title: i18n("Local versions")
 
     Kirigami.CardsListView {
@@ -23,10 +24,14 @@ Kirigami.Page {
                 Kirigami.Action {
                     icon.name: "folder-open"
                     text: i18n("Show folder")
+
+                    onTriggered: card.modelData.showExternally()
                 },
                 Kirigami.Action {
                     icon.name: "debug-run"
                     text: i18n("Run")
+
+                    onTriggered: VersionRegistry.start(card.modelData)
                 },
                 Kirigami.Action {
                     icon.name: "debug-run"

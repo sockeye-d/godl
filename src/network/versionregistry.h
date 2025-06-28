@@ -58,6 +58,8 @@ public:
     QMap<QString, std::shared_ptr<GodotVersion>> versions() const;
     std::shared_ptr<GodotVersion> version(QString assetName) const;
     const QStringList assets() const;
+
+    Q_INVOKABLE void start(GodotVersion *version) { qDebug() << version->absolutePath(); }
 };
 
 #endif // VERSIONREGISTRY_H

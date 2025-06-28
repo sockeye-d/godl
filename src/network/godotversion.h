@@ -73,12 +73,20 @@ private:
             return;
         m_path = path;
         Q_EMIT pathChanged();
+        Q_EMIT absolutePathChanged();
     }
 
 public:
     QString path() const { return m_path; }
 
     Q_SIGNAL void pathChanged();
+
+private:
+    Q_PROPERTY(QString absolutePath READ absolutePath NOTIFY absolutePathChanged FINAL)
+public:
+    QString absolutePath() const { return Config::godotLocation() / path(); }
+
+    Q_SIGNAL void absolutePathChanged();
 
 private:
     Q_PROPERTY(QString tag READ tag NOTIFY tagChanged FINAL)
@@ -116,7 +124,9 @@ public:
     Q_SIGNAL void cmdChanged();
 
 public:
-    explicit GodotVersion(QObject *parent = nullptr);
+    explicit GodotVersion(QObject *parent = nullptr)
+        : GodotVersion("", "", "", "", false, parent)
+    {}
     explicit GodotVersion(QString tag,
                           QString assetName,
                           QString sourceUrl,
@@ -125,6 +135,7 @@ public:
                           QObject *parent = nullptr);
 
     void writeTo(KSharedConfig::Ptr config) const;
+    Q_INVOKABLE void showExternally() const;
 };
 
 bool operator==(const GodotVersion &left, const GodotVersion &right);
