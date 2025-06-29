@@ -11,6 +11,7 @@ Kirigami.Page {
 
     Kirigami.CardsListView {
         anchors.fill: parent
+        clip: true
         model: VersionRegistry.model
 
         delegate: Kirigami.Card {

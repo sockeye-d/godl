@@ -11,8 +11,10 @@ public:
     explicit GodlApp(QObject *parent = nullptr)
         : AbstractKirigamiApplication(parent)
     {
-        AbstractKirigamiApplication::setupActions();
+        GodlApp::setupActions();
     }
+
+    void setupActions() override;
 };
 
 #endif // GODLAPP_H

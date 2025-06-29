@@ -1,5 +1,7 @@
 #include "util.h"
+#include <QDir>
 #include <QFile>
+#include <QStandardPaths>
 #include <QSysInfo>
 #include <KTar>
 #include <KZip>
@@ -111,4 +113,14 @@ QString normalizeDirectoryPath(const QString &dirpath)
     }
 
     return dirpath + "/";
+}
+
+QString findGodotProjectLocation()
+{
+    auto path = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).constFirst()
+                / "godot/projects";
+    if (QDir(path).exists()) {
+        return path;
+    }
+    return QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).constFirst();
 }

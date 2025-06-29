@@ -24,22 +24,31 @@ GodlConfigPage {
         anchors.left: parent.left
         anchors.right: parent.right
 
-        Component.onCompleted: {
-            refreshFilters();
-        }
+        Component.onCompleted: refreshFilters()
 
-        // Controls.Button {
-        //     Layout.fillWidth: true
-        //     icon.name: "list-add"
-        // }
-        FormCard.FormButtonDelegate {
-            icon.name: "list-add"
-            text: i18n("Add new filter")
-            trailingLogo.visible: false
+        RowLayout {
+            FormCard.FormButtonDelegate {
+                Layout.fillWidth: true
+                icon.name: "list-add"
+                text: i18n("Add new filter")
+                trailingLogo.visible: false
 
-            onClicked: {
-                Config.downloadFilter.push("");
-                downloadFiltersCard.refreshFilters();
+                onClicked: {
+                    Config.downloadFilter.push("");
+                    downloadFiltersCard.refreshFilters();
+                }
+            }
+            FormCard.FormButtonDelegate {
+                Layout.fillWidth: false
+                enabled: JSON.stringify(Config.downloadFilter) !== JSON.stringify(Config.defaultDownloadFilterValue)
+                icon.name: "document-revert"
+                text: i18n("Reset")
+                trailingLogo.visible: false
+
+                onClicked: {
+                    Config.downloadFilter = Config.defaultDownloadFilterValue;
+                    downloadFiltersCard.refreshFilters();
+                }
             }
         }
         ColumnLayout {

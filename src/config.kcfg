@@ -9,6 +9,10 @@
       <label>Godot location</label>
       <default code="true">QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).first()</default>
     </entry>
+    <entry name="projectLocation" type="Path">
+    <label>Project location</label>
+    <default code="true">findGodotProjectLocation()</default>
+    </entry>
     <entry name="downloadFilter" type="StringList">
       <label>Substrings to look for in remote asset names to highlight the one you most likely want</label>
       <default code="true">sysInfo()</default>

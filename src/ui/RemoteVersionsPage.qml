@@ -27,7 +27,7 @@ Kirigami.Page {
         request.currentPage = 0;
         request.totalPages = -1;
         resultList.fullReleases = [];
-        request.execute([Qt.url(`https://api.github.com/repos/redot-engine/redot-engine/releases?per_page=${requestCount}`)]);
+        request.execute([Qt.url(`https://api.github.com/repos/godotengine/godot-builds/releases?per_page=${requestCount}`)]);
     }
 
     padding: 0
@@ -160,6 +160,37 @@ Kirigami.Page {
             currentPage = 0;
             resultList.fullReleases = releases;
             hasContent = true;
+        }
+    }
+    Kirigami.OverlaySheet {
+        id: patchNotesSheet
+
+        property string body
+        property string created_at
+
+        // contentHeight: label.implicitHeight + Kirigami.Units.gridUnit * 10
+        // height: root.height
+        // padding: Kirigami.Units.largeSpacing
+        // width: root.width
+        // y: root.padding
+        implicitHeight: root.height - y
+
+        Kirigami.SelectableLabel {
+            id: label
+
+            Layout.fillWidth: true
+
+            // clip: true
+            // Layout.fillHeight: true
+            bottomPadding: Kirigami.Units.largeSpacing
+            text: new Date(patchNotesSheet.created_at).toLocaleString() + "\n\n" + patchNotesSheet.body
+            textFormat: Text.MarkdownText
+            visible: true
+            wrapMode: Text.Wrap
+
+            onLinkActivated: link => {
+                Qt.openUrlExternally(Qt.url(link));
+            }
         }
     }
     Kirigami.OverlaySheet {
@@ -300,6 +331,17 @@ Kirigami.Page {
 
                     actions: [
                         Kirigami.Action {
+                            icon.name: "document-preview"
+                            text: i18n("Show patch notes")
+
+                            onTriggered: {
+                                patchNotesSheet.title = card.tag_name;
+                                patchNotesSheet.body = card.body;
+                                patchNotesSheet.created_at = card.created_at;
+                                patchNotesSheet.open();
+                            }
+                        },
+                        Kirigami.Action {
                             icon.name: "download"
                             text: i18n("Download")
 
@@ -317,28 +359,42 @@ Kirigami.Page {
                             onTriggered: Qt.openUrlExternally(Qt.url(html_url))
                         }
                     ]
-                    contentItem: ColumnLayout {
-                        Controls.Button {
-                            id: patchNotesToggle
+                    contentItem: Controls.Label {
+                        id: cardLabel
 
-                            Layout.fillWidth: true
-                            checkable: true
-                            checked: label.text.split(/[\r\n]|\r|\n/).length < 20
-                            text: i18n("Show patch notes")
-                        }
-                        Controls.Label {
-                            id: label
-
-                            Layout.fillWidth: true
-                            clip: true
-                            text: new Date(created_at).toLocaleString() + "\n\n" + body
-                            textFormat: Text.MarkdownText
-                            visible: patchNotesToggle.checked
-                            wrapMode: Text.Wrap
-
-                            onLinkActivated: link => {
-                                Qt.openUrlExternally(Qt.url(link));
+                        text: {
+                            const offset = (Date.now() - new Date(card.created_at)) / 1000
+                            const times = {
+                              1: "second",
+                              60: "minute",
+                              3600: "hour",
+                              86400: "day",
+                              604800: "week",
+                              2592000: "month",
+                              31536000: "year",
                             }
+                            const descriptor = Object.keys(times).filter(x => offset > x).pop()
+                            const template = offset > 0 ? i18n("{time} ago") : i18n("in {time}")
+                            const value = Math.floor(offset / descriptor)
+                            const r = `${value} ${times[descriptor]}${value === 0 || value === 1 ? "" : "s"}`
+                            const e = offset > 0 ? `${r} ago` : `in ${r}`
+
+                            return `${i18n("Released")} ${e}`;
+                        }
+
+                        Controls.ToolTip {
+                            // parent: cardLabel
+                            // anchors.centerIn: cardLabel
+                            text: new Date(card.created_at).toLocaleString()
+                            visible: ma.containsMouse
+                            x: 0
+                            y: height
+                        }
+                        MouseArea {
+                            id: ma
+
+                            anchors.fill: parent
+                            hoverEnabled: true
                         }
                     }
                 }

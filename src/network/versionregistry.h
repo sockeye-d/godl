@@ -2,6 +2,7 @@
 #define VERSIONREGISTRY_H
 
 #include <QMap>
+#include <QProcess>
 #include <QString>
 #include <QtQml/qqmlregistration.h>
 #include "config.h"
@@ -59,7 +60,10 @@ public:
     std::shared_ptr<GodotVersion> version(QString assetName) const;
     const QStringList assets() const;
 
-    Q_INVOKABLE void start(GodotVersion *version) { qDebug() << version->absolutePath(); }
+    Q_INVOKABLE void start(GodotVersion *version)
+    {
+        QProcess::startDetached(version->absolutePath(), {"--project-manager"});
+    }
 };
 
 #endif // VERSIONREGISTRY_H

@@ -19,23 +19,64 @@ GodlConfigPage {
         FormActionTextFieldDelegate {
             id: godotLocationField
 
-            label: "Godot location"
+            label: i18n("Godot location")
             text: Config.godotLocation
 
-            rightActions: Kirigami.Action {
-                icon.name: "folder-open"
+            rightActions: [
+                Kirigami.Action {
+                    icon.name: "folder-open"
 
-                onTriggered: {
-                    folderDialog.startDirectory = Config.godotLocation;
-                    folderDialog.open();
+                    onTriggered: {
+                        folderDialog.startDirectory = Config.godotLocation;
+                        folderDialog.open();
+                    }
+                },
+                Kirigami.Action {
+                    enabled: Config.godotLocation !== Config.defaultGodotLocationValue
+                    icon.name: "document-revert"
+
+                    onTriggered: Config.godotLocation = Config.defaultGodotLocationValue
                 }
-            }
+            ]
 
             onTextChanged: Config.godotLocation = text
 
             Connections {
                 function onGodotLocationChanged() {
                     godotLocationField.text = Config.godotLocation;
+                }
+
+                target: Config
+            }
+        }
+        FormActionTextFieldDelegate {
+            id: projectLocationField
+
+            label: i18n("Projects location")
+            text: Config.projectLocation
+
+            rightActions: [
+                Kirigami.Action {
+                    icon.name: "folder-open"
+
+                    onTriggered: {
+                        folderDialog.startDirectory = Config.projectLocation;
+                        folderDialog.open();
+                    }
+                },
+                Kirigami.Action {
+                    enabled: Config.projectLocation !== Config.defaultProjectLocationValue
+                    icon.name: "document-revert"
+
+                    onTriggered: Config.projectLocation = Config.defaultProjectLocationValue
+                }
+            ]
+
+            onTextChanged: Config.projectLocation = text
+
+            Connections {
+                function onProjectLocationChanged() {
+                    projectLocationField.text = Config.projectLocation;
                 }
 
                 target: Config

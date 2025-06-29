@@ -288,6 +288,10 @@ StatefulApp.StatefulWindow {
         }
     }
 
+    Component.onCompleted: {
+        deferredComponent.createObject(root);
+    }
+
     Platform.MenuBar {
         Platform.Menu {
             title: "Edit"
@@ -334,5 +338,23 @@ StatefulApp.StatefulWindow {
         id: dl
 
         onDownloadStarted: notificationPopup.open()
+    }
+    Component {
+        id: deferredComponent
+
+        Item {
+            Action {
+                shortcut: root.application.action("godl-next-page").shortcut
+
+                onTriggered: if (mainPage.activePageIndex !== 2)
+                    mainPage.activePageIndex++
+            }
+            Action {
+                shortcut: root.application.action("godl-prev-page").shortcut
+
+                onTriggered: if (mainPage.activePageIndex !== 0)
+                    mainPage.activePageIndex--
+            }
+        }
     }
 }
