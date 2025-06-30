@@ -10,6 +10,7 @@ Kirigami.Page {
 
     property DownloadManager dl
     property bool hasContent: false
+    property string rawSource: Config.sources[0]
     property int requestCount: 100
     property bool show_alpha: true
     property bool show_beta: true
@@ -27,7 +28,14 @@ Kirigami.Page {
         request.currentPage = 0;
         request.totalPages = -1;
         resultList.fullReleases = [];
-        request.execute([Qt.url(`https://api.github.com/repos/godotengine/godot-builds/releases?per_page=${requestCount}`)]);
+        let source = root.rawSource;
+        if (source[0] === "/") {
+            source = `https://api.github.com/repos${source}`;
+        }
+
+        source = `${source}/releases?per_page=${requestCount}`;
+        console.log(source);
+        request.execute([Qt.url(source)]);
     }
 
     padding: 0
@@ -55,6 +63,7 @@ Kirigami.Page {
 
                 onTriggered: show_stable = checked
             }
+
             Kirigami.Action {
                 checkable: true
                 text: i18n("Show unstable")
@@ -71,6 +80,7 @@ Kirigami.Page {
                     show_rc = checked;
                 }
             }
+
             Kirigami.Action {
                 checkable: true
                 checked: show_dev
@@ -78,6 +88,7 @@ Kirigami.Page {
 
                 onTriggered: show_dev = checked
             }
+
             Kirigami.Action {
                 checkable: true
                 checked: show_alpha
@@ -85,6 +96,7 @@ Kirigami.Page {
 
                 onTriggered: show_alpha = checked
             }
+
             Kirigami.Action {
                 checkable: true
                 checked: show_beta
@@ -92,12 +104,27 @@ Kirigami.Page {
 
                 onTriggered: show_beta = checked
             }
+
             Kirigami.Action {
                 checkable: true
                 checked: show_rc
                 text: i18n("Show release candidates")
 
                 onTriggered: show_rc = checked
+            }
+        },
+        Kirigami.Action {
+            displayComponent: Component {
+                id: dlSourceComponent
+
+                Controls.ComboBox {
+                    model: Config.sources
+
+                    onCurrentValueChanged: {
+                        root.rawSource = currentValue;
+                        root.refresh();
+                    }
+                }
             }
         }
     ]
@@ -115,6 +142,7 @@ Kirigami.Page {
             }
         }
     }
+
     ChainedJsonRequest {
         id: request
 
@@ -162,6 +190,7 @@ Kirigami.Page {
             hasContent = true;
         }
     }
+
     Kirigami.OverlaySheet {
         id: patchNotesSheet
 
@@ -193,6 +222,7 @@ Kirigami.Page {
             }
         }
     }
+
     Kirigami.OverlaySheet {
         id: dlDialog
 
@@ -204,11 +234,13 @@ Kirigami.Page {
                 level: 1
                 text: dlDialog.title
             }
+
             Kirigami.SearchField {
                 id: assetsFilter
 
                 Layout.fillWidth: true
             }
+
             Kirigami.Chip {
                 id: currentPlatformOnlyFilterChip
 
@@ -219,6 +251,7 @@ Kirigami.Page {
                 icon.name: "view-filter"
                 text: i18n("Current platform only")
             }
+
             Kirigami.Chip {
                 id: monoOnlyFilterChip
 
@@ -238,12 +271,15 @@ Kirigami.Page {
             function dotnetFilter(el) {
                 return !monoOnlyFilterChip.checked || el.name.indexOf("mono") !== -1;
             }
+
             function filterAsset(el) {
                 return Config.downloadFilter.some(e => el.name.indexOf(e) !== -1);
             }
+
             function nameFilter(el) {
                 return assetsFilter.text === "" || el.name.indexOf(assetsFilter.text) !== -1;
             }
+
             function platformFilter(el) {
                 return !currentPlatformOnlyFilterChip.checked || filterAsset(el);
             }
@@ -297,6 +333,7 @@ Kirigami.Page {
             }
         }
     }
+
     ColumnLayout {
         anchors.fill: parent
 
@@ -363,21 +400,21 @@ Kirigami.Page {
                         id: cardLabel
 
                         text: {
-                            const offset = (Date.now() - new Date(card.created_at)) / 1000
+                            const offset = (Date.now() - new Date(card.created_at)) / 1000;
                             const times = {
-                              1: "second",
-                              60: "minute",
-                              3600: "hour",
-                              86400: "day",
-                              604800: "week",
-                              2592000: "month",
-                              31536000: "year",
-                            }
-                            const descriptor = Object.keys(times).filter(x => offset > x).pop()
-                            const template = offset > 0 ? i18n("{time} ago") : i18n("in {time}")
-                            const value = Math.floor(offset / descriptor)
-                            const r = `${value} ${times[descriptor]}${value === 0 || value === 1 ? "" : "s"}`
-                            const e = offset > 0 ? `${r} ago` : `in ${r}`
+                                1: "second",
+                                60: "minute",
+                                3600: "hour",
+                                86400: "day",
+                                604800: "week",
+                                2.592e+06: "month",
+                                3.1536e+07: "year"
+                            };
+                            const descriptor = Object.keys(times).filter(x => offset > x).pop();
+                            const template = offset > 0 ? i18n("{time} ago") : i18n("in {time}");
+                            const value = Math.floor(offset / descriptor);
+                            const r = `${value} ${times[descriptor]}${value === 0 || value === 1 ? "" : "s"}`;
+                            const e = offset > 0 ? `${r} ago` : `in ${r}`;
 
                             return `${i18n("Released")} ${e}`;
                         }
@@ -390,6 +427,7 @@ Kirigami.Page {
                             x: 0
                             y: height
                         }
+
                         MouseArea {
                             id: ma
 
@@ -400,6 +438,7 @@ Kirigami.Page {
                 }
             }
         }
+
         Kirigami.LoadingPlaceholder {
             Layout.fillHeight: false
             Layout.fillWidth: true
@@ -417,6 +456,7 @@ Kirigami.Page {
                 }
             }
         }
+
         Kirigami.Heading {
             Layout.fillHeight: true
             Layout.fillWidth: true
@@ -427,6 +467,7 @@ Kirigami.Page {
             visible: request.errorString !== ""
             wrapMode: Text.Wrap
         }
+
         Kirigami.Heading {
             Layout.fillHeight: true
             Layout.fillWidth: true

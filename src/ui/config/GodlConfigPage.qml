@@ -13,16 +13,13 @@ Kirigami.Page {
             enabled: ConfigSignals.isSaveNeeded
             icon.name: "dialog-ok-apply"
             text: i18n("Apply")
+            tooltip: i18n("Commit changes to the configuration file. The changes will be saved when the application closes regardless of whether you click this button or not, but you can force it with the button.")
 
             onTriggered: ConfigSignals.save()
         }
     ]
 
     Connections {
-        function onConfigChanged() {
-            console.log("it change");
-        }
-
         target: ConfigSignals
     }
 }

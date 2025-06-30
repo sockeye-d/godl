@@ -32,10 +32,10 @@ Kirigami.Page {
                     icon.name: "debug-run"
                     text: i18n("Run")
 
-                    onTriggered: VersionRegistry.start(card.modelData)
+                    onTriggered: card.modelData.start()
                 },
                 Kirigami.Action {
-                    icon.name: "debug-run"
+                    icon.name: "configure"
                     text: i18n("Edit command")
 
                     onTriggered: commandDialog.open()
@@ -73,16 +73,13 @@ Kirigami.Page {
 
                     Repeater {
                         Layout.fillWidth: true
-                        model: [
-                            {
-                                replacement: "{executable}",
-                                description: "Expands to the absolute executable path"
-                            },
-                            {
-                                replacement: "{projectPath}",
-                                description: "Expands to the absolute project.godot path"
-                            }
-                        ]
+                        model: [{
+                                "replacement": "{executable}",
+                                "description": "Expands to the absolute executable path"
+                            }, {
+                                "replacement": "{projectPath}",
+                                "description": "Expands to the absolute project.godot path"
+                            }]
 
                         delegate: RowLayout {
                             id: expansionsDelegate

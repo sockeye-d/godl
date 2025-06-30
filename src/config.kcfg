@@ -17,6 +17,10 @@
       <label>Substrings to look for in remote asset names to highlight the one you most likely want</label>
       <default code="true">sysInfo()</default>
     </entry>
+    <entry name="sources" type="StringList">
+      <label>Release API sources. If the source starts with a `/`, it'll be considered to be a GitHub repository, otherwise it'll be assumed to be an external source with a matching API to that of GitHub's</label>
+      <default>/godotengine/godot-builds</default>
+    </entry>
     <entry name="defaultCommand" type="String">
       <label>The command to use for newly downloaded Godot versions.</label>
       <default>{executable} -e {projectPath}</default>

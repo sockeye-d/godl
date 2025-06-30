@@ -136,6 +136,7 @@ public:
 
     void writeTo(KSharedConfig::Ptr config) const;
     Q_INVOKABLE void showExternally() const;
+    Q_INVOKABLE void start() const;
 };
 
 bool operator==(const GodotVersion &left, const GodotVersion &right);

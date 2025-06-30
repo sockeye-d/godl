@@ -26,7 +26,6 @@ include(KDEInstallDirs)
 include(KDECMakeSettings)
 include(KDECompilerSettings NO_POLICY_SCOPE)
 include(ECMFindQmlModule)
-include(ECMQmlModule)
 
 find_package(Qt6 REQUIRED COMPONENTS
     Core
@@ -40,15 +39,18 @@ find_package(Qt6 REQUIRED COMPONENTS
 
 find_package(KF6 REQUIRED COMPONENTS
     Kirigami
+    KirigamiAddons
     I18n
     CoreAddons
     QQC2DesktopStyle
     IconThemes
     Config
     ConfigWidgets
-    KirigamiAddons
     Archive
 )
+
+ecm_find_qmlmodule(org.kde.kirigami REQUIRED)
+ecm_find_qmlmodule(org.kde.kirigamiaddons.formcard REQUIRED)
 
 add_subdirectory(src)
 

@@ -2,6 +2,7 @@
 
 #include <QDesktopServices>
 #include <QFileInfo>
+#include <QProcess>
 #include <KConfigGroup>
 
 GodotVersion::GodotVersion(
@@ -41,4 +42,8 @@ QDebug operator<<(QDebug dbg, const GodotVersion &godotVersion)
 void GodotVersion::showExternally() const
 {
     QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(absolutePath()).absolutePath()));
+}
+void GodotVersion::start() const
+{
+    QProcess::startDetached(absolutePath());
 }

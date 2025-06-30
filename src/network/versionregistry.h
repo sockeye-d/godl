@@ -59,11 +59,6 @@ public:
     QMap<QString, std::shared_ptr<GodotVersion>> versions() const;
     std::shared_ptr<GodotVersion> version(QString assetName) const;
     const QStringList assets() const;
-
-    Q_INVOKABLE void start(GodotVersion *version)
-    {
-        QProcess::startDetached(version->absolutePath(), {"--project-manager"});
-    }
 };
 
 #endif // VERSIONREGISTRY_H

@@ -2,9 +2,6 @@ qt_add_executable(godl main.cpp)
 
 kconfig_add_kcfg_files(config_SRCS config.kcfgc GENERATE_MOC)
 
-ecm_find_qmlmodule(org.kde.kirigami)
-ecm_find_qmlmodule(org.kde.kirigamiaddons.formcard)
-
 if (IS_READABLE "${CMAKE_SOURCE_DIR}/local.properties")
     # Read the token from local.properties
     file(READ "${CMAKE_SOURCE_DIR}/local.properties" LOCAL_PROPS_CONTENT)
@@ -47,10 +44,12 @@ qt_add_qml_module(godl
     SOURCES ${config_SRCS}
     RESOURCES config.kcfg
     RESOURCES config.kcfgc
+    QML_FILES ui/config/ConfigStringListFormCard.qml
 )
 
 target_link_libraries(godl
     PRIVATE
+    Qt6::Core
     Qt6::Quick
     Qt6::Qml
     Qt6::Gui

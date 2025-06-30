@@ -13,89 +13,32 @@ GodlConfigPage {
     title: i18n("General")
 
     FormCard.FormCard {
-        id: downloadFiltersCard
-
-        property list<string> filters
-
-        function refreshFilters() {
-            filters = Config.downloadFilter.slice();
-        }
-
         anchors.left: parent.left
         anchors.right: parent.right
 
-        Component.onCompleted: refreshFilters()
+        ConfigStringListFormCard {
+            configValue: Config.downloadFilter
+            defaultConfigValue: Config.defaultDownloadFilterValue
+            text: i18n("Add new filter")
 
-        RowLayout {
-            FormCard.FormButtonDelegate {
-                Layout.fillWidth: true
-                icon.name: "list-add"
-                text: i18n("Add new filter")
-                trailingLogo.visible: false
-
-                onClicked: {
-                    Config.downloadFilter.push("");
-                    downloadFiltersCard.refreshFilters();
-                }
-            }
-            FormCard.FormButtonDelegate {
-                Layout.fillWidth: false
-                enabled: JSON.stringify(Config.downloadFilter) !== JSON.stringify(Config.defaultDownloadFilterValue)
-                icon.name: "document-revert"
-                text: i18n("Reset")
-                trailingLogo.visible: false
-
-                onClicked: {
-                    Config.downloadFilter = Config.defaultDownloadFilterValue;
-                    downloadFiltersCard.refreshFilters();
-                }
+            onConfigChanged: (i, v) => Config.downloadFilter[i] = v
+            onConfigRemoved: i => Config.downloadFilter.splice(i, 1)
+            onConfigSet: x => {
+                Config.downloadFilter = x;
+                configValue = Config.downloadFilter;
             }
         }
-        ColumnLayout {
-            id: layout
 
-            Layout.fillWidth: true
+        ConfigStringListFormCard {
+            configValue: Config.sources
+            defaultConfigValue: Config.defaultSourcesValue
+            text: i18n("Add new source")
 
-            // x: FormCard.FormCardUnits.horizontalPadding
-            // Layout.preferredHeight: childrenRect.height + FormCard.FormCardUnits.verticalPadding * 2
-            // spacing: 0
-
-            Repeater {
-                model: downloadFiltersCard.filters
-
-                delegate: Item {
-                    id: item
-
-                    required property int index
-                    required property string modelData
-
-                    Layout.fillWidth: true
-                    height: childrenRect.height
-
-                    Kirigami.ActionTextField {
-                        text: item.modelData
-
-                        // Layout.fillWidth: true
-                        width: item.width - FormCard.FormCardUnits.horizontalPadding * 2
-                        x: FormCard.FormCardUnits.horizontalPadding
-
-                        rightActions: [
-                            Kirigami.Action {
-                                icon.name: "list-remove"
-
-                                onTriggered: {
-                                    Config.downloadFilter.splice(item.index, 1);
-                                    downloadFiltersCard.refreshFilters();
-                                }
-                            }
-                        ]
-
-                        onTextChanged: Config.downloadFilter[item.index] = text
-                    }
-                }
-            }
-            Item {
-                height: FormCard.FormCardUnits.verticalPadding
+            onConfigChanged: (i, v) => Config.sources[i] = v
+            onConfigRemoved: i => Config.sources.splice(i, 1)
+            onConfigSet: x => {
+                Config.sources = x;
+                configValue = Config.sources;
             }
         }
     }

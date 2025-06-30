@@ -44,6 +44,7 @@ public:
                 connect(config, prop.notifySignal(), this, onNotifySignal);
             }
         }
+        setIsSaveNeeded(config->isSaveNeeded());
     }
 
     bool isSaveNeeded() const { return m_isSaveNeeded; }
