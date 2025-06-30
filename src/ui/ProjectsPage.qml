@@ -16,6 +16,14 @@ Kirigami.Page {
 
             displayComponent: Kirigami.SearchField {
             }
+        },
+        Kirigami.Action {
+            icon.name: "view-list-tree"
+            text: i18n("Scan")
+        },
+        Kirigami.Action {
+            icon.name: "document-import"
+            text: i18n("Import")
         }
     ]
 

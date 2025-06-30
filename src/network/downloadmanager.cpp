@@ -8,7 +8,7 @@
 #include "macros.h"
 #include "network.h"
 #include "util/util.h"
-#include "versionregistry.h"
+#include "registry/versionregistry.h"
 #include <KArchive>
 #include <KLocalization>
 #include <KTar>

@@ -1,3 +1,6 @@
+find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+
 qt_add_executable(godl main.cpp)
 
 kconfig_add_kcfg_files(config_SRCS config.kcfgc GENERATE_MOC)
@@ -37,14 +40,20 @@ qt_add_qml_module(godl
     SOURCES util/circularbuffer.h util/circularbuffer.cpp
     SOURCES model/downloadmanagermodel.h model/downloadmanagermodel.cpp
     SOURCES widgets/betterfiledialog.h widgets/betterfiledialog.cpp
-    SOURCES network/versionregistry.h network/versionregistry.cpp
+    SOURCES registry/versionregistry.h registry/versionregistry.cpp
     SOURCES util/iconconverter.h util/iconconverter.cpp
-    SOURCES network/godotversion.h network/godotversion.cpp
+    SOURCES registry/godotversion.h registry/godotversion.cpp
     SOURCES model/versionregistrymodel.h model/versionregistrymodel.cpp
     SOURCES ${config_SRCS}
     RESOURCES config.kcfg
     RESOURCES config.kcfgc
     QML_FILES ui/config/ConfigStringListFormCard.qml
+    SOURCES registry/projectsregistry.h registry/projectsregistry.cpp
+    SOURCES model/projectsregistrymodel.h model/projectsregistrymodel.cpp
+    SOURCES registry/godotproject.h registry/godotproject.cpp
+    SOURCES registry/boundgodotversion.h registry/boundgodotversion.cpp
+    SOURCES serializable.h
+    SOURCES model/abstractsimplelistmodel.h model/abstractsimplelistmodel.cpp
 )
 
 target_link_libraries(godl
@@ -65,6 +74,8 @@ target_link_libraries(godl
     KF6::Archive
     KirigamiAddonsStatefulApp
 )
+target_link_libraries(godl PRIVATE Qt6::Core)
+target_link_libraries(godl PRIVATE Qt6::Core)
 
 target_include_directories(godl
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/model
@@ -77,6 +88,9 @@ target_include_directories(godl
 )
 target_include_directories(godl
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/widgets
+)
+target_include_directories(godl
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/registry
 )
 
 install(TARGETS godl ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})

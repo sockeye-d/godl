@@ -70,6 +70,7 @@ StatefulApp.StatefulWindow {
         Item {
             Layout.fillWidth: true
         }
+
         Button {
             id: notificationPopupToggle
 
@@ -159,12 +160,14 @@ StatefulApp.StatefulWindow {
                                         type: Kirigami.MessageType.Error
                                         visible: card.error != ""
                                     }
+
                                     Kirigami.InlineMessage {
                                         Layout.fillWidth: true
                                         text: i18n("Installation complete")
                                         type: Kirigami.MessageType.Positive
                                         visible: card.stage === DownloadInfo.Finished
                                     }
+
                                     RowLayout {
                                         Layout.fillWidth: true
                                         visible: card.stage !== DownloadInfo.Finished && card.error === ""
@@ -174,9 +177,11 @@ StatefulApp.StatefulWindow {
                                             elide: Text.ElideRight
                                             text: card.stage === DownloadInfo.Downloading ? `${card.downloadSpeed.toFixed(2)} MiB/s` : i18n("Extracting")
                                         }
+
                                         Kirigami.Separator {
                                             Layout.fillHeight: true
                                         }
+
                                         ProgressBar {
                                             Layout.fillWidth: true
                                             indeterminate: card.progress < 0.0
@@ -194,6 +199,7 @@ StatefulApp.StatefulWindow {
                         }
                     }
                 }
+
                 Label {
                     anchors.centerIn: parent
                     text: i18n("No active downloads")
@@ -226,7 +232,7 @@ StatefulApp.StatefulWindow {
                 ActionGroup.group: actionGroup
                 checkable: true
                 checked: mainPage.activePageIndex === 0
-                icon.name: "edit"
+                icon.name: "document-edit"
                 text: "Projects"
 
                 onTriggered: mainPage.activePageIndex = 0
@@ -244,7 +250,7 @@ StatefulApp.StatefulWindow {
                 ActionGroup.group: actionGroup
                 checkable: true
                 checked: mainPage.activePageIndex === 2
-                icon.name: "server-symbolic"
+                icon.name: "globe"
                 text: "Remote versions"
 
                 onTriggered: mainPage.activePageIndex = 2
@@ -259,6 +265,7 @@ StatefulApp.StatefulWindow {
             id: actionGroup
 
         }
+
         StackLayout {
             id: swipeView
 
@@ -270,9 +277,11 @@ StatefulApp.StatefulWindow {
             ProjectsPage {
                 title: "Projects"
             }
+
             LocalVersionsPage {
                 title: "Local versions"
             }
+
             RemoteVersionsPage {
                 id: dlPage
 
@@ -299,10 +308,12 @@ StatefulApp.StatefulWindow {
             PlatformActionMenuItem {
                 action: root.application.action("options_configure")
             }
+
             PlatformActionMenuItem {
                 action: root.application.action("options_configure_keybinding")
             }
         }
+
         Platform.Menu {
             title: "Help"
 
@@ -311,6 +322,7 @@ StatefulApp.StatefulWindow {
             }
         }
     }
+
     Kirigami.ApplicationWindow {
         id: aboutPage
 
@@ -322,23 +334,27 @@ StatefulApp.StatefulWindow {
         pageStack.initialPage: FormCard.AboutPage {
         }
     }
+
     Component {
         id: generalPage
 
         GeneralPage {
         }
     }
+
     Component {
         id: downloadsPage
 
         DownloadsPage {
         }
     }
+
     DownloadManager {
         id: dl
 
         onDownloadStarted: notificationPopup.open()
     }
+
     Component {
         id: deferredComponent
 
@@ -349,6 +365,7 @@ StatefulApp.StatefulWindow {
                 onTriggered: if (mainPage.activePageIndex !== 2)
                     mainPage.activePageIndex++
             }
+
             Action {
                 shortcut: root.application.action("godl-prev-page").shortcut
 
