@@ -45,9 +45,9 @@ public:
                 this,
                 &VersionRegistry::refreshConfigFile);
     }
-    static VersionRegistry &instance()
+    static VersionRegistry *instance()
     {
-        static VersionRegistry registry = new VersionRegistry;
+        static auto registry = new VersionRegistry;
         return registry;
     }
 

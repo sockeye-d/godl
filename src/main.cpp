@@ -19,6 +19,7 @@
 #include "chainedjsonrequest.h"
 #include "downloadmanager.h"
 #include "main.h"
+#include "projectsregistry.h"
 #include "versionregistry.h"
 #include <KConfigDialog>
 
@@ -71,6 +72,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<GodlApp>("org.fishy.godl", 0, 1, "GodlApp");
     qmlRegisterType<BetterFileDialog>("org.fishy.godl", 0, 1, "BetterFileDialog");
     qmlRegisterType<GodotVersion>("org.fishy.godl", 0, 1, "GodotVersion");
+    qmlRegisterType<GodotProject>("org.fishy.godl", 0, 1, "GodotProject");
     qmlRegisterType<QFileDialog>("org.fishy.godl.qwidgets", 0, 1, "FileDialog");
     qmlRegisterType<QDir>("org.fishy.godl.qwidgets", 0, 1, "QDir");
     qmlRegisterType<QAction>("org.fishy.godl.qwidgets", 0, 1, "QAction");
@@ -88,18 +90,16 @@ int main(int argc, char *argv[])
                                  1,
                                  "NetworkResponseCode",
                                  new NetworkResponseCode());
-    qmlRegisterSingletonType("org.fishy.godl",
-                             0,
-                             1,
-                             "VersionRegistry",
-                             [](QQmlEngine *engine, QJSEngine *) {
-                                 return engine->toScriptValue(&VersionRegistry::instance());
-                             });
-    // qmlRegisterSingletonInstance("org.fishy.godl",
-    //                              0,
-    //                              1,
-    //                              "VersionRegistry",
-    //                              &VersionRegistry::instance());
+    qmlRegisterSingletonInstance("org.fishy.godl",
+                                 0,
+                                 1,
+                                 "VersionRegistry",
+                                 VersionRegistry::instance());
+    qmlRegisterSingletonInstance("org.fishy.godl",
+                                 0,
+                                 1,
+                                 "ProjectRegistry",
+                                 ProjectsRegistry::instance());
     QQmlApplicationEngine engine;
     Main::engine = &engine;
 

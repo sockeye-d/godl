@@ -80,6 +80,24 @@ public:
     Q_SIGNAL void nameChanged();
 
 private:
+    Q_PROPERTY(
+        QString description READ description WRITE setDescription NOTIFY descriptionChanged FINAL)
+    QString m_description = "";
+
+public:
+    void setDescription(QString description)
+    {
+        if (m_description == description)
+            return;
+        m_description = description;
+        Q_EMIT descriptionChanged();
+    }
+
+    QString description() const { return m_description; }
+
+    Q_SIGNAL void descriptionChanged();
+
+private:
     Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged FINAL)
     QString m_path = "";
 
@@ -121,6 +139,10 @@ public:
 public:
     void serialize(KConfigGroup config) override;
     void deserialize(KConfigGroup config) override;
+
+public:
+    static inline const QString projectFilename = "godlproject";
+    static std::unique_ptr<GodotProject> load(const QString &path);
 };
 
 #endif // GODOTPROJECT_H

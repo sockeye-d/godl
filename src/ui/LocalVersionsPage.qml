@@ -9,108 +9,119 @@ Kirigami.Page {
     padding: 0
     title: i18n("Local versions")
 
-    Kirigami.CardsListView {
+    Controls.ScrollView {
+        Controls.ScrollBar.horizontal.policy: Controls.ScrollBar.AlwaysOff
+        Layout.fillHeight: true
+        Layout.fillWidth: true
         anchors.fill: parent
-        clip: true
-        model: VersionRegistry.model
 
-        delegate: Kirigami.Card {
-            id: card
+        Kirigami.CardsListView {
+            Layout.fillWidth: true
+            clip: true
+            model: VersionRegistry.model
 
-            required property GodotVersion modelData
+            delegate: Kirigami.Card {
+                id: card
 
-            banner.title: modelData.assetName
+                required property GodotVersion modelData
 
-            actions: [
-                Kirigami.Action {
-                    icon.name: "folder-open"
-                    text: i18n("Show folder")
+                banner.title: modelData.assetName
 
-                    onTriggered: card.modelData.showExternally()
-                },
-                Kirigami.Action {
-                    icon.name: "debug-run"
-                    text: i18n("Run")
-
-                    onTriggered: card.modelData.start()
-                },
-                Kirigami.Action {
-                    icon.name: "configure"
-                    text: i18n("Edit command")
-
-                    onTriggered: commandDialog.open()
-                },
-                Kirigami.Action {
-                    icon.name: "delete"
-                    text: i18n("Remove")
-                }
-            ]
-            contentItem: Controls.Label {
-                text: modelData.tag
-            }
-
-            Kirigami.Dialog {
-                id: commandDialog
-
-                height: Kirigami.Units.gridUnit * 15
-                padding: Kirigami.Units.largeSpacing
-                standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
-                title: i18n("Edit command")
-                width: Kirigami.Units.gridUnit * 40
-
-                customFooterActions: [
+                actions: [
                     Kirigami.Action {
-                        enabled: textField.text !== Config.defaultCommand
-                        icon.name: "reset"
-                        text: i18n("Reset")
+                        icon.name: "folder-open"
+                        text: i18n("Show folder")
 
-                        onTriggered: textField.text = Config.defaultCommand
+                        onTriggered: card.modelData.showExternally()
+                    },
+                    Kirigami.Action {
+                        icon.name: "debug-run"
+                        text: i18n("Run")
+
+                        onTriggered: card.modelData.start()
+                    },
+                    Kirigami.Action {
+                        icon.name: "configure"
+                        text: i18n("Edit command")
+
+                        onTriggered: commandDialog.open()
+                    },
+                    Kirigami.Action {
+                        icon.name: "delete"
+                        text: i18n("Remove")
                     }
                 ]
-                footerLeadingComponent: ColumnLayout {
-                    Layout.fillHeight: true
-                    Layout.fillWidth: true
+                contentItem: Controls.Label {
+                    text: modelData.tag
+                }
 
-                    Repeater {
+                Kirigami.Dialog {
+                    id: commandDialog
+
+                    height: Kirigami.Units.gridUnit * 15
+                    padding: Kirigami.Units.largeSpacing
+                    standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
+                    title: i18n("Edit command")
+                    width: Kirigami.Units.gridUnit * 40
+
+                    customFooterActions: [
+                        Kirigami.Action {
+                            enabled: textField.text !== Config.defaultCommand
+                            icon.name: "reset"
+                            text: i18n("Reset")
+
+                            onTriggered: textField.text = Config.defaultCommand
+                        }
+                    ]
+                    footerLeadingComponent: ColumnLayout {
+                        Layout.fillHeight: true
                         Layout.fillWidth: true
-                        model: [{
-                                "replacement": "{executable}",
-                                "description": "Expands to the absolute executable path"
-                            }, {
-                                "replacement": "{projectPath}",
-                                "description": "Expands to the absolute project.godot path"
-                            }]
 
-                        delegate: RowLayout {
-                            id: expansionsDelegate
-
-                            required property string description
-                            required property string replacement
-
+                        Repeater {
                             Layout.fillWidth: true
+                            model: [
+                                {
+                                    "replacement": "{executable}",
+                                    "description": "Expands to the absolute executable path"
+                                },
+                                {
+                                    "replacement": "{projectPath}",
+                                    "description": "Expands to the absolute project.godot path"
+                                }
+                            ]
 
-                            Controls.Label {
+                            delegate: RowLayout {
+                                id: expansionsDelegate
+
+                                required property string description
+                                required property string replacement
+
                                 Layout.fillWidth: true
-                                elide: Text.ElideRight
-                                text: expansionsDelegate.replacement
-                            }
-                            Controls.Label {
-                                Layout.fillWidth: true
-                                elide: Text.ElideRight
-                                text: expansionsDelegate.description
+
+                                Controls.Label {
+                                    Layout.fillWidth: true
+                                    elide: Text.ElideRight
+                                    text: expansionsDelegate.replacement
+                                }
+
+                                Controls.Label {
+                                    Layout.fillWidth: true
+                                    elide: Text.ElideRight
+                                    text: expansionsDelegate.description
+                                }
                             }
                         }
                     }
-                }
 
-                onAccepted: card.modelData.cmd = textField.text
+                    onAccepted: card.modelData.cmd = textField.text
 
-                Controls.TextArea {
-                    id: textField
+                    Controls.TextArea {
+                        id: textField
 
-                    Layout.fillHeight: true
-                    Layout.fillWidth: true
-                    text: card.modelData.cmd
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        text: card.modelData.cmd
+                    }
                 }
             }
         }

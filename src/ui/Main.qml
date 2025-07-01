@@ -10,7 +10,7 @@ import org.kde.kirigamiaddons.statefulapp as StatefulApp
 
 import org.fishy.godl
 
-import "config"
+import "config" as Config
 
 // Provides basic features needed for all kirigami applications
 StatefulApp.StatefulWindow {
@@ -35,9 +35,9 @@ StatefulApp.StatefulWindow {
                 KirigamiSettings.ConfigurationModule {
                     category: "general"
                     // @disable-check M17
-                    icon.name: "settings"
+                    icon.name: "configure"
                     moduleId: "general"
-                    page: () => generalPage
+                    page: () => generalConfigPage
                     text: i18n("General")
                 },
                 KirigamiSettings.ConfigurationModule {
@@ -45,8 +45,16 @@ StatefulApp.StatefulWindow {
                     // @disable-check M17
                     icon.name: "download"
                     moduleId: "downloads"
-                    page: () => downloadsPage
+                    page: () => downloadsConfigPage
                     text: i18n("Downloads")
+                },
+                KirigamiSettings.ConfigurationModule {
+                    category: "project"
+                    // @disable-check M17
+                    icon.name: "project-development"
+                    moduleId: "project"
+                    page: () => projectsConfigPage
+                    text: i18n("Projects")
                 }
             ]
 
@@ -336,16 +344,23 @@ StatefulApp.StatefulWindow {
     }
 
     Component {
-        id: generalPage
+        id: generalConfigPage
 
-        GeneralPage {
+        Config.GeneralConfigPage {
         }
     }
 
     Component {
-        id: downloadsPage
+        id: downloadsConfigPage
 
-        DownloadsPage {
+        Config.DownloadsConfigPage {
+        }
+    }
+
+    Component {
+        id: projectsConfigPage
+
+        Config.ProjectsConfigPage {
         }
     }
 

@@ -22,11 +22,13 @@ qt_add_qml_module(godl
     QML_FILES ui/RemoteVersionsPage.qml
     QML_FILES ui/LocalVersionsPage.qml
     QML_FILES ui/ProjectsPage.qml
-    QML_FILES ui/config/GeneralPage.qml
-    QML_FILES ui/config/DownloadsPage.qml
+    QML_FILES ui/config/GeneralConfigPage.qml
+    QML_FILES ui/config/DownloadsConfigPage.qml
     QML_FILES ui/config/GodlConfigPage.qml
     QML_FILES ui/config/FormActionTextFieldDelegate.qml
     QML_FILES ui/PlatformActionMenuItem.qml
+    QML_FILES ui/config/ConfigStringListFormCard.qml
+    QML_FILES ui/config/ProjectsConfigPage.qml
     SOURCES main.cpp main.h
     SOURCES util/util.h util/util.cpp
     SOURCES godlapp.h godlapp.cpp
@@ -47,13 +49,13 @@ qt_add_qml_module(godl
     SOURCES ${config_SRCS}
     RESOURCES config.kcfg
     RESOURCES config.kcfgc
-    QML_FILES ui/config/ConfigStringListFormCard.qml
     SOURCES registry/projectsregistry.h registry/projectsregistry.cpp
     SOURCES model/projectsregistrymodel.h model/projectsregistrymodel.cpp
     SOURCES registry/godotproject.h registry/godotproject.cpp
     SOURCES registry/boundgodotversion.h registry/boundgodotversion.cpp
     SOURCES serializable.h
     SOURCES model/abstractsimplelistmodel.h model/abstractsimplelistmodel.cpp
+    QML_FILES
 )
 
 target_link_libraries(godl
