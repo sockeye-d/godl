@@ -10,8 +10,6 @@ using namespace Qt::StringLiterals;
 class NetworkResponseCode : public QObject
 {
     Q_OBJECT
-    QML_SINGLETON
-    // QML_ELEMENT
 
     QMap<int, QString> m_names = QMap<int, QString>({{1, u"ConnectionRefusedError"_s},
                                                      {2, u"RemoteHostClosedError"_s},
@@ -48,6 +46,12 @@ class NetworkResponseCode : public QObject
                                                      {499, u"UnknownServerError"_s}});
 
 public:
+    static NetworkResponseCode *instance()
+    {
+        static auto instance = new NetworkResponseCode();
+        return instance;
+    }
+
     explicit NetworkResponseCode(QObject *parent = nullptr);
     Q_INVOKABLE QString error(int error) const { return m_names.value(error); }
 };

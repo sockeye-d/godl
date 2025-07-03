@@ -36,7 +36,7 @@ DownloadInfo *DownloadManager::createDlInfo(const QString &assetName,
 
 void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString destFilePath)
 {
-    qDebug() << "Opening archive";
+    debug() << "Opening archive";
     info->setStage(DownloadInfo::Unzipping);
     info->setProgress(-1.0);
 
@@ -46,18 +46,18 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
         QThread::sleep(500ms);
         auto archive = openArchive(sourceFilePath);
         if (!archive) {
-            qDebug() << "Failed to open archive at " << sourceFilePath;
+            debug() << "Failed to open archive at " << sourceFilePath;
             info->setStage(DownloadInfo::UnzipError);
             info->setError(i18n("Failed to unzip archive"));
             promise.finish();
             return;
         }
         auto dest = destFilePath;
-        qDebug() << archive->directory()->entries().size();
+        debug() << archive->directory()->entries().size();
         if (archive->directory()->entries().size() == 1) {
             auto entryName = archive->directory()->entries().first();
             if (archive->directory()->entry(entryName)->isFile()) {
-                qDebug() << "Single file zip";
+                debug() << "Single file zip";
                 dest = QFileInfo(sourceFilePath).completeBaseName();
                 QDir(destFilePath).mkpath(dest);
                 dest = destFilePath / dest;
@@ -72,8 +72,8 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
             }
             auto entries = QDir(dest).entryInfoList(QDir::Files);
             for (const QFileInfo &file : std::as_const(entries)) {
-                qDebug() << file.canonicalFilePath();
-                qDebug() << file.isExecutable();
+                debug() << file.canonicalFilePath();
+                debug() << file.isExecutable();
                 if (!file.fileName().contains("console")) {
                     promise.addResult(removePrefix(file.absoluteFilePath(),
                                                    normalizeDirectoryPath(destFilePath)));
@@ -97,11 +97,11 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
                     } else {
                         bool isMono = QFileInfo(sourceFilePath).completeBaseName().contains("mono");
                         VersionRegistry::instance()->registerVersion(
-                            std::make_shared<GodotVersion>(info->tagName(),
-                                                           info->assetName(),
-                                                           info->sourceUrl().toString(),
-                                                           future.result(),
-                                                           isMono));
+                            new GodotVersion(info->tagName(),
+                                             info->assetName(),
+                                             info->sourceUrl().toString(),
+                                             future.result(),
+                                             isMono));
                         info->setStage(DownloadInfo::Finished);
                     }
                 }
@@ -166,7 +166,7 @@ void DownloadManager::download(const QString &assetName, const QString &tagName,
                                     &DownloadManager::cancelRequested,
                                     this,
                                     [info, reply](QUuid id) {
-                                        qDebug() << reply->headers().toMultiMap();
+                                        debug() << reply->headers().toMultiMap();
                                         if (info->id() == id) {
                                             reply->abort();
                                         }

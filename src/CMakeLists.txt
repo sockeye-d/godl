@@ -1,7 +1,8 @@
 find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
-qt_add_executable(godl main.cpp)
+qt_add_executable(godl)
 
 kconfig_add_kcfg_files(config_SRCS config.kcfgc GENERATE_MOC)
 
@@ -16,19 +17,7 @@ endif()
 qt_add_qml_module(godl
     URI org.fishy.godl
     VERSION 0.1
-    IMPORT_PATH /usr/lib/qt6/qml
     NO_CACHEGEN
-    QML_FILES ui/Main.qml
-    QML_FILES ui/RemoteVersionsPage.qml
-    QML_FILES ui/LocalVersionsPage.qml
-    QML_FILES ui/ProjectsPage.qml
-    QML_FILES ui/config/GeneralConfigPage.qml
-    QML_FILES ui/config/DownloadsConfigPage.qml
-    QML_FILES ui/config/GodlConfigPage.qml
-    QML_FILES ui/config/FormActionTextFieldDelegate.qml
-    QML_FILES ui/PlatformActionMenuItem.qml
-    QML_FILES ui/config/ConfigStringListFormCard.qml
-    QML_FILES ui/config/ProjectsConfigPage.qml
     SOURCES main.cpp main.h
     SOURCES util/util.h util/util.cpp
     SOURCES godlapp.h godlapp.cpp
@@ -47,15 +36,28 @@ qt_add_qml_module(godl
     SOURCES registry/godotversion.h registry/godotversion.cpp
     SOURCES model/versionregistrymodel.h model/versionregistrymodel.cpp
     SOURCES ${config_SRCS}
-    RESOURCES config.kcfg
-    RESOURCES config.kcfgc
     SOURCES registry/projectsregistry.h registry/projectsregistry.cpp
-    SOURCES model/projectsregistrymodel.h model/projectsregistrymodel.cpp
+    SOURCES model/internalprojectsregistrymodel.h model/internalprojectsregistrymodel.cpp
     SOURCES registry/godotproject.h registry/godotproject.cpp
     SOURCES registry/boundgodotversion.h registry/boundgodotversion.cpp
     SOURCES serializable.h
     SOURCES model/abstractsimplelistmodel.h model/abstractsimplelistmodel.cpp
-    QML_FILES
+    SOURCES model/projectsregistrymodel.h model/projectsregistrymodel.cpp
+    SOURCES util/dateconverter.h util/dateconverter.cpp
+    SOURCES config.kcfg
+    SOURCES config.kcfgc
+    QML_FILES ui/Main.qml
+    QML_FILES ui/RemoteVersionsPage.qml
+    QML_FILES ui/LocalVersionsPage.qml
+    QML_FILES ui/ProjectsPage.qml
+    QML_FILES ui/config/GeneralConfigPage.qml
+    QML_FILES ui/config/DownloadsConfigPage.qml
+    QML_FILES ui/config/GodlConfigPage.qml
+    QML_FILES ui/config/FormActionTextFieldDelegate.qml
+    QML_FILES ui/PlatformActionMenuItem.qml
+    QML_FILES ui/config/ConfigStringListFormCard.qml
+    QML_FILES ui/config/ProjectsConfigPage.qml
+    QML_FILES ui/DateLabel.qml
 )
 
 target_link_libraries(godl
@@ -76,6 +78,7 @@ target_link_libraries(godl
     KF6::Archive
     KirigamiAddonsStatefulApp
 )
+target_link_libraries(godl PRIVATE Qt6::Core)
 target_link_libraries(godl PRIVATE Qt6::Core)
 target_link_libraries(godl PRIVATE Qt6::Core)
 

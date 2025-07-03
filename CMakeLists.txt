@@ -50,6 +50,7 @@ find_package(KF6 REQUIRED COMPONENTS
 )
 
 ecm_find_qmlmodule(org.kde.kirigami REQUIRED)
+ecm_find_qmlmodule(org.kde.kirigamiaddons.components REQUIRED)
 ecm_find_qmlmodule(org.kde.kirigamiaddons.formcard REQUIRED)
 
 add_subdirectory(src)

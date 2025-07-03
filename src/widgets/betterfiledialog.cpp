@@ -26,7 +26,6 @@ void BetterFileDialog::open()
     auto dg = new QFileDialog();
     dg->setNameFilters(filters());
     dg->setFilter(fileFilters());
-    qDebug() << fileFilters();
     dg->setOptions(options() | QFileDialog::DontUseNativeDialog);
 
     int i = 0;

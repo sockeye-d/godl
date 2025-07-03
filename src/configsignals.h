@@ -50,6 +50,13 @@ public:
     bool isSaveNeeded() const { return m_isSaveNeeded; }
     Q_SIGNAL void configChanged();
     Q_SIGNAL void isSaveNeededChanged();
+
+public:
+    static ConfigSignals *instance()
+    {
+        static auto instance = new ConfigSignals(Config::self());
+        return instance;
+    }
 };
 
 #endif // CONFIGSIGNALS_H

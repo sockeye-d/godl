@@ -61,10 +61,10 @@ std::unique_ptr<KArchive> openArchive(const QString &filePath)
     std::unique_ptr<KArchive> archive;
     if (file.peek(2).startsWith("\x50\x4B")) {
         // ah it must be a zip
-        qDebug() << "Detected as zip";
+        debug() << "Detected as zip";
         archive = std::make_unique<KZip>(filePath);
     } else if (filePath.endsWith(u".tar.xz"_s)) {
-        qDebug() << "Detected as xz-ed tarball";
+        debug() << "Detected as xz-ed tarball";
         archive = std::make_unique<KTar>(filePath);
     }
 

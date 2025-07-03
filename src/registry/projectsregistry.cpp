@@ -2,6 +2,20 @@
 #include <QDir>
 #include "util.h"
 
+GodotProject *ProjectsRegistry::load(const QString filepath)
+{
+    auto project = GodotProject::load(filepath);
+    if (!project) {
+        debug() << "Failed to load project at " << filepath;
+        return nullptr;
+    }
+    project->setFavorite(config().group(project->path()).readEntry("favorite", false));
+    project->m_registry = this;
+    m_internalModel.append(project);
+    m_model->resort();
+    return project;
+}
+
 void ProjectsRegistry::scan(const QString directory)
 {
     const auto files = QDir(directory).entryList(QDir::Files);
@@ -19,6 +33,40 @@ void ProjectsRegistry::scan(const QString directory)
 
 void ProjectsRegistry::import(const QString filepath)
 {
-    auto project = GodotProject::load(filepath);
-    model()->append(std::move(project));
+    if (config().hasGroup(filepath)) {
+        debug() << "Already loaded project at" << filepath;
+        return;
+    }
+    auto project = load(filepath);
+    if (!project) {
+        // debug() << "Failed to load project at" << filepath;
+        return;
+    }
+    config().group(project->path());
+    config().group(project->path()).writeEntry("favorite", false);
+    config().sync();
+}
+
+void ProjectsRegistry::remove(GodotProject *project)
+{
+    m_internalModel.remove(project);
+    config().deleteGroup(project->path(), KConfig::Persistent);
+    config().sync();
+    project->deleteLater();
+}
+
+void ProjectsRegistry::setFavorite(const GodotProject *project, bool favorite)
+{
+    config().group(project->path()).writeEntry("favorite", favorite);
+    config().sync();
+}
+
+bool ProjectsRegistry::favorite(const GodotProject *project)
+{
+    if (!config().hasGroup(project->path()))
+        return false;
+    if (!config().group(project->path()).hasKey("favorite"))
+        return false;
+
+    return config().group(project->path()).readEntry("favorite", false);
 }

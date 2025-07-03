@@ -45,7 +45,7 @@ public:
     QVariant data(const QModelIndex &index, int role) const override
     {
         if (role == DataRole) {
-            return QVariant::fromValue(m_data[index.row()].get());
+            return QVariant::fromValue(m_data[index.row()]);
         }
         return {};
     };

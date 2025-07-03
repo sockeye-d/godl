@@ -53,4 +53,6 @@ public:
     void deserialize(KConfigGroup config) override;
 };
 
+bool operator==(BoundGodotVersion left, BoundGodotVersion right);
+
 #endif // BOUNDVERSION_H

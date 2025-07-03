@@ -12,6 +12,11 @@ class IconConverter : public QObject
     QML_SINGLETON
 public:
     explicit IconConverter(QObject *parent = nullptr);
+    static IconConverter *instance()
+    {
+        static auto instance = new IconConverter();
+        return instance;
+    }
 
     Q_INVOKABLE QString name(QIcon icon) { return icon.name(); }
 };

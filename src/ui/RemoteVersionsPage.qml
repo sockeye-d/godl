@@ -396,44 +396,9 @@ Kirigami.Page {
                             onTriggered: Qt.openUrlExternally(Qt.url(html_url))
                         }
                     ]
-                    contentItem: Controls.Label {
-                        id: cardLabel
-
-                        text: {
-                            const offset = (Date.now() - new Date(card.created_at)) / 1000;
-                            const times = {
-                                1: "second",
-                                60: "minute",
-                                3600: "hour",
-                                86400: "day",
-                                604800: "week",
-                                2.592e+06: "month",
-                                3.1536e+07: "year"
-                            };
-                            const descriptor = Object.keys(times).filter(x => offset > x).pop();
-                            const template = offset > 0 ? i18n("{time} ago") : i18n("in {time}");
-                            const value = Math.floor(offset / descriptor);
-                            const r = `${value} ${times[descriptor]}${value === 0 || value === 1 ? "" : "s"}`;
-                            const e = offset > 0 ? `${r} ago` : `in ${r}`;
-
-                            return `${i18n("Released")} ${e}`;
-                        }
-
-                        Controls.ToolTip {
-                            // parent: cardLabel
-                            // anchors.centerIn: cardLabel
-                            text: new Date(card.created_at).toLocaleString()
-                            visible: ma.containsMouse
-                            x: 0
-                            y: height
-                        }
-
-                        MouseArea {
-                            id: ma
-
-                            anchors.fill: parent
-                            hoverEnabled: true
-                        }
+                    contentItem: DateLabel {
+                        dateTime: new Date(card.created_at)
+                        prefix: "Released "
                     }
                 }
             }

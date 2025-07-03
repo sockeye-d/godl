@@ -2,6 +2,7 @@
 #include <QMainWindow>
 #include <QQuickStyle>
 #include <QtQml>
+#include "dateconverter.h"
 #include "godlapp.h"
 #include "networkresponsecode.h"
 #include "util/iconconverter.h"
@@ -25,6 +26,13 @@
 
 using namespace Qt::Literals::StringLiterals;
 
+#define registerSingletonPtr(uri, major, minor, type) \
+    qmlRegisterSingletonType<type>("org.fishy.godl", \
+                                   major, \
+                                   minor, \
+                                   #type, \
+                                   [](QQmlEngine *, QJSEngine *) { return type::instance(); })
+
 int main(int argc, char *argv[])
 {
     KIconTheme::initTheme();
@@ -42,7 +50,7 @@ int main(int argc, char *argv[])
 
     // KSharedConfigPtr config = KSharedConfig::openConfig(u"godl"_s);
     // auto config = Config::self();
-    // qDebug() << config->godotLocation();
+    // debug() << config->godotLocation();
 
     KAboutData aboutData(QStringLiteral("godl"),
                          i18nc("@title", "godl"),
@@ -57,14 +65,13 @@ int main(int argc, char *argv[])
 
     KAboutData::setApplicationData(aboutData);
 
-    qmlRegisterSingletonType("org.fishy.godl",
-                             0,
-                             1,
-                             "About",
-                             [](QQmlEngine *engine, QJSEngine *) -> QJSValue {
-                                 return engine->toScriptValue(KAboutData::applicationData());
-                             });
-    qmlRegisterSingletonInstance("org.fishy.godl", 0, 1, "IconConverter", new IconConverter);
+    // qmlRegisterSingletonType("org.fishy.godl",
+    //                          0,
+    //                          1,
+    //                          "About",
+    //                          [](QQmlEngine *engine, QJSEngine *) -> QJSValue {
+    //                              return engine->toScriptValue(KAboutData::applicationData());
+    //                          });
     qmlRegisterType<ChainedJsonRequest>("org.fishy.godl", 0, 1, "ChainedJsonRequest");
     qmlRegisterType<DownloadManager>("org.fishy.godl", 0, 1, "DownloadManager");
     qmlRegisterType<DownloadManagerModel>("org.fishy.godl", 0, 1, "DownloadManagerModel");
@@ -77,29 +84,16 @@ int main(int argc, char *argv[])
     qmlRegisterType<QDir>("org.fishy.godl.qwidgets", 0, 1, "QDir");
     qmlRegisterType<QAction>("org.fishy.godl.qwidgets", 0, 1, "QAction");
     qmlRegisterType<QIcon>("org.fishy.godl.qwidgets", 0, 1, "QIcon");
+    qmlRegisterType<ProjectsRegistryModel>("org.fishy.godl", 0, 1, "ProjectsRegistryModel");
+    registerSingletonPtr("org.fishy.godl", 0, 1, IconConverter);
+    registerSingletonPtr("org.fishy.godl", 0, 1, DateConverter);
+    registerSingletonPtr("org.fishy.godl", 0, 1, ProjectsRegistry);
+    registerSingletonPtr("org.fishy.godl", 0, 1, VersionRegistry);
+    registerSingletonPtr("org.fishy.godl", 0, 1, NetworkResponseCode);
 #ifdef CONFIG
     qmlRegisterSingletonInstance("org.fishy.godl", 0, 1, "Config", Config::self());
-    qmlRegisterSingletonInstance("org.fishy.godl",
-                                 0,
-                                 1,
-                                 "ConfigSignals",
-                                 new ConfigSignals(Config::self()));
+    registerSingletonPtr("org.fishy.godl", 0, 1, ConfigSignals);
 #endif
-    qmlRegisterSingletonInstance("org.fishy.godl",
-                                 0,
-                                 1,
-                                 "NetworkResponseCode",
-                                 new NetworkResponseCode());
-    qmlRegisterSingletonInstance("org.fishy.godl",
-                                 0,
-                                 1,
-                                 "VersionRegistry",
-                                 VersionRegistry::instance());
-    qmlRegisterSingletonInstance("org.fishy.godl",
-                                 0,
-                                 1,
-                                 "ProjectRegistry",
-                                 ProjectsRegistry::instance());
     QQmlApplicationEngine engine;
     Main::engine = &engine;
 

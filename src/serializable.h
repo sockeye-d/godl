@@ -1,7 +1,7 @@
 #ifndef SERIALIZABLE_H
 #define SERIALIZABLE_H
 
-#include <KConfigGroup>
+#include <KConfig>
 
 #define CFG_READ(entry) config.readEntry(#entry, entry())
 #define CFG_WRITE(entry) config.writeEntry(#entry, entry())

@@ -21,7 +21,7 @@ class VersionRegistry : public QObject
 
     VersionRegistryModel *m_model = new VersionRegistryModel(this);
 
-    void add(std::shared_ptr<GodotVersion> version);
+    void add(GodotVersion *version);
 
     void refreshConfigFile()
     {
@@ -54,10 +54,10 @@ public:
     VersionRegistryModel *model() const { return m_model; }
 
     Q_INVOKABLE GodotVersion *qversion(QString versionTag) const;
-    void registerVersion(std::shared_ptr<GodotVersion> version);
+    void registerVersion(GodotVersion *version);
 
-    QMap<QString, std::shared_ptr<GodotVersion>> versions() const;
-    std::shared_ptr<GodotVersion> version(QString assetName) const;
+    QMap<QString, GodotVersion *> versions() const;
+    GodotVersion *version(QString assetName) const;
     const QStringList assets() const;
 };
 

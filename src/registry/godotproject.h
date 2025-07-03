@@ -1,14 +1,22 @@
 #ifndef GODOTPROJECT_H
 #define GODOTPROJECT_H
 
+#include <QDateTime>
 #include <QObject>
 #include "boundgodotversion.h"
 #include "serializable.h"
+#include <KConfigGroup>
 #include <qqmlintegration.h>
+
+class ProjectsRegistry;
 
 class GodotProject : public QObject, Serializable
 {
+    friend class ProjectsRegistry;
     Q_OBJECT
+private:
+    ProjectsRegistry *m_registry;
+
 private:
     Q_PROPERTY(BoundGodotVersion *godotVersion READ godotVersion WRITE setGodotVersion NOTIFY
                    godotVersionChanged FINAL)
@@ -33,15 +41,9 @@ private:
     bool m_favorite = false;
 
 public:
-    void setFavorite(bool favorite)
-    {
-        if (m_favorite == favorite)
-            return;
-        m_favorite = favorite;
-        Q_EMIT favoriteChanged();
-    }
+    void setFavorite(bool favorite);
 
-    bool favorite() const { return m_favorite; }
+    bool favorite() const;
 
     Q_SIGNAL void favoriteChanged();
 
@@ -119,6 +121,24 @@ private:
                    lastEditedTimeChanged FINAL)
     QDateTime m_lastEditedTime;
 
+private:
+    Q_PROPERTY(
+        QString projectPath READ projectPath WRITE setProjectPath NOTIFY projectPathChanged FINAL)
+    QString m_projectPath = "";
+
+public:
+    void setProjectPath(QString projectPath)
+    {
+        if (m_projectPath == projectPath)
+            return;
+        m_projectPath = projectPath;
+        Q_EMIT projectPathChanged();
+    }
+
+    QString projectPath() const { return m_projectPath; }
+
+    Q_SIGNAL void projectPathChanged();
+
 public:
     void setLastEditedTime(QDateTime lastEditedTime)
     {
@@ -135,14 +155,17 @@ public:
 public:
     explicit GodotProject(QObject *parent = nullptr);
 
+    Q_INVOKABLE bool showInFolder() const;
+
     // Serializable interface
 public:
     void serialize(KConfigGroup config) override;
-    void deserialize(KConfigGroup config) override;
+    void deserialize(KConfigGroup config) override { deserialize(config, ""); }
+    void deserialize(KConfigGroup config, QString path);
 
 public:
     static inline const QString projectFilename = "godlproject";
-    static std::unique_ptr<GodotProject> load(const QString &path);
+    static GodotProject *load(const QString &path);
 };
 
 #endif // GODOTPROJECT_H

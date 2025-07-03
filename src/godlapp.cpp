@@ -24,7 +24,7 @@ void GodlApp::setupActions()
 
     // auto actionName = QLatin1String("add_notebook");
     // if (KAuthorized::authorizeAction(actionName)) {
-    //     auto action = mainCollection()->addAction(actionName, this, []() { qDebug() << "hi"; });
+    //     auto action = mainCollection()->addAction(actionName, this, []() { debug() << "hi"; });
     //     action->setText("New Notebook");
     //     action->setIcon(QIcon::fromTheme(QStringLiteral("list-add-symbolic")));
     //     mainCollection()->addAction(action->objectName(), action);
