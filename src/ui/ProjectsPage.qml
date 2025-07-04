@@ -64,12 +64,18 @@ Kirigami.Page {
     ColumnLayout {
         anchors.fill: parent
 
-        Kirigami.InlineMessage {
-            Layout.fillWidth: true
-            position: Kirigami.InlineMessage.Position.Inline
-            text: "wtf just happened."
-            type: Kirigami.MessageType.Error
-            visible: true
+        Repeater {
+            model: ProjectsRegistry.loadErrors
+
+            delegate: Kirigami.InlineMessage {
+                required property string modelData
+
+                Layout.fillWidth: true
+                position: Kirigami.InlineMessage.Position.Inline
+                text: `${i18n("Failed to load")} ${modelData}`
+                type: Kirigami.MessageType.Error
+                visible: true
+            }
         }
 
         Controls.ScrollView {

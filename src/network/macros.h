@@ -8,7 +8,7 @@
 #ifdef GITHUB_TOKEN
 #define AUTH(request) (request.setRawHeader("Authorization"_ba, u"Bearer %1"_s.arg(GITHUB_TOKEN).toUtf8()))
 #else
-#define auth(request)
+#define AUTH(request)
 #endif
 
 #endif //MACROS_H

@@ -13,6 +13,7 @@
 #include <KConfigGroup>
 #include <KSharedConfig>
 #include <ksharedconfig.h>
+#include <qcontainerfwd.h>
 
 class ProjectsRegistry : public QObject
 {
@@ -20,13 +21,19 @@ class ProjectsRegistry : public QObject
     Q_PROPERTY(ProjectsRegistryModel *model READ model CONSTANT FINAL)
 
     // KConfig m_config = KConfig("godlprojects", KConfig::SimpleConfig);
-    KConfig &config()
+    inline static KConfig &config()
     {
         static KConfig config("godlprojects", KConfig::SimpleConfig);
         return config;
     }
     InternalProjectsRegistryModel m_internalModel{this};
     ProjectsRegistryModel *m_model = new ProjectsRegistryModel(&m_internalModel, this);
+
+private:
+    Q_PROPERTY(QStringList loadErrors READ loadErrors CONSTANT FINAL)
+    QStringList m_loadErrors = {};
+
+    QStringList loadErrors() const { return m_loadErrors; }
 
 public:
     ProjectsRegistry(QObject *parent = nullptr)
@@ -35,8 +42,13 @@ public:
         const QStringList paths = config().groupList();
         debug() << paths;
         for (const QString &path : paths) {
-            load(path);
+            auto proj = load(path);
+            m_loadErrors.append(path);
+            if (!proj) {
+                config().deleteGroup(path);
+            }
         }
+        config().sync();
     }
     // ~ProjectsRegistry() { m_config.reset(); }
 
