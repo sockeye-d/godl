@@ -49,6 +49,8 @@ Kirigami.Page {
                     Kirigami.Action {
                         icon.name: "delete"
                         text: i18n("Remove")
+
+                        onTriggered: VersionRegistry.removeVersion(card.modelData)
                     }
                 ]
                 contentItem: Controls.Label {

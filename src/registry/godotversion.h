@@ -3,9 +3,10 @@
 
 #include <QObject>
 #include <QQmlEngine>
-#include <config.h>
-// #include "config.h"
+#include "boundgodotversion.h"
 #include <KSharedConfig>
+#include <config.h>
+#include <qtmetamacros.h>
 
 class GodotVersion : public QObject
 {
@@ -137,6 +138,16 @@ public:
     void writeTo(KSharedConfig::Ptr config) const;
     Q_INVOKABLE void showExternally() const;
     Q_INVOKABLE void start() const;
+    Q_INVOKABLE BoundGodotVersion *boundVersion() const;
+
+    Q_INVOKABLE QString toString() const;
+    Q_INVOKABLE bool equals(const BoundGodotVersion *other)
+    {
+        if (!other) {
+            return false;
+        }
+        return tag() == other->tagName() && isMono() == other->isMono();
+    }
 };
 
 bool operator==(const GodotVersion &left, const GodotVersion &right);

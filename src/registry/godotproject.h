@@ -7,6 +7,7 @@
 #include "serializable.h"
 #include <KConfigGroup>
 #include <qqmlintegration.h>
+#include <qtmetamacros.h>
 
 class ProjectsRegistry;
 
@@ -15,7 +16,15 @@ class GodotProject : public QObject, Serializable
     friend class ProjectsRegistry;
     Q_OBJECT
 private:
-    ProjectsRegistry *m_registry;
+    ProjectsRegistry *m_registry = nullptr;
+    KConfig *m_config = nullptr;
+
+    void setConfig(KConfig *config)
+    {
+        m_config = config;
+        save();
+    }
+    KConfig *config() { return m_config; }
 
 private:
     Q_PROPERTY(BoundGodotVersion *godotVersion READ godotVersion WRITE setGodotVersion NOTIFY
@@ -27,9 +36,12 @@ public:
     {
         if (m_godotVersion == godotVersion)
             return;
-        delete m_godotVersion;
+        if (m_godotVersion)
+            m_godotVersion->deleteLater();
         m_godotVersion = godotVersion;
+        m_godotVersion->setParent(this);
         Q_EMIT godotVersionChanged();
+        save();
     }
 
     BoundGodotVersion *godotVersion() const { return m_godotVersion; }
@@ -58,6 +70,7 @@ public:
             return;
         m_tags = tags;
         Q_EMIT tagsChanged();
+        save();
     }
 
     QStringList tags() const { return m_tags; }
@@ -75,6 +88,7 @@ public:
             return;
         m_name = name;
         Q_EMIT nameChanged();
+        save();
     }
 
     QString name() const { return m_name; }
@@ -93,6 +107,7 @@ public:
             return;
         m_description = description;
         Q_EMIT descriptionChanged();
+        save();
     }
 
     QString description() const { return m_description; }
@@ -166,6 +181,7 @@ public:
 public:
     static inline const QString projectFilename = "godlproject";
     static GodotProject *load(const QString &path);
+    Q_INVOKABLE void save();
 };
 
 #endif // GODOTPROJECT_H

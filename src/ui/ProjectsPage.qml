@@ -65,17 +65,44 @@ Kirigami.Page {
         anchors.fill: parent
 
         Repeater {
+            id: loadErrorRepeater
+
             model: ProjectsRegistry.loadErrors
 
             delegate: Kirigami.InlineMessage {
+                id: message
+
+                required property int index
                 required property string modelData
 
                 Layout.fillWidth: true
-                position: Kirigami.InlineMessage.Position.Inline
+                Layout.preferredHeight: implicitHeight
+                // @disable-check M17
+                icon.color: Kirigami.Theme.negativeTextColor
+                // @disable-check M17
+                icon.name: "drive"
+                showCloseButton: true
                 text: `${i18n("Failed to load")} ${modelData}`
                 type: Kirigami.MessageType.Error
-                visible: true
+                visible: false
+
+                Timer {
+                    interval: message.index * 20
+                    running: true
+
+                    onTriggered: message.visible = true
+                }
             }
+        }
+
+        Controls.Button {
+            Layout.fillWidth: true
+            // flat: true
+            icon.name: "edit-clear-all"
+            text: i18n("Clear all")
+            visible: loadErrorRepeater.visible && loadErrorRepeater.count >= 1
+
+            onClicked: loadErrorRepeater.model = []
         }
 
         Controls.ScrollView {
@@ -91,102 +118,7 @@ Kirigami.Page {
                 model: ProjectsRegistry.model
                 reuseItems: false
 
-                delegate: Kirigami.Card {
-                    id: card
-
-                    required property GodotProject modelData
-
-                    banner.title: modelData.name
-
-                    actions: [
-                        Kirigami.Action {
-                            id: favoriteAction
-
-                            checkable: true
-                            checked: card.modelData.favorite
-                            icon.color: checked ? "gold" : "white"
-                            icon.name: "favorite"
-
-                            onCheckedChanged: card.modelData.favorite = favoriteAction.checked
-                        },
-                        Kirigami.Action {
-                            icon.name: "document-open"
-                            text: i18n("Open")
-                        },
-                        Kirigami.Action {
-                            icon.name: "configure"
-                            text: i18n("Edit")
-
-                            onTriggered: editDialog.open()
-                        },
-                        Kirigami.Action {
-                            icon.name: "document-open-folder"
-                            text: i18n("Show in folder")
-                            tooltip: card.modelData.path
-
-                            onTriggered: card.modelData.showInFolder()
-                        },
-                        Kirigami.Action {
-                            icon.name: "delete"
-                            text: i18n("Remove")
-
-                            onTriggered: ProjectsRegistry.remove(card.modelData)
-                        }
-                    ]
-                    // needs two column layouts so that it's like this
-                    //
-                    // the first             +> +----------------------------------------------+
-                    // layout sometimes      |  | text1                                        |
-                    // fills the entire      |  | text2                                        |
-                    // height of the         |  |       <| so the bottom item will expand to   |
-                    // card                  |  |       <| fill the space it leaves            |
-                    //                       +> +----------------------------------------------+
-                    contentItem: ColumnLayout {
-                        spacing: 0
-
-                        ColumnLayout {
-                            Controls.Label {
-                                property bool hasDescription: card.modelData.description !== ""
-
-                                Layout.fillHeight: false
-                                color: hasDescription ? palette.windowText : palette.placeholderText
-                                text: hasDescription ? card.modelData.description : i18n("<no description>")
-                            }
-
-                            DateLabel {
-                                Layout.fillHeight: false
-                                color: palette.placeholderText
-                                dateTime: card.modelData.lastEditedTime
-                                prefix: "Last edited "
-                            }
-                        }
-
-                        // worst hack. terrible hack.
-                        // ... but it works!
-                        Item {
-                            Layout.fillHeight: true
-                        }
-                    }
-
-                    FormCard.FormCardDialog {
-                        id: editDialog
-
-                        title: card.modelData.name
-
-                        FormCard.FormTextAreaDelegate {
-                            label: i18n("Name")
-                            text: card.modelData.name
-
-                            onTextChanged: card.modelData.name = text
-                        }
-
-                        FormCard.FormTextAreaDelegate {
-                            label: i18n("Description")
-                            text: card.modelData.description
-
-                            onTextChanged: card.modelData.description = text
-                        }
-                    }
+                delegate: ProjectCard {
                 }
             }
         }

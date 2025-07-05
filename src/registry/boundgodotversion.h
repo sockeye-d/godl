@@ -3,6 +3,7 @@
 #include <QObject>
 #include "serializable.h"
 #include <qqmlintegration.h>
+#include <qtmetamacros.h>
 
 /**
  * @brief The BoundGodotVersion class is a simpler version of a @ref GodotVersion that only includes information needed to be bound to a project.
@@ -29,7 +30,7 @@ public:
 
 private:
     Q_PROPERTY(bool isMono READ isMono WRITE setIsMono NOTIFY isMonoChanged FINAL)
-    bool m_isMono = "";
+    bool m_isMono = false;
 
 public:
     void setIsMono(bool isMono)
@@ -51,6 +52,8 @@ public:
     {}
     void serialize(KConfigGroup config) override;
     void deserialize(KConfigGroup config) override;
+
+    Q_INVOKABLE QString toString() const;
 };
 
 bool operator==(BoundGodotVersion left, BoundGodotVersion right);

@@ -1,7 +1,3 @@
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-
 qt_add_executable(godl)
 
 kconfig_add_kcfg_files(config_SRCS config.kcfgc GENERATE_MOC)
@@ -58,6 +54,7 @@ qt_add_qml_module(godl
     QML_FILES ui/config/ConfigStringListFormCard.qml
     QML_FILES ui/config/ProjectsConfigPage.qml
     QML_FILES ui/DateLabel.qml
+    QML_FILES ui/ProjectCard.qml
 )
 
 target_link_libraries(godl
@@ -78,9 +75,6 @@ target_link_libraries(godl
     KF6::Archive
     KirigamiAddonsStatefulApp
 )
-target_link_libraries(godl PRIVATE Qt6::Core)
-target_link_libraries(godl PRIVATE Qt6::Core)
-target_link_libraries(godl PRIVATE Qt6::Core)
 
 target_include_directories(godl
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/model

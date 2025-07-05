@@ -160,9 +160,6 @@ Kirigami.Page {
                         let result = lastPageRegex.exec(headers.link);
                         if (result) {
                             totalPages = result[1];
-                            console.log("detected total page as", totalPages);
-                        } else {
-                            console.log("not found :(");
                         }
                     }
 
@@ -171,7 +168,6 @@ Kirigami.Page {
 
                     if (r.length === requestCount) {
                         currentPage++;
-                        console.log("requesting page", currentPage + 1);
                         return [Qt.url(`https://api.github.com/repos/godotengine/godot-builds/releases?per_page=${requestCount}&page=${currentPage + 1}`)];
                     } else {
                         return [];
@@ -399,6 +395,27 @@ Kirigami.Page {
                     contentItem: DateLabel {
                         dateTime: new Date(card.created_at)
                         prefix: "Released "
+                    }
+
+                    Rectangle {
+                        id: highlight
+
+                        property bool update: false
+
+                        anchors.fill: parent
+                        border.color: Kirigami.Theme.highlightColor
+                        border.width: 2
+                        color: "transparent"
+                        radius: parent.background.radius
+                        visible: VersionRegistry.downloaded(card.tag_name) || (update && !update)
+
+                        Connections {
+                            function onDownloadedChanged() {
+                                highlight.update = !highlight.update;
+                            }
+
+                            target: VersionRegistry
+                        }
                     }
                 }
             }

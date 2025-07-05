@@ -1,4 +1,5 @@
 #include "godotversion.h"
+#include "boundgodotversion.h"
 
 #include <QDesktopServices>
 #include <QFileInfo>
@@ -46,4 +47,20 @@ void GodotVersion::showExternally() const
 void GodotVersion::start() const
 {
     QProcess::startDetached(absolutePath());
+}
+
+BoundGodotVersion *GodotVersion::boundVersion() const
+{
+    auto ver = new BoundGodotVersion();
+    ver->setTagName(tag());
+    ver->setIsMono(isMono());
+    return ver;
+}
+
+QString GodotVersion::toString() const
+{
+    if (isMono())
+        return tag() % "-mono" % " (" % assetName() % ")";
+    else
+        return tag() % " (" % assetName() % ")";
 }

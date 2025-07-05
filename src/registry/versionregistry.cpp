@@ -1,6 +1,8 @@
 #include "versionregistry.h"
 
+#include <QDir>
 #include <KSharedConfig>
+#include <qtmetamacros.h>
 
 void VersionRegistry::add(GodotVersion *version)
 {
@@ -8,12 +10,28 @@ void VersionRegistry::add(GodotVersion *version)
         version->writeTo(config());
     });
     model()->append(version);
+    Q_EMIT downloadedChanged();
+    Q_EMIT hasVersionChanged();
 }
 
 void VersionRegistry::registerVersion(GodotVersion *version)
 {
     version->writeTo(m_config);
     add(version);
+}
+
+void VersionRegistry::removeVersion(GodotVersion *version)
+{
+    debug() << "attempted to remove" << *version;
+    model()->remove(version);
+    m_config->deleteGroup(version->assetName());
+    auto path = QFileInfo(version->absolutePath()).path();
+    debug() << "removing" << path;
+    QDir(path).removeRecursively();
+    debug() << "done removing" << path;
+    Q_EMIT downloadedChanged();
+    Q_EMIT hasVersionChanged();
+    version->deleteLater();
 }
 
 QMap<QString, GodotVersion *> VersionRegistry::versions() const
@@ -42,7 +60,27 @@ const QStringList VersionRegistry::assets() const
 {
     return m_config->groupList();
 }
-Q_INVOKABLE GodotVersion *VersionRegistry::qversion(QString versionTag) const
+
+bool VersionRegistry::downloaded(QString tag) const
 {
-    return version(versionTag);
+    const QStringList groups = m_config->groupList();
+    for (const QString &groupName : groups) {
+        if (m_config->group(groupName).readEntry("tag") == tag) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool VersionRegistry::hasVersion(const BoundGodotVersion *version) const
+{
+    const QStringList groups = m_config->groupList();
+    for (const QString &groupName : groups) {
+        auto g = m_config->group(groupName);
+        if (g.readEntry("tag") == version->tagName()
+            && g.readEntry("isMono", false) == version->isMono()) {
+            return true;
+        }
+    }
+    return false;
 }

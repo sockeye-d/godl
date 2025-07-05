@@ -5,11 +5,15 @@
 #include <QProcess>
 #include <QString>
 #include <QtQml/qqmlregistration.h>
+#include "boundgodotversion.h"
 #include "config.h"
+#include "godotversion.h"
 #include "model/versionregistrymodel.h"
 #include <KConfig>
 #include <KConfigGroup>
 #include <KSharedConfig>
+#include <qobject.h>
+#include <qtmetamacros.h>
 
 class VersionRegistry : public QObject
 {
@@ -53,12 +57,16 @@ public:
 
     VersionRegistryModel *model() const { return m_model; }
 
-    Q_INVOKABLE GodotVersion *qversion(QString versionTag) const;
     void registerVersion(GodotVersion *version);
+    Q_INVOKABLE void removeVersion(GodotVersion *version);
 
     QMap<QString, GodotVersion *> versions() const;
     GodotVersion *version(QString assetName) const;
     const QStringList assets() const;
+    Q_INVOKABLE bool downloaded(QString tag) const;
+    Q_INVOKABLE bool hasVersion(const BoundGodotVersion *version) const;
+    Q_SIGNAL void downloadedChanged();
+    Q_SIGNAL void hasVersionChanged();
 };
 
 #endif // VERSIONREGISTRY_H

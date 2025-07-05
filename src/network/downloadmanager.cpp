@@ -1,14 +1,15 @@
 #include "downloadmanager.h"
 #include <QDir>
 #include <QFile>
+#include <QFutureWatcher>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QUrl>
-#include <QtConcurrent/QtConcurrent>
+#include <QtConcurrentRun>
 #include "macros.h"
 #include "network.h"
-#include "util/util.h"
 #include "registry/versionregistry.h"
+#include "util/util.h"
 #include <KArchive>
 #include <KLocalization>
 #include <KTar>

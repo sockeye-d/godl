@@ -1,6 +1,8 @@
 #include "projectsregistry.h"
 #include <QDir>
+#include "godotproject.h"
 #include "util.h"
+#include <KConfigGroup>
 
 GodotProject *ProjectsRegistry::load(const QString filepath)
 {
@@ -33,7 +35,7 @@ void ProjectsRegistry::scan(const QString directory)
 
 void ProjectsRegistry::import(const QString filepath)
 {
-    if (config().hasGroup(filepath)) {
+    if (config().hasGroup(QFileInfo(filepath).path() / GodotProject::projectFilename)) {
         debug() << "Already loaded project at" << filepath;
         return;
     }
@@ -47,8 +49,11 @@ void ProjectsRegistry::import(const QString filepath)
     config().sync();
 }
 
-void ProjectsRegistry::remove(GodotProject *project)
+void ProjectsRegistry::remove(GodotProject *project, bool moveToTrash)
 {
+    if (moveToTrash) {
+        QFile::moveToTrash(QFileInfo(project->path()).path());
+    }
     m_internalModel.remove(project);
     config().deleteGroup(project->path(), KConfig::Persistent);
     config().sync();
@@ -69,4 +74,25 @@ bool ProjectsRegistry::favorite(const GodotProject *project)
         return false;
 
     return config().group(project->path()).readEntry("favorite", false);
+}
+
+ProjectsRegistry::ProjectsRegistry(QObject *parent)
+    : QObject(parent)
+{
+    const QStringList paths = config().groupList();
+    debug() << paths;
+    for (const QString &path : paths) {
+        auto proj = load(path);
+        if (!proj) {
+            m_loadErrors.append(path);
+            config().deleteGroup(path);
+        }
+    }
+    config().sync();
+}
+
+KConfig &ProjectsRegistry::config()
+{
+    static KConfig config("godlprojects", KConfig::SimpleConfig);
+    return config;
 }
