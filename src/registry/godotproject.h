@@ -125,6 +125,7 @@ public:
             return;
         m_path = path;
         Q_EMIT pathChanged();
+        Q_EMIT projectPathChanged();
     }
 
     QString path() const { return m_path; }
@@ -137,20 +138,10 @@ private:
     QDateTime m_lastEditedTime;
 
 private:
-    Q_PROPERTY(
-        QString projectPath READ projectPath WRITE setProjectPath NOTIFY projectPathChanged FINAL)
-    QString m_projectPath = "";
+    Q_PROPERTY(QString projectPath READ projectPath NOTIFY projectPathChanged FINAL)
 
 public:
-    void setProjectPath(QString projectPath)
-    {
-        if (m_projectPath == projectPath)
-            return;
-        m_projectPath = projectPath;
-        Q_EMIT projectPathChanged();
-    }
-
-    QString projectPath() const { return m_projectPath; }
+    QString projectPath() const;
 
     Q_SIGNAL void projectPathChanged();
 
@@ -182,6 +173,7 @@ public:
     static inline const QString projectFilename = "godlproject";
     static GodotProject *load(const QString &path);
     Q_INVOKABLE void save();
+    Q_INVOKABLE void open() const;
 };
 
 #endif // GODOTPROJECT_H

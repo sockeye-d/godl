@@ -45,6 +45,9 @@ QMap<QString, GodotVersion *> VersionRegistry::versions() const
 
 GodotVersion *VersionRegistry::version(QString assetName) const
 {
+    if (assetName == "") {
+        return nullptr;
+    }
     const KConfigGroup &group = m_config->group(assetName);
     const auto version = new GodotVersion();
     version->setAssetName(assetName);
@@ -83,4 +86,22 @@ bool VersionRegistry::hasVersion(const BoundGodotVersion *version) const
         }
     }
     return false;
+}
+
+QString VersionRegistry::findAssetName(const BoundGodotVersion *version) const
+{
+    const QStringList groups = m_config->groupList();
+    for (const QString &groupName : groups) {
+        auto g = m_config->group(groupName);
+        if (g.readEntry("tag") == version->tagName()
+            && g.readEntry("isMono", false) == version->isMono()) {
+            return groupName;
+        }
+    }
+    return "";
+}
+
+const GodotVersion *VersionRegistry::findVersion(const BoundGodotVersion *v) const
+{
+    return version(findAssetName(v));
 }

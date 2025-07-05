@@ -9,6 +9,7 @@
 #include "boundgodotversion.h"
 #include "projectsregistry.h"
 #include "util.h"
+#include "versionregistry.h"
 #include <KConfig>
 #include <KConfigGroup>
 
@@ -53,7 +54,6 @@ GodotProject *loadInternal(const QString &path)
         project->setTags(getArray(s, "application/config/tags"));
         project->setLastEditedTime(file.lastModified());
         project->setPath(file.path() / GodotProject::projectFilename);
-        project->setProjectPath(path);
         return project;
     }
     return nullptr;
@@ -77,7 +77,6 @@ void GodotProject::serialize(KConfigGroup config)
     CFG_WRITE(tags);
     CFG_WRITE(name);
     CFG_WRITE(description);
-    CFG_WRITE(projectPath);
 }
 
 void GodotProject::deserialize(KConfigGroup config, QString path)
@@ -93,7 +92,6 @@ void GodotProject::deserialize(KConfigGroup config, QString path)
     setName(CFG_READ(name));
     setDescription(CFG_READ(description));
     setPath(path);
-    setProjectPath(CFG_READ(projectPath));
     setLastEditedTime(QFileInfo(QFileInfo(path).path() / "project.godot").lastModified());
 }
 
@@ -118,6 +116,19 @@ void GodotProject::save()
     }
 }
 
+void GodotProject::open() const
+{
+    auto v = VersionRegistry::instance()->findVersion(godotVersion());
+    QString cmd = v->cmd()
+                      .replace("{executable}", v->absolutePath())
+                      .replace("{projectPath}", projectPath());
+    debug() << "Starting" << cmd;
+    QStringList args = QProcess::splitCommand(cmd);
+    QString exe = args.first();
+    args.removeFirst();
+    QProcess::startDetached(exe, args);
+}
+
 void GodotProject::setFavorite(bool favorite)
 {
     if (m_favorite == favorite)
@@ -130,4 +141,9 @@ void GodotProject::setFavorite(bool favorite)
 bool GodotProject::favorite() const
 {
     return m_favorite;
+}
+
+QString GodotProject::projectPath() const
+{
+    return QFileInfo(path()).path() / "project.godot";
 }

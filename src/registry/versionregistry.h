@@ -65,6 +65,8 @@ public:
     const QStringList assets() const;
     Q_INVOKABLE bool downloaded(QString tag) const;
     Q_INVOKABLE bool hasVersion(const BoundGodotVersion *version) const;
+    Q_INVOKABLE QString findAssetName(const BoundGodotVersion *version) const;
+    Q_INVOKABLE const GodotVersion *findVersion(const BoundGodotVersion *version) const;
     Q_SIGNAL void downloadedChanged();
     Q_SIGNAL void hasVersionChanged();
 };

@@ -29,6 +29,8 @@ Kirigami.Card {
         Kirigami.Action {
             icon.name: "document-export"
             text: i18n("Open")
+
+            onTriggered: modelData.open()
         },
         Kirigami.Action {
             icon.name: "configure"
