@@ -29,6 +29,23 @@ public:
     Q_SIGNAL void tagNameChanged();
 
 private:
+    Q_PROPERTY(QString repo READ repo WRITE setRepo NOTIFY repoChanged FINAL)
+    QString m_repo = "";
+
+public:
+    void setRepo(QString source)
+    {
+        if (m_repo == source)
+            return;
+        m_repo = source;
+        Q_EMIT repoChanged();
+    }
+
+    QString repo() const { return m_repo; }
+
+    Q_SIGNAL void repoChanged();
+
+private:
     Q_PROPERTY(bool isMono READ isMono WRITE setIsMono NOTIFY isMonoChanged FINAL)
     bool m_isMono = false;
 

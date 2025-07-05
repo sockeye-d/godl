@@ -15,6 +15,15 @@ class GodotProject : public QObject, Serializable
 {
     friend class ProjectsRegistry;
     Q_OBJECT
+
+public:
+    enum OpenError {
+        NoError,
+        NoEditorBound,
+        NoEditorFound,
+        FailedToStartEditor,
+    };
+    Q_ENUM(OpenError)
 private:
     ProjectsRegistry *m_registry = nullptr;
     KConfig *m_config = nullptr;
@@ -39,7 +48,8 @@ public:
         if (m_godotVersion)
             m_godotVersion->deleteLater();
         m_godotVersion = godotVersion;
-        m_godotVersion->setParent(this);
+        if (m_godotVersion)
+            m_godotVersion->setParent(this);
         Q_EMIT godotVersionChanged();
         save();
     }
@@ -173,7 +183,7 @@ public:
     static inline const QString projectFilename = "godlproject";
     static GodotProject *load(const QString &path);
     Q_INVOKABLE void save();
-    Q_INVOKABLE void open() const;
+    Q_INVOKABLE OpenError open() const;
 };
 
 #endif // GODOTPROJECT_H

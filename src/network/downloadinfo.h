@@ -21,6 +21,7 @@ class DownloadInfo : public QObject
     Q_PROPERTY(const QUrl sourceUrl READ sourceUrl CONSTANT)
     Q_PROPERTY(int stage MEMBER m_stage NOTIFY stageChanged)
     Q_PROPERTY(QString error READ error NOTIFY errorChanged FINAL)
+    Q_PROPERTY(QString repo READ repo NOTIFY repoChanged FINAL)
 
 public:
     enum Stage {
@@ -44,6 +45,7 @@ private:
     const QUrl m_sourceUrl;
     CircularBuffer<qreal, 128> m_buf;
     QString m_error = "";
+    QString m_repo = "";
 
     void setError(QString error)
     {
@@ -80,11 +82,13 @@ public:
     DownloadInfo(const QString assetName,
                  const QString tagName,
                  const QUrl sourceUrl,
+                 const QString repo,
                  QObject *parent = nullptr)
         : QObject{parent}
         , m_assetName(assetName)
         , m_tagName(tagName)
         , m_sourceUrl(sourceUrl)
+        , m_repo(repo)
     {}
 
     bool operator==(DownloadInfo right);
@@ -98,11 +102,13 @@ public:
     const QUrl sourceUrl() const { return m_sourceUrl; }
     QString error() const { return m_error; }
     QString tagName() const { return m_tagName; }
+    QString repo() const { return m_repo; }
 
     Q_SIGNAL void progressChanged();
     Q_SIGNAL void downloadSpeedChanged();
     Q_SIGNAL void stageChanged();
     Q_SIGNAL void errorChanged();
+    Q_SIGNAL void repoChanged();
 };
 
 #endif // DOWNLOADINFO_H

@@ -48,12 +48,16 @@ GodotVersion *VersionRegistry::version(QString assetName) const
     if (assetName == "") {
         return nullptr;
     }
+    if (!m_config->hasGroup(assetName)) {
+        return nullptr;
+    }
     const KConfigGroup &group = m_config->group(assetName);
     const auto version = new GodotVersion();
     version->setAssetName(assetName);
     version->setTag(group.readEntry("tag"));
     version->setPath(group.readEntry("path"));
     version->setSourceUrl(group.readEntry("sourceUrl"));
+    version->setRepo(group.readEntry("repo"));
     version->setIsMono(group.readEntry("isMono", version->isMono()));
     version->setCmd(group.readEntry("cmd"));
     return version;
@@ -64,11 +68,12 @@ const QStringList VersionRegistry::assets() const
     return m_config->groupList();
 }
 
-bool VersionRegistry::downloaded(QString tag) const
+bool VersionRegistry::downloaded(const QString &tag, const QString &repo) const
 {
     const QStringList groups = m_config->groupList();
     for (const QString &groupName : groups) {
-        if (m_config->group(groupName).readEntry("tag") == tag) {
+        auto g = m_config->group(groupName);
+        if (g.readEntry("tag") == tag && g.readEntry("repo") == repo) {
             return true;
         }
     }
@@ -81,7 +86,8 @@ bool VersionRegistry::hasVersion(const BoundGodotVersion *version) const
     for (const QString &groupName : groups) {
         auto g = m_config->group(groupName);
         if (g.readEntry("tag") == version->tagName()
-            && g.readEntry("isMono", false) == version->isMono()) {
+            && g.readEntry("isMono", false) == version->isMono()
+            && g.readEntry("repo") == version->repo()) {
             return true;
         }
     }
@@ -94,7 +100,8 @@ QString VersionRegistry::findAssetName(const BoundGodotVersion *version) const
     for (const QString &groupName : groups) {
         auto g = m_config->group(groupName);
         if (g.readEntry("tag") == version->tagName()
-            && g.readEntry("isMono", false) == version->isMono()) {
+            && g.readEntry("isMono", false) == version->isMono()
+            && g.readEntry("repo") == version->repo()) {
             return groupName;
         }
     }
@@ -104,4 +111,31 @@ QString VersionRegistry::findAssetName(const BoundGodotVersion *version) const
 const GodotVersion *VersionRegistry::findVersion(const BoundGodotVersion *v) const
 {
     return version(findAssetName(v));
+}
+
+QStringList VersionRegistry::detectLeakedVersions() const
+{
+    const QStringList downloadedVersions = QDir(Config::godotLocation())
+                                               .entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    const auto groups = config()->groupList();
+    QStringList executables;
+    QStringList leakedExecutables;
+    for (const QString &group : groups) {
+        executables << QFileInfo(config()->group(group).readEntry("path")).path();
+    }
+    for (const QString &version : downloadedVersions) {
+        if (!executables.contains(version)) {
+            leakedExecutables << Config::godotLocation() / version;
+        }
+    }
+
+    return leakedExecutables;
+}
+
+void VersionRegistry::deleteLeakedVersions(QStringList versions) const
+{
+    for (const QString &version : versions) {
+        debug() << "Removing" << version;
+        QDir(version).removeRecursively();
+    }
 }

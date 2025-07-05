@@ -10,7 +10,7 @@ Kirigami.Page {
 
     property DownloadManager dl
     property bool hasContent: false
-    property string rawSource: Config.sources[0]
+    property string rawRepo: Config.sources[0]
     property int requestCount: 100
     property bool show_alpha: true
     property bool show_beta: true
@@ -28,7 +28,7 @@ Kirigami.Page {
         request.currentPage = 0;
         request.totalPages = -1;
         resultList.fullReleases = [];
-        let source = root.rawSource;
+        let source = root.rawRepo;
         if (source[0] === "/") {
             source = `https://api.github.com/repos${source}`;
         }
@@ -44,7 +44,7 @@ Kirigami.Page {
         Kirigami.Action {
             enabled: !request.running
             icon.name: "view-refresh"
-            text: i18n("Refresh")
+            tooltip: i18n("Refresh")
 
             onTriggered: root.refresh()
         },
@@ -54,7 +54,7 @@ Kirigami.Page {
         },
         Kirigami.Action {
             icon.name: "view-filter"
-            text: i18n("Filters")
+            tooltip: i18n("Filters")
 
             Kirigami.Action {
                 checkable: true
@@ -63,7 +63,6 @@ Kirigami.Page {
 
                 onTriggered: show_stable = checked
             }
-
             Kirigami.Action {
                 checkable: true
                 text: i18n("Show unstable")
@@ -80,7 +79,6 @@ Kirigami.Page {
                     show_rc = checked;
                 }
             }
-
             Kirigami.Action {
                 checkable: true
                 checked: show_dev
@@ -88,7 +86,6 @@ Kirigami.Page {
 
                 onTriggered: show_dev = checked
             }
-
             Kirigami.Action {
                 checkable: true
                 checked: show_alpha
@@ -96,7 +93,6 @@ Kirigami.Page {
 
                 onTriggered: show_alpha = checked
             }
-
             Kirigami.Action {
                 checkable: true
                 checked: show_beta
@@ -104,7 +100,6 @@ Kirigami.Page {
 
                 onTriggered: show_beta = checked
             }
-
             Kirigami.Action {
                 checkable: true
                 checked: show_rc
@@ -118,10 +113,11 @@ Kirigami.Page {
                 id: dlSourceComponent
 
                 Controls.ComboBox {
+                    enabled: !request.running
                     model: Config.sources
 
                     onCurrentValueChanged: {
-                        root.rawSource = currentValue;
+                        root.rawRepo = currentValue;
                         root.refresh();
                     }
                 }
@@ -142,7 +138,6 @@ Kirigami.Page {
             }
         }
     }
-
     ChainedJsonRequest {
         id: request
 
@@ -186,7 +181,6 @@ Kirigami.Page {
             hasContent = true;
         }
     }
-
     Kirigami.OverlaySheet {
         id: patchNotesSheet
 
@@ -218,7 +212,6 @@ Kirigami.Page {
             }
         }
     }
-
     Kirigami.OverlaySheet {
         id: dlDialog
 
@@ -230,13 +223,11 @@ Kirigami.Page {
                 level: 1
                 text: dlDialog.title
             }
-
             Kirigami.SearchField {
                 id: assetsFilter
 
                 Layout.fillWidth: true
             }
-
             Kirigami.Chip {
                 id: currentPlatformOnlyFilterChip
 
@@ -247,7 +238,6 @@ Kirigami.Page {
                 icon.name: "view-filter"
                 text: i18n("Current platform only")
             }
-
             Kirigami.Chip {
                 id: monoOnlyFilterChip
 
@@ -267,15 +257,12 @@ Kirigami.Page {
             function dotnetFilter(el) {
                 return !monoOnlyFilterChip.checked || el.name.indexOf("mono") !== -1;
             }
-
             function filterAsset(el) {
                 return Config.downloadFilter.some(e => el.name.indexOf(e) !== -1);
             }
-
             function nameFilter(el) {
                 return assetsFilter.text === "" || el.name.indexOf(assetsFilter.text) !== -1;
             }
-
             function platformFilter(el) {
                 return !currentPlatformOnlyFilterChip.checked || filterAsset(el);
             }
@@ -298,7 +285,7 @@ Kirigami.Page {
 
                         onTriggered: {
                             // dlDialog.close()
-                            dl.download(name, dlDialog.tagName, Qt.url(browser_download_url));
+                            dl.download(name, dlDialog.tagName, Qt.url(browser_download_url), root.rawRepo);
                         }
                     }
                 ]
@@ -329,7 +316,6 @@ Kirigami.Page {
             }
         }
     }
-
     ColumnLayout {
         anchors.fill: parent
 
@@ -408,7 +394,7 @@ Kirigami.Page {
                         color: "transparent"
                         // opacity: 0.5
                         radius: parent.background.radius
-                        visible: VersionRegistry.downloaded(card.tag_name) || (update && !update)
+                        visible: VersionRegistry.downloaded(card.tag_name, root.rawRepo) || (update && !update)
 
                         Connections {
                             function onDownloadedChanged() {
@@ -421,7 +407,6 @@ Kirigami.Page {
                 }
             }
         }
-
         Kirigami.LoadingPlaceholder {
             Layout.fillHeight: false
             Layout.fillWidth: true
@@ -439,7 +424,6 @@ Kirigami.Page {
                 }
             }
         }
-
         Kirigami.Heading {
             Layout.fillHeight: true
             Layout.fillWidth: true
@@ -450,7 +434,6 @@ Kirigami.Page {
             visible: request.errorString !== ""
             wrapMode: Text.Wrap
         }
-
         Kirigami.Heading {
             Layout.fillHeight: true
             Layout.fillWidth: true

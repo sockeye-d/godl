@@ -13,6 +13,8 @@ Kirigami.Card {
 
     required property GodotProject modelData
 
+    property int error: -1
+
     banner.title: modelData.name
 
     actions: [
@@ -30,7 +32,7 @@ Kirigami.Card {
             icon.name: "document-export"
             text: i18n("Open")
 
-            onTriggered: modelData.open()
+            onTriggered: root.error = modelData.open()
         },
         Kirigami.Action {
             icon.name: "configure"
@@ -70,6 +72,26 @@ Kirigami.Card {
     contentItem: ColumnLayout {
         spacing: 0
 
+        Kirigami.InlineMessage {
+            id: msg
+            Layout.fillWidth: true
+            visible: root.error !== -1
+            text: ({
+                    0: null,
+                    1: i18n("Opened project"),
+                    2: i18n("No editor bound"),
+                    3: i18n("No editor found"),
+                    4: i18n("Failed to start editor")
+                }[root.error + 1])
+            type: root.error === 0 ? Kirigami.MessageType.Positive : Kirigami.MessageType.Error
+            actions: Kirigami.Action {
+                displayComponent: Controls.ToolButton {
+                    icon.name: "dialog-close"
+                    onClicked: root.error = -1
+                }
+            }
+        }
+
         ColumnLayout {
             Controls.Label {
                 property bool hasDescription: root.modelData.description !== ""
@@ -79,7 +101,6 @@ Kirigami.Card {
                 elide: Text.ElideRight
                 text: hasDescription ? root.modelData.description : i18n("<no description>")
             }
-
             DateLabel {
                 Layout.fillWidth: true
                 color: palette.placeholderText
@@ -87,7 +108,6 @@ Kirigami.Card {
                 elide: Text.ElideRight
                 prefix: "Last edited "
             }
-
             Controls.Label {
                 id: versionLabel
 
@@ -140,7 +160,6 @@ Kirigami.Card {
             Item {
                 width: Kirigami.Units.largeSpacing
             }
-
             Controls.Label {
                 Layout.fillWidth: true
                 text: moveToTrash.checked ? i18n("This will move the project to the trash and remove it from the list. **Note**: it may fail to move the project to the trash in some cases.") : i18n("This will remove it from the list, but you can add the project back later")
@@ -163,7 +182,6 @@ Kirigami.Card {
             ProjectsRegistry.remove(root.modelData, moveToTrash.checked);
         }
     }
-
     FormCard.FormCardDialog {
         id: editDialog
 
@@ -175,7 +193,6 @@ Kirigami.Card {
 
             onTextChanged: root.modelData.name = text
         }
-
         FormCard.FormTextAreaDelegate {
             label: i18n("Description")
             text: root.modelData.description
@@ -191,15 +208,13 @@ Kirigami.Card {
         width: Math.min(parent.width - Kirigami.Units.gridUnit * 2, Kirigami.Units.gridUnit * 30)
 
         FormCard.AbstractFormDelegate {
-            background: Item {
-            }
+            background: Item {}
             contentItem: RowLayout {
                 Kirigami.SearchField {
                     id: versionFilter
 
                     Layout.fillWidth: true
                 }
-
                 Kirigami.Chip {
                     id: showCsVersionOnlyChip
 
@@ -208,6 +223,14 @@ Kirigami.Card {
                     text: i18n(".NET (Mono) versions only")
                 }
             }
+        }
+        FormCard.FormButtonDelegate {
+            text: i18n("Unbind")
+            trailingLogo.implicitHeight: 16
+            trailingLogo.implicitWidth: 16
+            trailingLogo.source: "remove-link"
+
+            onClicked: root.modelData.godotVersion = null
         }
 
         Repeater {

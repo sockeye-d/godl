@@ -107,6 +107,23 @@ public:
     Q_SIGNAL void tagChanged();
 
 private:
+    Q_PROPERTY(QString repo READ repo NOTIFY repoChanged FINAL)
+    QString m_repo = "";
+
+    void setRepo(QString repo)
+    {
+        if (m_repo == repo)
+            return;
+        m_repo = repo;
+        Q_EMIT repoChanged();
+    }
+
+public:
+    QString repo() const { return m_repo; }
+
+    Q_SIGNAL void repoChanged();
+
+private:
     Q_PROPERTY(QString cmd READ cmd WRITE setCmd NOTIFY cmdChanged FINAL)
     // available replacements are
     // {executable}, {projectPath}
@@ -126,11 +143,12 @@ public:
 
 public:
     explicit GodotVersion(QObject *parent = nullptr)
-        : GodotVersion("", "", "", "", false, parent)
+        : GodotVersion("", "", "", "", "", false, parent)
     {}
     explicit GodotVersion(QString tag,
                           QString assetName,
                           QString sourceUrl,
+                          QString repo,
                           QString path,
                           bool isMono,
                           QObject *parent = nullptr);

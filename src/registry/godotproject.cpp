@@ -73,6 +73,8 @@ void GodotProject::serialize(KConfigGroup config)
 {
     if (godotVersion()) {
         godotVersion()->serialize(config.group("version"));
+    } else if (config.hasGroup("version")) {
+        config.deleteGroup("version");
     }
     CFG_WRITE(tags);
     CFG_WRITE(name);
@@ -116,9 +118,17 @@ void GodotProject::save()
     }
 }
 
-void GodotProject::open() const
+GodotProject::OpenError GodotProject::open() const
 {
+    if (!godotVersion()) {
+        return GodotProject::NoEditorBound;
+    }
+
     auto v = VersionRegistry::instance()->findVersion(godotVersion());
+
+    if (!v) {
+        return GodotProject::NoEditorFound;
+    }
 
     QString cmd = v->cmd()
                       .replace("{executable}", v->absolutePath())
@@ -127,7 +137,11 @@ void GodotProject::open() const
     QStringList args = QProcess::splitCommand(cmd);
     QString exe = args.first();
     args.removeFirst();
-    QProcess::startDetached(exe, args);
+    if (!QProcess::startDetached(exe, args)) {
+        return GodotProject::FailedToStartEditor;
+    }
+
+    return GodotProject::NoError;
 }
 
 void GodotProject::setFavorite(bool favorite)

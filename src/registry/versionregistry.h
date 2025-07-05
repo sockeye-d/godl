@@ -27,10 +27,11 @@ class VersionRegistry : public QObject
 
     void add(GodotVersion *version);
 
+    const QString location() const { return Config::godotLocation() / "godlversions"; }
+
     void refreshConfigFile()
     {
-        m_config = KSharedConfig::openConfig(Config::godotLocation() / "godlversions",
-                                             KSharedConfig::SimpleConfig);
+        m_config = KSharedConfig::openConfig(location(), KSharedConfig::SimpleConfig);
         model()->clear();
         for (auto &version : versions()) {
             add(version);
@@ -63,12 +64,15 @@ public:
     QMap<QString, GodotVersion *> versions() const;
     GodotVersion *version(QString assetName) const;
     const QStringList assets() const;
-    Q_INVOKABLE bool downloaded(QString tag) const;
+    Q_INVOKABLE bool downloaded(const QString &tag, const QString &repo) const;
     Q_INVOKABLE bool hasVersion(const BoundGodotVersion *version) const;
     Q_INVOKABLE QString findAssetName(const BoundGodotVersion *version) const;
     Q_INVOKABLE const GodotVersion *findVersion(const BoundGodotVersion *version) const;
     Q_SIGNAL void downloadedChanged();
     Q_SIGNAL void hasVersionChanged();
+
+    Q_INVOKABLE QStringList detectLeakedVersions() const;
+    Q_INVOKABLE void deleteLeakedVersions(QStringList versions) const;
 };
 
 #endif // VERSIONREGISTRY_H

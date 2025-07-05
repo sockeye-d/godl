@@ -18,9 +18,10 @@
 
 DownloadInfo *DownloadManager::createDlInfo(const QString &assetName,
                                             const QString &tagName,
-                                            const QUrl &asset)
+                                            const QUrl &asset,
+                                            const QString &repo)
 {
-    auto info = new DownloadInfo(assetName, tagName, asset);
+    auto info = new DownloadInfo(assetName, tagName, asset, repo);
     connect(
         this,
         &DownloadManager::cancelRequested,
@@ -44,7 +45,6 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
     auto future = QtConcurrent::run([sourceFilePath, destFilePath, info](
                                         QPromise<QString> &promise) {
         using namespace std::chrono_literals;
-        QThread::sleep(500ms);
         auto archive = openArchive(sourceFilePath);
         if (!archive) {
             debug() << "Failed to open archive at " << sourceFilePath;
@@ -82,7 +82,7 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
                 }
             }
         }
-        // QFile(sourceFilePath).remove();
+        QFile(sourceFilePath).remove();
         promise.finish();
     });
 
@@ -101,6 +101,7 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
                             new GodotVersion(info->tagName(),
                                              info->assetName(),
                                              info->sourceUrl().toString(),
+                                             info->repo(),
                                              future.result(),
                                              isMono));
                         info->setStage(DownloadInfo::Finished);
@@ -111,7 +112,10 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
     watcher->setFuture(future);
 }
 
-void DownloadManager::download(const QString &assetName, const QString &tagName, const QUrl &asset)
+void DownloadManager::download(const QString &assetName,
+                               const QString &tagName,
+                               const QUrl &asset,
+                               const QString &repo)
 {
     auto downloadLocation = QStandardPaths::standardLocations(QStandardPaths::TempLocation)
                                 .constFirst();
@@ -125,11 +129,11 @@ void DownloadManager::download(const QString &assetName, const QString &tagName,
         }
     }
 
-    auto info = createDlInfo(assetName, tagName, asset);
+    auto info = createDlInfo(assetName, tagName, asset, repo);
 
     qInfo() << u"Saving Godot version %1 from %2 at %3"_s.arg(assetName, asset.toString(), path);
     auto file = new QFile(path);
-    if (file->exists()) {
+    if (file->exists() && false) {
         qInfo() << "Already found downloaded godot, not downloading";
         m_model->append(info);
         unzip(info, path, Config::godotLocation());

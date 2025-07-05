@@ -6,14 +6,20 @@
 #include <QProcess>
 #include <KConfigGroup>
 
-GodotVersion::GodotVersion(
-    QString tag, QString assetName, QString sourceUrl, QString path, bool isMono, QObject *parent)
+GodotVersion::GodotVersion(QString tag,
+                           QString assetName,
+                           QString sourceUrl,
+                           QString repo,
+                           QString path,
+                           bool isMono,
+                           QObject *parent)
     : QObject{parent}
     , m_isMono{isMono}
     , m_assetName{assetName}
     , m_sourceUrl{sourceUrl}
     , m_path{path}
     , m_tag{tag}
+    , m_repo{repo}
 {
     connect(Config::self(), &Config::godotLocationChanged, this, &GodotVersion::absolutePathChanged);
 }
@@ -25,6 +31,7 @@ void GodotVersion::writeTo(KSharedConfig::Ptr config) const
     group.writeEntry("path", path());
     group.writeEntry("assetName", assetName());
     group.writeEntry("sourceUrl", sourceUrl());
+    group.writeEntry("repo", repo());
     group.writeEntry("isMono", isMono());
     group.writeEntry("cmd", cmd());
     group.sync();
@@ -40,10 +47,12 @@ QDebug operator<<(QDebug dbg, const GodotVersion &godotVersion)
     dbg << "GodotVersion(" << godotVersion.assetName() << ")";
     return dbg;
 }
+
 void GodotVersion::showExternally() const
 {
     QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(absolutePath()).absolutePath()));
 }
+
 void GodotVersion::start() const
 {
     QProcess::startDetached(absolutePath());
@@ -54,13 +63,14 @@ BoundGodotVersion *GodotVersion::boundVersion() const
     auto ver = new BoundGodotVersion();
     ver->setTagName(tag());
     ver->setIsMono(isMono());
+    ver->setRepo(repo());
     return ver;
 }
 
 QString GodotVersion::toString() const
 {
     if (isMono())
-        return tag() % "-mono" % " (" % assetName() % ")";
+        return repo() / tag() % "-mono" % " (" % assetName() % ")";
     else
-        return tag() % " (" % assetName() % ")";
+        return repo() / tag() % " (" % assetName() % ")";
 }
