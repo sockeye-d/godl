@@ -403,9 +403,10 @@ Kirigami.Page {
                         property bool update: false
 
                         anchors.fill: parent
-                        border.color: Kirigami.Theme.highlightColor
-                        border.width: 2
+                        border.color: Kirigami.Theme.positiveTextColor
+                        border.width: 1
                         color: "transparent"
+                        // opacity: 0.5
                         radius: parent.background.radius
                         visible: VersionRegistry.downloaded(card.tag_name) || (update && !update)
 

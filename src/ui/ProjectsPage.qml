@@ -48,16 +48,28 @@ Kirigami.Page {
             onTriggered: ProjectsRegistry.model.ascending = !ProjectsRegistry.model.ascending
         },
         Kirigami.Action {
-            icon.name: "view-list-tree"
-            text: i18n("Scan")
+            icon.name: "document-properties"
+            text: i18n("Manage")
 
-            onTriggered: scanDialog.open()
-        },
-        Kirigami.Action {
-            icon.name: "document-import"
-            text: i18n("Import")
+            Kirigami.Action {
+                icon.name: "view-list-tree"
+                text: i18n("Scan")
 
-            onTriggered: importDialog.open()
+                onTriggered: scanDialog.open()
+            }
+
+            Kirigami.Action {
+                icon.name: "document-import"
+                text: i18n("Import")
+
+                onTriggered: importDialog.open()
+            }
+
+            Kirigami.Action {
+                icon.color: Kirigami.Theme.positiveTextColor
+                icon.name: "project-development-new-template"
+                text: i18n("New project")
+            }
         }
     ]
 

@@ -119,6 +119,7 @@ void GodotProject::save()
 void GodotProject::open() const
 {
     auto v = VersionRegistry::instance()->findVersion(godotVersion());
+
     QString cmd = v->cmd()
                       .replace("{executable}", v->absolutePath())
                       .replace("{projectPath}", projectPath());

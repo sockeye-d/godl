@@ -9,6 +9,14 @@ Kirigami.Page {
     padding: 0
     title: i18n("Local versions")
 
+    actions: [
+        Kirigami.Action {
+            icon.name: "edit-clear-all"
+            text: i18n("Clean leaked binaries")
+            tooltip: i18n("Delete from the filesystem the binaries downloaded but not listed here")
+        }
+    ]
+
     Controls.ScrollView {
         Controls.ScrollBar.horizontal.policy: Controls.ScrollBar.AlwaysOff
         Layout.fillHeight: true
@@ -35,13 +43,13 @@ Kirigami.Page {
                         onTriggered: card.modelData.showExternally()
                     },
                     Kirigami.Action {
-                        icon.name: "debug-run"
+                        icon.name: "system-run-symbolic"
                         text: i18n("Run")
 
                         onTriggered: card.modelData.start()
                     },
                     Kirigami.Action {
-                        icon.name: "configure"
+                        icon.name: "dialog-scripts"
                         text: i18n("Edit command")
 
                         onTriggered: commandDialog.open()
