@@ -324,8 +324,12 @@ Kirigami.Page {
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-            Kirigami.CardsListView {
+            GridView {
+                // Repeater {
                 id: resultList
+                Layout.fillWidth: true
+                cellHeight: Kirigami.Units.gridUnit * 5
+                cellWidth: width / 4
 
                 property string filterText
                 property list<var> fullReleases
@@ -347,6 +351,8 @@ Kirigami.Page {
                     required property string tag_name
 
                     banner.title: tag_name
+                    width: resultList.cellWidth - Kirigami.Units.largeSpacing
+                    height: resultList.cellHeight - Kirigami.Units.largeSpacing
 
                     actions: [
                         Kirigami.Action {
@@ -404,6 +410,7 @@ Kirigami.Page {
                             target: VersionRegistry
                         }
                     }
+                    // }
                 }
             }
         }
