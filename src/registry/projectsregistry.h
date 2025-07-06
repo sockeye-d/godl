@@ -47,6 +47,7 @@ public:
     Q_INVOKABLE void remove(GodotProject *project, bool moveToTrash);
     Q_INVOKABLE void setFavorite(const GodotProject *project, bool favorite);
     Q_INVOKABLE bool favorite(const GodotProject *project);
+    Q_INVOKABLE QStringList tags() const;
 };
 
 #endif // PROJECTSREGISTRY_H

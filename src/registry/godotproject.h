@@ -79,6 +79,7 @@ public:
         if (m_tags == tags)
             return;
         m_tags = tags;
+        m_tags.sort();
         Q_EMIT tagsChanged();
         save();
     }
@@ -167,6 +168,31 @@ public:
     QDateTime lastEditedTime() const { return m_lastEditedTime; }
 
     Q_SIGNAL void lastEditedTimeChanged();
+
+private:
+    Q_PROPERTY(QString icon READ icon WRITE setIcon NOTIFY iconChanged FINAL)
+    QString m_icon = "";
+
+public:
+    void setIcon(QString icon)
+    {
+        if (m_icon == icon)
+            return;
+        m_icon = icon;
+        Q_EMIT iconChanged();
+    }
+
+    QString icon() const { return m_icon; }
+
+    Q_SIGNAL void iconChanged();
+
+private:
+    Q_PROPERTY(QUrl iconSource READ iconSource NOTIFY iconSourceChanged FINAL)
+
+public:
+    QUrl iconSource() const;
+
+    Q_SIGNAL void iconSourceChanged();
 
 public:
     explicit GodotProject(QObject *parent = nullptr);

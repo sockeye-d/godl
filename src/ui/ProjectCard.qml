@@ -11,9 +11,10 @@ import org.fishy.godl.qwidgets as QWidgets
 Kirigami.Card {
     id: root
 
+    property int error: -1
     required property GodotProject modelData
 
-    property int error: -1
+    signal tagSelected(string tag)
 
     banner.title: modelData.name
 
@@ -69,71 +70,164 @@ Kirigami.Card {
     // height of the         |  |       <| so the bottom item will expand to   |
     // card                  |  |       <| fill the space it leaves            |
     //                       +> +----------------------------------------------+
-    contentItem: ColumnLayout {
-        spacing: 0
-
-        Kirigami.InlineMessage {
-            id: msg
-            Layout.fillWidth: true
-            visible: root.error !== -1
-            text: ({
-                    0: null,
-                    1: i18n("Opened project"),
-                    2: i18n("No editor bound"),
-                    3: i18n("No editor found"),
-                    4: i18n("Failed to start editor")
-                }[root.error + 1])
-            type: root.error === 0 ? Kirigami.MessageType.Positive : Kirigami.MessageType.Error
-            actions: Kirigami.Action {
-                displayComponent: Controls.ToolButton {
-                    icon.name: "dialog-close"
-                    onClicked: root.error = -1
-                }
-            }
-        }
+    contentItem: RowLayout {
+        id: content
 
         ColumnLayout {
-            Controls.Label {
-                property bool hasDescription: root.modelData.description !== ""
+            id: realContent
+
+            Layout.fillHeight: false
+            Layout.fillWidth: true
+            spacing: 0
+
+            onYChanged: y = 0
+
+            Kirigami.InlineMessage {
+                id: msg
 
                 Layout.fillWidth: true
-                color: hasDescription ? palette.windowText : palette.placeholderText
-                elide: Text.ElideRight
-                text: hasDescription ? root.modelData.description : i18n("<no description>")
-            }
-            DateLabel {
-                Layout.fillWidth: true
-                color: palette.placeholderText
-                dateTime: root.modelData.lastEditedTime
-                elide: Text.ElideRight
-                prefix: "Last edited "
-            }
-            Controls.Label {
-                id: versionLabel
+                text: ({
+                        0: null,
+                        1: i18n("Opened project"),
+                        2: i18n("No editor bound"),
+                        3: i18n("No editor found"),
+                        4: i18n("Failed to start editor")
+                    }[root.error + 1])
+                type: root.error === 0 ? Kirigami.MessageType.Positive : Kirigami.MessageType.Error
+                visible: root.error !== -1
 
-                property int forceColor: 0
-                property bool versionSet: root.modelData.godotVersion !== null
+                actions: Kirigami.Action {
+                    displayComponent: Controls.ToolButton {
+                        icon.name: "dialog-close"
 
-                Layout.fillWidth: true
-                color: {
-                    forceColor;
-                    if (!versionSet) {
-                        return palette.placeholderText;
-                    } else if (!VersionRegistry.hasVersion(root.modelData.godotVersion)) {
-                        return Kirigami.Theme.negativeTextColor;
-                    } else {
-                        return versionSet ? palette.windowText : palette.placeholderText;
+                        onClicked: root.error = -1
                     }
                 }
-                elide: Text.ElideRight
-                text: versionSet ? root.modelData.godotVersion + "" : i18n("<no version>")
+            }
 
-                Connections {
-                    function onHasVersionChanged() {
-                        versionLabel.forceColor++;
+            ColumnLayout {
+                Controls.Label {
+                    property bool hasDescription: root.modelData.description !== ""
+
+                    Layout.fillWidth: true
+                    color: hasDescription ? palette.windowText : palette.placeholderText
+                    elide: Text.ElideRight
+                    text: hasDescription ? root.modelData.description : i18n("<no description>")
+                }
+
+                DateLabel {
+                    Layout.fillWidth: true
+                    color: palette.placeholderText
+                    dateTime: root.modelData.lastEditedTime
+                    elide: Text.ElideRight
+                    prefix: "Last edited "
+                }
+
+                Controls.Label {
+                    id: versionLabel
+
+                    property int forceColor: 0
+                    property bool versionSet: root.modelData.godotVersion !== null
+
+                    Layout.fillWidth: true
+                    color: {
+                        forceColor;
+                        if (!versionSet) {
+                            return palette.placeholderText;
+                        } else if (!VersionRegistry.hasVersion(root.modelData.godotVersion)) {
+                            return Kirigami.Theme.negativeTextColor;
+                        } else {
+                            return versionSet ? palette.windowText : palette.placeholderText;
+                        }
+                    }
+                    elide: Text.ElideRight
+                    text: versionSet ? root.modelData.godotVersion + "" : i18n("<no version>")
+
+                    Connections {
+                        function onHasVersionChanged() {
+                            versionLabel.forceColor++;
+                        }
+
+                        target: VersionRegistry
+                    }
+                }
+            }
+
+            Item {
+                id: spacer
+
+                Layout.fillWidth: true
+                height: Kirigami.Units.largeSpacing
+            }
+
+            Controls.ScrollView {
+                Layout.fillWidth: true
+                Layout.preferredHeight: tags.height + Controls.ScrollBar.horizontal.height + Kirigami.Units.smallSpacing
+                clip: true
+                contentWidth: tags.width
+
+                RowLayout {
+                    id: tags
+
+                    property bool editing: false
+
+                    spacing: Kirigami.Units.mediumSpacing
+
+                    Kirigami.Chip {
+                        id: addTag
+
+                        Layout.preferredWidth: height
+                        checkable: false
+                        closable: false
+                        enabled: !tags.editing || root.modelData.tags.indexOf(addTagField.editText) === -1
+                        icon.name: "tag-new"
+                        text: ""
+
+                        onClicked: if (tags.editing) {
+                            addTagField.accepted();
+                        } else {
+                            tags.editing = true;
+                            addTagField.focus = true;
+                        }
                     }
 
-                    target: VersionRegistry
+                    Controls.ComboBox {
+                        id: addTagField
+
+                        Layout.maximumHeight: addTag.height
+                        Layout.preferredWidth: Kirigami.Units.gridUnit * 7
+                        editable: true
+                        model: {
+                            tags.editing;
+                            return ProjectsRegistry.tags();
+                        }
+                        visible: tags.editing
+
+                        onAccepted: if (addTag.enabled) {
+                            tags.editing = false;
+                            root.modelData.tags = root.modelData.tags.concat(editText);
+                            text = "";
+                        }
+                    }
+
+                    Repeater {
+                        model: root.modelData.tags
+
+                        delegate: Kirigami.Chip {
+                            required property int index
+                            required property string modelData
+
+                            closable: true
+                            text: modelData
+
+                            onClicked: root.tagSelected(modelData)
+                            onRemoved: {
+                                let newArr = root.modelData.tags.slice();
+                                newArr.splice(index, 1);
+                                root.modelData.tags = newArr;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -142,6 +236,19 @@ Kirigami.Card {
         // ... but it works!
         Item {
             Layout.fillHeight: true
+        }
+
+        Image {
+            id: projectIcon
+
+            fillMode: Image.PreserveAspectCrop
+            height: realContent.height
+            source: modelData.iconSource
+            sourceSize.height: height
+            sourceSize.width: width
+            width: realContent.height
+
+            onYChanged: y = 0
         }
     }
 
@@ -160,6 +267,7 @@ Kirigami.Card {
             Item {
                 width: Kirigami.Units.largeSpacing
             }
+
             Controls.Label {
                 Layout.fillWidth: true
                 text: moveToTrash.checked ? i18n("This will move the project to the trash and remove it from the list. **Note**: it may fail to move the project to the trash in some cases.") : i18n("This will remove it from the list, but you can add the project back later")
@@ -182,6 +290,7 @@ Kirigami.Card {
             ProjectsRegistry.remove(root.modelData, moveToTrash.checked);
         }
     }
+
     FormCard.FormCardDialog {
         id: editDialog
 
@@ -193,6 +302,7 @@ Kirigami.Card {
 
             onTextChanged: root.modelData.name = text
         }
+
         FormCard.FormTextAreaDelegate {
             label: i18n("Description")
             text: root.modelData.description
@@ -208,13 +318,15 @@ Kirigami.Card {
         width: Math.min(parent.width - Kirigami.Units.gridUnit * 2, Kirigami.Units.gridUnit * 30)
 
         FormCard.AbstractFormDelegate {
-            background: Item {}
+            background: Item {
+            }
             contentItem: RowLayout {
                 Kirigami.SearchField {
                     id: versionFilter
 
                     Layout.fillWidth: true
                 }
+
                 Kirigami.Chip {
                     id: showCsVersionOnlyChip
 
@@ -224,6 +336,7 @@ Kirigami.Card {
                 }
             }
         }
+
         FormCard.FormButtonDelegate {
             text: i18n("Unbind")
             trailingLogo.implicitHeight: 16

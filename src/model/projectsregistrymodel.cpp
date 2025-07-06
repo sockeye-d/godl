@@ -1,5 +1,6 @@
 #include "projectsregistrymodel.h"
 #include "godotproject.h"
+#include "util.h"
 #include <qnamespace.h>
 #include <qtimer.h>
 
@@ -26,6 +27,10 @@ ProjectsRegistryModel::ProjectsRegistryModel(InternalProjectsRegistryModel *mode
                             &GodotProject::lastEditedTimeChanged,
                             this,
                             &ProjectsRegistryModel::resort);
+                    connect(obj,
+                            &GodotProject::tagsChanged,
+                            this,
+                            &ProjectsRegistryModel::invalidateFilter);
                 }
             });
 }
@@ -37,6 +42,16 @@ bool ProjectsRegistryModel::filterAcceptsRow(int source_row, const QModelIndex &
         return true;
     }
     const GodotProject *item = project(source_row);
+    if (filter().startsWith("tag:")) {
+        auto tagFilter = filter().sliced(4);
+        const QStringList &tags = item->tags();
+        for (const QString &tag : tags) {
+            if (tag == tagFilter) {
+                return true;
+            }
+        }
+        return false;
+    }
     if (filterCaseInsensitive()) {
         return item->name().toLower().contains(filter().toLower())
                || item->description().toLower().contains(filter().toLower());
@@ -73,6 +88,7 @@ const GodotProject *ProjectsRegistryModel::project(int index) const
 
 void ProjectsRegistryModel::resort()
 {
+    debug() << "resorting";
     auto timer = new QTimer();
     timer->setInterval(0);
     connect(timer, &QTimer::timeout, this, [this, timer]() {

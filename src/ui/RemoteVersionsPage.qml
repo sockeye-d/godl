@@ -63,6 +63,7 @@ Kirigami.Page {
 
                 onTriggered: show_stable = checked
             }
+
             Kirigami.Action {
                 checkable: true
                 text: i18n("Show unstable")
@@ -79,6 +80,7 @@ Kirigami.Page {
                     show_rc = checked;
                 }
             }
+
             Kirigami.Action {
                 checkable: true
                 checked: show_dev
@@ -86,6 +88,7 @@ Kirigami.Page {
 
                 onTriggered: show_dev = checked
             }
+
             Kirigami.Action {
                 checkable: true
                 checked: show_alpha
@@ -93,6 +96,7 @@ Kirigami.Page {
 
                 onTriggered: show_alpha = checked
             }
+
             Kirigami.Action {
                 checkable: true
                 checked: show_beta
@@ -100,6 +104,7 @@ Kirigami.Page {
 
                 onTriggered: show_beta = checked
             }
+
             Kirigami.Action {
                 checkable: true
                 checked: show_rc
@@ -138,6 +143,7 @@ Kirigami.Page {
             }
         }
     }
+
     ChainedJsonRequest {
         id: request
 
@@ -159,7 +165,7 @@ Kirigami.Page {
                     }
 
                     releases.push(...r);
-                    resultList.fullReleases = releases;
+                    resultList.fullReleases = releases.slice();
 
                     if (r.length === requestCount) {
                         currentPage++;
@@ -181,6 +187,7 @@ Kirigami.Page {
             hasContent = true;
         }
     }
+
     Kirigami.OverlaySheet {
         id: patchNotesSheet
 
@@ -212,6 +219,7 @@ Kirigami.Page {
             }
         }
     }
+
     Kirigami.OverlaySheet {
         id: dlDialog
 
@@ -223,11 +231,13 @@ Kirigami.Page {
                 level: 1
                 text: dlDialog.title
             }
+
             Kirigami.SearchField {
                 id: assetsFilter
 
                 Layout.fillWidth: true
             }
+
             Kirigami.Chip {
                 id: currentPlatformOnlyFilterChip
 
@@ -238,6 +248,7 @@ Kirigami.Page {
                 icon.name: "view-filter"
                 text: i18n("Current platform only")
             }
+
             Kirigami.Chip {
                 id: monoOnlyFilterChip
 
@@ -257,12 +268,15 @@ Kirigami.Page {
             function dotnetFilter(el) {
                 return !monoOnlyFilterChip.checked || el.name.indexOf("mono") !== -1;
             }
+
             function filterAsset(el) {
                 return Config.downloadFilter.some(e => el.name.indexOf(e) !== -1);
             }
+
             function nameFilter(el) {
                 return assetsFilter.text === "" || el.name.indexOf(assetsFilter.text) !== -1;
             }
+
             function platformFilter(el) {
                 return !currentPlatformOnlyFilterChip.checked || filterAsset(el);
             }
@@ -316,6 +330,7 @@ Kirigami.Page {
             }
         }
     }
+
     ColumnLayout {
         anchors.fill: parent
 
@@ -324,12 +339,8 @@ Kirigami.Page {
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-            GridView {
-                // Repeater {
+            Kirigami.CardsListView {
                 id: resultList
-                Layout.fillWidth: true
-                cellHeight: Kirigami.Units.gridUnit * 5
-                cellWidth: width / 4
 
                 property string filterText
                 property list<var> fullReleases
@@ -338,6 +349,9 @@ Kirigami.Page {
                     return e => root[`show_${filter}`] || e.tag_name.indexOf(filter) === -1;
                 }
 
+                Layout.fillWidth: true
+                // cacheBuffer: 100000
+                // cellWidth: width / Math.max(1, Math.round(root.width / (Kirigami.Units.gridUnit * 30)))
                 clip: true
                 model: fullReleases.filter(el => filterText === "" || el.tag_name.indexOf(filterText) !== -1).filter(getFilter("stable")).filter(getFilter("dev")).filter(getFilter("alpha")).filter(getFilter("beta")).filter(getFilter("rc"))
 
@@ -351,8 +365,9 @@ Kirigami.Page {
                     required property string tag_name
 
                     banner.title: tag_name
-                    width: resultList.cellWidth - Kirigami.Units.largeSpacing
-                    height: resultList.cellHeight - Kirigami.Units.largeSpacing
+
+                    // height: resultList.cellHeight - Kirigami.Units.largeSpacing
+                    // width: resultList.cellWidth - Kirigami.Units.largeSpacing
 
                     actions: [
                         Kirigami.Action {
@@ -410,10 +425,10 @@ Kirigami.Page {
                             target: VersionRegistry
                         }
                     }
-                    // }
                 }
             }
         }
+
         Kirigami.LoadingPlaceholder {
             Layout.fillHeight: false
             Layout.fillWidth: true
@@ -431,25 +446,23 @@ Kirigami.Page {
                 }
             }
         }
-        Kirigami.Heading {
+
+        Kirigami.PlaceholderMessage {
             Layout.fillHeight: true
             Layout.fillWidth: true
-            horizontalAlignment: Text.AlignHCenter
-            level: 1
+            // @disable-check M17
+            icon.name: "network-disconnect"
             text: request.errorString
-            verticalAlignment: Text.AlignVCenter
             visible: request.errorString !== ""
-            wrapMode: Text.Wrap
         }
-        Kirigami.Heading {
+
+        Kirigami.PlaceholderMessage {
             Layout.fillHeight: true
             Layout.fillWidth: true
-            horizontalAlignment: Text.AlignHCenter
-            level: 1
+            // @disable-check M17
+            icon.name: "edit-none"
             text: i18n("No results found 😢")
-            verticalAlignment: Text.AlignVCenter
             visible: resultList.model.length === 0 && !request.running
-            wrapMode: Text.Wrap
         }
     }
     // onCurrentPageChanged: progress.value = currentPage

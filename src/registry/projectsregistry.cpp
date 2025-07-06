@@ -3,6 +3,8 @@
 #include "godotproject.h"
 #include "util.h"
 #include <KConfigGroup>
+#include <qcontainerfwd.h>
+#include <qset.h>
 
 GodotProject *ProjectsRegistry::load(const QString filepath)
 {
@@ -76,11 +78,24 @@ bool ProjectsRegistry::favorite(const GodotProject *project)
     return config().group(project->path()).readEntry("favorite", false);
 }
 
+QStringList ProjectsRegistry::tags() const
+{
+    QStringList tags;
+    for (int i = 0; i < m_model->rowCount(); i++) {
+        const QStringList &projectTags = m_model->project(i)->tags();
+        for (const QString &tag : projectTags) {
+            if (!tags.contains(tag))
+                tags << tag;
+        }
+    }
+    tags.sort();
+    return tags;
+}
+
 ProjectsRegistry::ProjectsRegistry(QObject *parent)
     : QObject(parent)
 {
     const QStringList paths = config().groupList();
-    debug() << paths;
     for (const QString &path : paths) {
         auto proj = load(path);
         if (!proj) {

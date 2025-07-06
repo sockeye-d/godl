@@ -8,6 +8,8 @@ import org.kde.kirigamiaddons.formcard as FormCard
 import org.fishy.godl
 import org.fishy.godl.qwidgets as QWidgets
 
+import "."
+
 Kirigami.Page {
     id: root
 
@@ -19,6 +21,8 @@ Kirigami.Page {
 
             displayComponent: Kirigami.SearchField {
                 id: textFilter
+
+                text: ProjectsRegistry.model.filter
 
                 onTextChanged: ProjectsRegistry.model.filter = textFilter.text
             }
@@ -124,15 +128,24 @@ Kirigami.Page {
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-            Kirigami.CardsListView {
+            GridView {
                 id: projectsView
 
                 Layout.fillWidth: true
+                cellWidth: Math.floor(width / Math.max(1, Math.round(root.width / (Kirigami.Units.gridUnit * 40))))
+                // cellHeight:
                 clip: true
                 model: ProjectsRegistry.model
                 reuseItems: false
 
-                delegate: ProjectCard {}
+                delegate: ProjectCard {
+                    // height: Kirigami.Units.gridUnit * 10
+                    // height: projectsView.cellHeight - Kirigami.Units.largeSpacing
+                    width: projectsView.cellWidth - Kirigami.Units.largeSpacing
+
+                    onHeightChanged: projectsView.cellHeight = Math.floor(height + Kirigami.Units.largeSpacing)
+                    onTagSelected: tag => ProjectsRegistry.model.filter = `tag:${tag}`
+                }
             }
         }
     }

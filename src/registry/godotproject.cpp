@@ -1,5 +1,4 @@
 #include "godotproject.h"
-
 #include <QDesktopServices>
 #include <QFile>
 #include <QFileInfo>
@@ -8,6 +7,7 @@
 #include <QUrl>
 #include "boundgodotversion.h"
 #include "projectsregistry.h"
+#include "serializable.h"
 #include "util.h"
 #include "versionregistry.h"
 #include <KConfig>
@@ -52,6 +52,7 @@ GodotProject *loadInternal(const QString &path)
         project->setName(s.value("application/config/name").toString());
         project->setDescription(s.value("application/config/description").toString());
         project->setTags(getArray(s, "application/config/tags"));
+        project->setIcon(s.value("application/config/icon").toString().replace("res://", ""));
         project->setLastEditedTime(file.lastModified());
         project->setPath(file.path() / GodotProject::projectFilename);
         return project;
@@ -79,6 +80,7 @@ void GodotProject::serialize(KConfigGroup config)
     CFG_WRITE(tags);
     CFG_WRITE(name);
     CFG_WRITE(description);
+    CFG_WRITE(icon);
 }
 
 void GodotProject::deserialize(KConfigGroup config, QString path)
@@ -93,6 +95,7 @@ void GodotProject::deserialize(KConfigGroup config, QString path)
     setTags(CFG_READ(tags));
     setName(CFG_READ(name));
     setDescription(CFG_READ(description));
+    setIcon(CFG_READ(icon));
     setPath(path);
     setLastEditedTime(QFileInfo(QFileInfo(path).path() / "project.godot").lastModified());
 }
@@ -161,4 +164,9 @@ bool GodotProject::favorite() const
 QString GodotProject::projectPath() const
 {
     return QFileInfo(path()).path() / "project.godot";
+}
+
+QUrl GodotProject::iconSource() const
+{
+    return QUrl::fromLocalFile(QFileInfo(path()).path() / icon());
 }
