@@ -69,6 +69,8 @@ Kirigami.Page {
                 icon.color: Kirigami.Theme.positiveTextColor
                 icon.name: "project-development-new-template"
                 text: i18n("New project")
+
+                onTriggered: applicationWindow().pageStack.layers.push(Qt.resolvedUrl("NewProjectPage.qml"))
             }
         }
     ]
@@ -130,8 +132,7 @@ Kirigami.Page {
                 model: ProjectsRegistry.model
                 reuseItems: false
 
-                delegate: ProjectCard {
-                }
+                delegate: ProjectCard {}
             }
         }
     }
