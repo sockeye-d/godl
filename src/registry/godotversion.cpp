@@ -1,5 +1,6 @@
 #include "godotversion.h"
 #include "boundgodotversion.h"
+#include "versionregistry.h"
 
 #include <QDesktopServices>
 #include <QFileInfo>
@@ -44,7 +45,7 @@ bool operator==(const GodotVersion &left, const GodotVersion &right)
 
 QDebug operator<<(QDebug dbg, const GodotVersion &godotVersion)
 {
-    dbg << "GodotVersion(" << godotVersion.assetName() << ")";
+    dbg << "GodotVersion(" << godotVersion.toString() << ")";
     return dbg;
 }
 

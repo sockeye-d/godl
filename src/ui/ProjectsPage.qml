@@ -133,7 +133,6 @@ Kirigami.Page {
 
                 Layout.fillWidth: true
                 cellWidth: Math.floor(width / Math.max(1, Math.round(root.width / (Kirigami.Units.gridUnit * 40))))
-                // cellHeight:
                 clip: true
                 model: ProjectsRegistry.model
                 reuseItems: false

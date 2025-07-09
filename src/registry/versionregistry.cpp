@@ -139,3 +139,11 @@ void VersionRegistry::deleteLeakedVersions(QStringList versions) const
         QDir(version).removeRecursively();
     }
 }
+
+QString VersionRegistry::resolveSourceUrl(QString source) const
+{
+    if (source.startsWith("/"))
+        return "https://api.github.com/repos" + source;
+    else
+        return source;
+}

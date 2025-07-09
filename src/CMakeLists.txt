@@ -56,6 +56,7 @@ qt_add_qml_module(godl
     QML_FILES ui/DateLabel.qml
     QML_FILES ui/ProjectCard.qml
     QML_FILES ui/NewProjectPage.qml
+    QML_FILES ui/LocalVersionCard.qml
 )
 
 target_link_libraries(godl

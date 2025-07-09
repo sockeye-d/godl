@@ -33,7 +33,7 @@ Kirigami.Page {
             source = `https://api.github.com/repos${source}`;
         }
 
-        source = `${source}/releases?per_page=${requestCount}`;
+        source = `${VersionRegistry.resolveSourceUrl(root.rawRepo)}/releases?per_page=${requestCount}`;
         console.log(source);
         request.execute([Qt.url(source)]);
     }
@@ -335,9 +335,14 @@ Kirigami.Page {
         anchors.fill: parent
 
         Controls.ScrollView {
+            id: scrollview
+
+            property bool vScrollbarVisible: Controls.ScrollBar.vertical.visible
+
             Controls.ScrollBar.horizontal.policy: Controls.ScrollBar.AlwaysOff
             Layout.fillHeight: true
             Layout.fillWidth: true
+            padding: 0
 
             Kirigami.CardsListView {
                 id: resultList
@@ -353,7 +358,10 @@ Kirigami.Page {
                 // cacheBuffer: 100000
                 // cellWidth: width / Math.max(1, Math.round(root.width / (Kirigami.Units.gridUnit * 30)))
                 clip: true
+                leftMargin: 0
                 model: fullReleases.filter(el => filterText === "" || el.tag_name.indexOf(filterText) !== -1).filter(getFilter("stable")).filter(getFilter("dev")).filter(getFilter("alpha")).filter(getFilter("beta")).filter(getFilter("rc"))
+                rightMargin: scrollview.vScrollbarVisible ? Kirigami.Units.largeSpacing * 2 : 0
+                topMargin: 0
 
                 delegate: Kirigami.Card {
                     id: card
@@ -368,7 +376,6 @@ Kirigami.Page {
 
                     // height: resultList.cellHeight - Kirigami.Units.largeSpacing
                     // width: resultList.cellWidth - Kirigami.Units.largeSpacing
-
                     actions: [
                         Kirigami.Action {
                             icon.name: "document-preview"

@@ -73,6 +73,7 @@ public:
 
     Q_INVOKABLE QStringList detectLeakedVersions() const;
     Q_INVOKABLE void deleteLeakedVersions(QStringList versions) const;
+    Q_INVOKABLE QString resolveSourceUrl(QString source) const;
 };
 
 #endif // VERSIONREGISTRY_H

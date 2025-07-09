@@ -1,6 +1,5 @@
 #include "projectsregistrymodel.h"
 #include "godotproject.h"
-#include "util.h"
 #include <qnamespace.h>
 #include <qtimer.h>
 
@@ -88,7 +87,6 @@ const GodotProject *ProjectsRegistryModel::project(int index) const
 
 void ProjectsRegistryModel::resort()
 {
-    debug() << "resorting";
     auto timer = new QTimer();
     timer->setInterval(0);
     connect(timer, &QTimer::timeout, this, [this, timer]() {
