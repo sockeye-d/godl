@@ -38,7 +38,11 @@ void BetterFileDialog::open()
     }
     dg->setNameFilters(newFilters);
     dg->setFilter(fileFilters());
-    dg->setOptions(options() | QFileDialog::DontUseNativeDialog);
+    QFileDialog::Options op = options();
+    if (fileFilters() & QDir::Hidden) {
+        op |= QFileDialog::DontUseNativeDialog;
+    }
+    dg->setOptions(op);
 
     int i = 0;
     for (const auto &label : labels()) {
