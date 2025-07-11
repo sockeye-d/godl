@@ -67,7 +67,7 @@ GodotProject::GodotProject(QObject *parent)
 
 bool GodotProject::showInFolder() const
 {
-    return QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(path()).path()));
+    return QDesktopServices::openUrl(QUrl::fromLocalFile(directory()));
 }
 
 void GodotProject::serialize(KConfigGroup config)
@@ -169,4 +169,15 @@ QString GodotProject::projectPath() const
 QUrl GodotProject::iconSource() const
 {
     return QUrl::fromLocalFile(QFileInfo(path()).path() / icon());
+}
+
+QUrl GodotProject::iconDirectory() const
+{
+    // cursed
+    return QFileInfo(QFileInfo(path()).path() / icon()).path();
+}
+
+QString GodotProject::directory() const
+{
+    return QFileInfo(path()).path();
 }

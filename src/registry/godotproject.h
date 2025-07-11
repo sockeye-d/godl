@@ -137,6 +137,9 @@ public:
         m_path = path;
         Q_EMIT pathChanged();
         Q_EMIT projectPathChanged();
+        Q_EMIT iconSourceChanged();
+        Q_EMIT iconDirectoryChanged();
+        Q_EMIT directoryChanged();
     }
 
     QString path() const { return m_path; }
@@ -180,6 +183,9 @@ public:
             return;
         m_icon = icon;
         Q_EMIT iconChanged();
+        Q_EMIT iconSourceChanged();
+        Q_EMIT iconDirectoryChanged();
+        save();
     }
 
     QString icon() const { return m_icon; }
@@ -193,6 +199,22 @@ public:
     QUrl iconSource() const;
 
     Q_SIGNAL void iconSourceChanged();
+
+private:
+    Q_PROPERTY(QUrl iconDirectory READ iconDirectory NOTIFY iconDirectoryChanged FINAL)
+
+public:
+    QUrl iconDirectory() const;
+
+    Q_SIGNAL void iconDirectoryChanged();
+
+private:
+    Q_PROPERTY(QString directory READ directory NOTIFY directoryChanged FINAL)
+
+public:
+    QString directory() const;
+
+    Q_SIGNAL void directoryChanged();
 
 public:
     explicit GodotProject(QObject *parent = nullptr);

@@ -4,6 +4,7 @@ import QtQuick.Controls as Controls
 import org.kde.kirigami as Kirigami
 import org.kde.kirigamiaddons.components as KirigamiAddons
 import org.kde.kirigamiaddons.formcard as FormCard
+import QtQuick.Effects as Effects
 
 import org.fishy.godl
 import org.fishy.godl.qwidgets as QWidgets
@@ -249,6 +250,43 @@ Kirigami.Card {
             width: realContent.height
 
             onYChanged: y = 0
+
+            Controls.Button {
+                id: projectIconEditButton
+                opacity: projectIconArea.containsMouse ? 1 : 0
+                anchors.fill: parent
+                icon.name: "entry-edit"
+                icon.width: projectIcon.width - Kirigami.Units.largeSpacing
+                icon.height: projectIcon.height - Kirigami.Units.largeSpacing
+                flat: true
+                onClicked: {
+                    iconPickerFileDialog.startDirectory = root.modelData.iconDirectory;
+                    iconPickerFileDialog.open();
+                }
+
+                Behavior on opacity {
+                    NumberAnimation {
+                        easing.type: Easing.OutExpo
+                        duration: Kirigami.Units.veryLongDuration
+                    }
+                }
+                Effects.RectangularShadow {
+                    anchors.fill: parent
+                    anchors.margins: Kirigami.Units.largeSpacing * 2
+
+                    z: -1
+                    blur: 64
+                    spread: 0
+                    color: Kirigami.Theme.backgroundColor
+                }
+            }
+
+            MouseArea {
+                id: projectIconArea
+                anchors.fill: parent
+                hoverEnabled: true
+                acceptedButtons: Qt.NoButton
+            }
         }
     }
 
@@ -318,8 +356,7 @@ Kirigami.Card {
         width: Math.min(parent.width - Kirigami.Units.gridUnit * 2, Kirigami.Units.gridUnit * 30)
 
         FormCard.AbstractFormDelegate {
-            background: Item {
-            }
+            background: Item {}
             contentItem: RowLayout {
                 Kirigami.SearchField {
                     id: versionFilter
@@ -415,6 +452,32 @@ Kirigami.Card {
 
                 onClicked: root.modelData.godotVersion = modelData.boundVersion()
             }
+        }
+    }
+
+    BetterFileDialog {
+        id: iconPickerFileDialog
+
+        fileFilters: BetterFileDialog.NoDotAndDotDot
+        mode: QWidgets.FileDialog.ExistingFile
+        filters: ["Images (*.png *.svg *.jpg *.jpeg *.jfif)"]
+
+        onAccepted: path => {
+            if (path.startsWith(root.modelData.directory)) {
+                root.modelData.icon = path.slice(root.modelData.directory.length);
+            } else {
+                invalidIconDialog.open();
+            }
+        }
+    }
+
+    Kirigami.Dialog {
+        id: invalidIconDialog
+        standardButtons: Kirigami.Dialog.Ok
+        title: i18n("Invalid icon")
+        padding: Kirigami.Units.largeSpacing
+        contentItem: Controls.Label {
+            text: i18n("Selecting icons outside of the project directory is unsupported.")
         }
     }
 }

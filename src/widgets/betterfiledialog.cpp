@@ -1,5 +1,7 @@
 #include "betterfiledialog.h"
 
+#include <QImageReader>
+
 void BetterFileDialog::setOptions(QFileDialog::Options options)
 {
     if (m_options == options)
@@ -24,7 +26,17 @@ void BetterFileDialog::setLabel(QFileDialog::DialogLabel label, const QString &t
 void BetterFileDialog::open()
 {
     auto dg = new QFileDialog();
-    dg->setNameFilters(filters());
+    QStringList newFilters = filters();
+    auto imageIndex = newFilters.indexOf("filter/images");
+    if (imageIndex != -1) {
+        QString str = "Images (";
+        for (const auto &fmt : QImageReader::supportedImageFormats()) {
+            qDebug() << fmt;
+            str = str % "*." % fmt % " ";
+        }
+        newFilters.replace(imageIndex, str + ")");
+    }
+    dg->setNameFilters(newFilters);
     dg->setFilter(fileFilters());
     dg->setOptions(options() | QFileDialog::DontUseNativeDialog);
 
