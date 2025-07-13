@@ -25,5 +25,9 @@
       <label>The command to use for newly downloaded Godot versions.</label>
       <default>{executable} -e {projectPath}</default>
     </entry>
+    <entry name="cacheVersions" type="Bool">
+      <label>Whether to keep the versions in the temporary folder or not. For development use only—most people should keep this off.</label>
+      <default>false</default>
+    </entry>
   </group>
 </kcfg>

@@ -13,9 +13,6 @@ GodlConfigPage {
     title: i18n("General")
 
     FormCard.FormCard {
-        anchors.left: parent.left
-        anchors.right: parent.right
-
         FormActionTextFieldDelegate {
             id: projectLocationField
 

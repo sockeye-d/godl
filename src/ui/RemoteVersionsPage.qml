@@ -53,6 +53,7 @@ Kirigami.Page {
             icon.name: "search"
         },
         Kirigami.Action {
+            expandible: true
             icon.name: "view-filter"
             tooltip: i18n("Filters")
 

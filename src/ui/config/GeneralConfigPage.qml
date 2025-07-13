@@ -13,9 +13,6 @@ GodlConfigPage {
     title: i18n("General")
 
     FormCard.FormCard {
-        anchors.left: parent.left
-        anchors.right: parent.right
-
         FormActionTextFieldDelegate {
             id: godotLocationField
 
@@ -49,6 +46,7 @@ GodlConfigPage {
                 target: Config
             }
         }
+
         FormActionTextFieldDelegate {
             id: projectLocationField
 
@@ -83,6 +81,20 @@ GodlConfigPage {
             }
         }
     }
+
+    FormCard.FormHeader {
+        title: i18n("Developer options")
+    }
+
+    FormCard.FormCard {
+        FormCard.FormCheckDelegate {
+            checked: Config.cacheVersions
+            text: i18n("Cache downloaded versions")
+
+            onCheckedChanged: Config.cacheVersions = checked
+        }
+    }
+
     BetterFileDialog {
         id: folderDialog
 

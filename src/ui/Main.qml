@@ -149,8 +149,6 @@ StatefulApp.StatefulWindow {
                                 required property int stage
 
                                 Layout.fillWidth: true
-                                clip: true
-                                headerOrientation: Qt.Horizontal
 
                                 actions: [
                                     Kirigami.Action {
@@ -237,6 +235,9 @@ StatefulApp.StatefulWindow {
 
         property int activePageIndex: 0
         property list<Kirigami.Action> baseActions: [
+            Kirigami.Action {
+                separator: true
+            },
             Kirigami.Action {
                 ActionGroup.group: actionGroup
                 checkable: true

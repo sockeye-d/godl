@@ -7,7 +7,9 @@ import org.kde.kirigamiaddons.settings as KirigamiSettings
 
 import org.fishy.godl
 
-Kirigami.Page {
+FormCard.FormCardPage {
+    topPadding: Kirigami.Units.largeSpacing
+
     actions: [
         Kirigami.Action {
             enabled: ConfigSignals.isSaveNeeded

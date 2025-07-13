@@ -33,6 +33,13 @@ using namespace Qt::Literals::StringLiterals;
                                    #type, \
                                    [](QQmlEngine *, QJSEngine *) { return type::instance(); })
 
+#define registerSingletonPtrSpecial(uri, major, minor, type, method) \
+    qmlRegisterSingletonType<type>("org.fishy.godl", \
+                                   major, \
+                                   minor, \
+                                   #type, \
+                                   [](QQmlEngine *, QJSEngine *) { return method; })
+
 int main(int argc, char *argv[])
 {
     KIconTheme::initTheme();
@@ -90,10 +97,8 @@ int main(int argc, char *argv[])
     registerSingletonPtr("org.fishy.godl", 0, 1, ProjectsRegistry);
     registerSingletonPtr("org.fishy.godl", 0, 1, VersionRegistry);
     registerSingletonPtr("org.fishy.godl", 0, 1, NetworkResponseCode);
-#ifdef CONFIG
-    qmlRegisterSingletonInstance("org.fishy.godl", 0, 1, "Config", Config::self());
+    registerSingletonPtrSpecial("org.fishy.godl", 0, 1, Config, Config::self());
     registerSingletonPtr("org.fishy.godl", 0, 1, ConfigSignals);
-#endif
     QQmlApplicationEngine engine;
     Main::engine = &engine;
 

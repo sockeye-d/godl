@@ -55,14 +55,13 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
         }
         auto dest = destFilePath;
         debug() << archive->directory()->entries().size();
-        if (archive->directory()->entries().size() == 1) {
-            auto entryName = archive->directory()->entries().first();
-            if (archive->directory()->entry(entryName)->isFile()) {
-                debug() << "Single file zip";
-                dest = QFileInfo(sourceFilePath).completeBaseName();
-                QDir(destFilePath).mkpath(dest);
-                dest = destFilePath / dest;
-            }
+        debug() << archive->directory()->name();
+        if (archive->directory()->entries().size() != 1
+            || archive->directory()->entry(archive->directory()->entries().at(0))->isFile()) {
+            debug() << "Cursed zip, extracting to folder";
+            dest = QFileInfo(sourceFilePath).completeBaseName();
+            QDir(destFilePath).mkpath(dest);
+            dest = destFilePath / dest;
         }
         qInfo() << "Copying file path to " << dest;
         if (!archive->directory()->copyTo(dest)) {
@@ -71,7 +70,7 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
             if (archive->directory()->entry(archive->directory()->entries().first())->isDirectory()) {
                 dest = dest / archive->directory()->entries().first();
             }
-            auto entries = QDir(dest).entryInfoList(QDir::Files);
+            auto entries = QDir(dest).entryInfoList(QDir::Files | QDir::Executable);
             for (const QFileInfo &file : std::as_const(entries)) {
                 debug() << file.canonicalFilePath();
                 debug() << file.isExecutable();
@@ -82,7 +81,10 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
                 }
             }
         }
-        QFile(sourceFilePath).remove();
+
+        if (!Config::cacheVersions())
+            QFile(sourceFilePath).remove();
+
         promise.finish();
     });
 
@@ -133,9 +135,10 @@ void DownloadManager::download(const QString &assetName,
 
     qInfo() << u"Saving Godot version %1 from %2 at %3"_s.arg(assetName, asset.toString(), path);
     auto file = new QFile(path);
-    if (file->exists() && false) {
+    if (file->exists() && Config::cacheVersions()) {
         qInfo() << "Already found downloaded godot, not downloading";
         m_model->append(info);
+        Q_EMIT downloadStarted();
         unzip(info, path, Config::godotLocation());
         return;
     }
