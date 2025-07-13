@@ -13,7 +13,6 @@ endif()
 qt_add_qml_module(godl
     URI org.fishy.godl
     VERSION 0.1
-    NO_CACHEGEN
     SOURCES main.cpp main.h
     SOURCES util/util.h util/util.cpp
     SOURCES godlapp.h godlapp.cpp
@@ -77,6 +76,73 @@ target_link_libraries(godl
     KF6::Archive
     KirigamiAddonsStatefulApp
 )
+
+if (WIN32)
+    set(ADDITIONAL_DLLS
+        "libbzip2.dll"
+        "libcrypto-3-x64.dll"
+        "liblzma-5.dll"
+        "zlib1.dll"
+        "libzstd.dll"
+        "libintl-8.dll"
+        "libKF6BreezeIcons.dll"
+        "libKF6GuiAddons.dll"
+        "libbrotlicommon.dll"
+        "libbrotlidec.dll"
+        "libb2-1.dll"
+        "icuin76.dll"
+        "icuuc76.dll"
+        "icudt76.dll"
+        "libpcre2-16.dll"
+        "iconv.dll"
+        "libfreetype-6.dll"
+        "libharfbuzz.dll"
+        "libpng16.dll"
+        "libstdc++-6.dll"
+        "libgomp-1.dll"
+        "libgcc_s_seh-1.dll"
+        "libwinpthread-1.dll"
+        "libjpeg-62.dll"
+        "libKF6ConfigQml.dll"
+        "libKF6SonnetCore.dll"
+        "libKirigami.dll"
+        "libKirigamiDelegates.dll"
+        "libKirigamiDialogs.dll"
+        "libKirigamiLayouts.dll"
+        "libKirigamiLayoutsPrivate.dll"
+        "libKirigamiPlatform.dll"
+        "libKirigamiPrimitives.dll"
+        "libKirigamiPrivate.dll"
+        "libsharpyuv.dll"
+        "libtiff.dll"
+        "libwebp.dll"
+        "libwebpdemux.dll"
+        "libwebpmux.dll"
+    )
+
+    add_custom_command(TARGET godl POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:godl> $<TARGET_FILE_DIR:godl> COMMAND_EXPAND_LISTS
+    )
+
+    foreach(DLL_NAME ${ADDITIONAL_DLLS})
+        find_file(${DLL_NAME}_PATH ${DLL_NAME} PATHS ${CMAKE_PREFIX_PATH}/bin ENV PATH)
+        if(${DLL_NAME}_PATH)
+            add_custom_command(TARGET godl POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different ${${DLL_NAME}_PATH} $<TARGET_FILE_DIR:godl>
+            )
+        endif()
+    endforeach()
+
+    find_program(WINDEPLOYQT_EXE windeployqt REQUIRED)
+
+    add_custom_command(TARGET godl POST_BUILD
+        COMMAND ${WINDEPLOYQT_EXE}
+        --qmldir ${CMAKE_CURRENT_BINARY_DIR}
+        --qmlimport ${CMAKE_CURRENT_BINARY_DIR}
+        --no-translations
+        $<TARGET_FILE:godl>
+    )
+endif()
 
 target_include_directories(godl
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/model

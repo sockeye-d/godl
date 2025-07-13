@@ -7,6 +7,7 @@ import org.kde.kirigami as Kirigami
 import org.kde.kirigamiaddons.formcard as FormCard
 import org.kde.kirigamiaddons.settings as KirigamiSettings
 import org.kde.kirigamiaddons.statefulapp as StatefulApp
+import org.kde.desktop as KdeDesktop
 
 import org.fishy.godl
 

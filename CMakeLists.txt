@@ -10,7 +10,7 @@ set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 
 # Directories where Qt Creator can find QML files.
 # (Not needed for builds, but makes Qt Creator code completion happy.)
-list(APPEND QML_IMPORT_PATH "/usr/lib/qt6/qml")
+list(APPEND QML_IMPORT_PATH "/usr/lib/qt6/qml" "C:/CraftRoot/qml")
 
 # Prevent adding duplicate values at each run of CMake.
 list(REMOVE_DUPLICATES QML_IMPORT_PATH)
@@ -52,6 +52,7 @@ find_package(KF6 REQUIRED COMPONENTS
 ecm_find_qmlmodule(org.kde.kirigami REQUIRED)
 ecm_find_qmlmodule(org.kde.kirigamiaddons.components REQUIRED)
 ecm_find_qmlmodule(org.kde.kirigamiaddons.formcard REQUIRED)
+ecm_find_qmlmodule(org.kde.desktop REQUIRED)
 
 add_subdirectory(src)
 
