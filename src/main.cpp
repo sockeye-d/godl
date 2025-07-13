@@ -23,6 +23,7 @@
 #include "projectsregistry.h"
 #include "versionregistry.h"
 #include <KConfigDialog>
+#include <KIconColors>
 
 using namespace Qt::Literals::StringLiterals;
 
@@ -55,6 +56,8 @@ int main(int argc, char *argv[])
         QQuickStyle::setStyle(QStringLiteral("org.kde.desktop"));
     }
 
+    QPalette pal = QApplication::palette();
+    KIconLoader::global()->setCustomPalette(pal);
     // KSharedConfigPtr config = KSharedConfig::openConfig(u"godl"_s);
     // auto config = Config::self();
     // debug() << config->godotLocation();
