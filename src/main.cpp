@@ -17,6 +17,8 @@
 #include "config.h"
 #include "configsignals.h"
 #endif
+#include <QMenuBar>
+#include <QWindow>
 #include "chainedjsonrequest.h"
 #include "downloadmanager.h"
 #include "main.h"
@@ -41,6 +43,13 @@ using namespace Qt::Literals::StringLiterals;
                                    #type, \
                                    [](QQmlEngine *, QJSEngine *) { return method; })
 
+#define registerSingletonPtrSpecialNamed(uri, major, minor, type, name, method) \
+    qmlRegisterSingletonType<type>("org.fishy.godl", \
+                                   major, \
+                                   minor, \
+                                   name, \
+                                   [](QQmlEngine *, QJSEngine *) { return method; })
+
 int main(int argc, char *argv[])
 {
     KIconTheme::initTheme();
@@ -51,16 +60,10 @@ int main(int argc, char *argv[])
     QApplication::setApplicationName(QStringLiteral("godl"));
     QApplication::setDesktopFileName(QStringLiteral("org.fishy.godl"));
 
-    QApplication::setStyle(QStringLiteral("breeze"));
+    QApplication::setStyle(QStringLiteral("FluentWinUI3"));
     if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
-        QQuickStyle::setStyle(QStringLiteral("org.kde.desktop"));
+        QQuickStyle::setStyle(QStringLiteral("FluentWinUI3"));
     }
-
-    QPalette pal = QApplication::palette();
-    KIconLoader::global()->setCustomPalette(pal);
-    // KSharedConfigPtr config = KSharedConfig::openConfig(u"godl"_s);
-    // auto config = Config::self();
-    // debug() << config->godotLocation();
 
     KAboutData aboutData(QStringLiteral("godl"),
                          i18nc("@title", "godl"),
@@ -74,14 +77,6 @@ int main(int argc, char *argv[])
     aboutData.setDesktopFileName("org.fishy.godl");
 
     KAboutData::setApplicationData(aboutData);
-
-    // qmlRegisterSingletonType("org.fishy.godl",
-    //                          0,
-    //                          1,
-    //                          "About",
-    //                          [](QQmlEngine *engine, QJSEngine *) -> QJSValue {
-    //                              return engine->toScriptValue(KAboutData::applicationData());
-    //                          });
     qmlRegisterType<ChainedJsonRequest>("org.fishy.godl", 0, 1, "ChainedJsonRequest");
     qmlRegisterType<DownloadManager>("org.fishy.godl", 0, 1, "DownloadManager");
     qmlRegisterType<DownloadManagerModel>("org.fishy.godl", 0, 1, "DownloadManagerModel");
@@ -100,7 +95,7 @@ int main(int argc, char *argv[])
     registerSingletonPtr("org.fishy.godl", 0, 1, ProjectsRegistry);
     registerSingletonPtr("org.fishy.godl", 0, 1, VersionRegistry);
     registerSingletonPtr("org.fishy.godl", 0, 1, NetworkResponseCode);
-    registerSingletonPtrSpecial("org.fishy.godl", 0, 1, Config, Config::self());
+    registerSingletonPtrSpecialNamed("org.fishy.godl", 0, 1, Config, "Configuration", Config::self());
     registerSingletonPtr("org.fishy.godl", 0, 1, ConfigSignals);
     QQmlApplicationEngine engine;
     Main::engine = &engine;
@@ -112,6 +107,8 @@ int main(int argc, char *argv[])
         Main::engine = nullptr;
         return -1;
     }
+
+    // engine.rootObjects().constFirst()->setProperty("hi", QVariant::fromValue(menuBar));
 
     auto return_code = app.exec();
 

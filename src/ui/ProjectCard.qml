@@ -253,39 +253,42 @@ Kirigami.Card {
 
             Controls.Button {
                 id: projectIconEditButton
-                opacity: projectIconArea.containsMouse ? 1 : 0
+
                 anchors.fill: parent
+                flat: true
+                icon.height: projectIcon.height - Kirigami.Units.largeSpacing
                 icon.name: "entry-edit"
                 icon.width: projectIcon.width - Kirigami.Units.largeSpacing
-                icon.height: projectIcon.height - Kirigami.Units.largeSpacing
-                flat: true
+                opacity: projectIconArea.containsMouse ? 1 : 0
+
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: Kirigami.Units.veryLongDuration
+                        easing.type: Easing.OutExpo
+                    }
+                }
+
                 onClicked: {
                     iconPickerFileDialog.startDirectory = root.modelData.iconDirectory;
                     iconPickerFileDialog.open();
                 }
 
-                Behavior on opacity {
-                    NumberAnimation {
-                        easing.type: Easing.OutExpo
-                        duration: Kirigami.Units.veryLongDuration
-                    }
-                }
                 Effects.RectangularShadow {
                     anchors.fill: parent
                     anchors.margins: Kirigami.Units.largeSpacing * 2
-
-                    z: -1
                     blur: 64
-                    spread: 0
                     color: Kirigami.Theme.backgroundColor
+                    spread: 0
+                    z: -1
                 }
             }
 
             MouseArea {
                 id: projectIconArea
+
+                acceptedButtons: Qt.NoButton
                 anchors.fill: parent
                 hoverEnabled: true
-                acceptedButtons: Qt.NoButton
             }
         }
     }
@@ -356,7 +359,8 @@ Kirigami.Card {
         width: Math.min(parent.width - Kirigami.Units.gridUnit * 2, Kirigami.Units.gridUnit * 30)
 
         FormCard.AbstractFormDelegate {
-            background: Item {}
+            background: Item {
+            }
             contentItem: RowLayout {
                 Kirigami.SearchField {
                     id: versionFilter
@@ -418,6 +422,10 @@ Kirigami.Card {
                     color: {
                         let colorOpacity = 0;
 
+                        if (control === null) {
+                            return Qt.transparent;
+                        }
+
                         if (!control.enabled) {
                             colorOpacity = 0;
                         } else if (control.pressed) {
@@ -459,8 +467,8 @@ Kirigami.Card {
         id: iconPickerFileDialog
 
         fileFilters: BetterFileDialog.NoDotAndDotDot
-        mode: QWidgets.FileDialog.ExistingFile
         filters: ["Images (*.png *.svg *.jpg *.jpeg *.jfif)"]
+        mode: QWidgets.FileDialog.ExistingFile
 
         onAccepted: path => {
             if (path.startsWith(root.modelData.directory)) {
@@ -473,9 +481,11 @@ Kirigami.Card {
 
     Kirigami.Dialog {
         id: invalidIconDialog
+
+        padding: Kirigami.Units.largeSpacing
         standardButtons: Kirigami.Dialog.Ok
         title: i18n("Invalid icon")
-        padding: Kirigami.Units.largeSpacing
+
         contentItem: Controls.Label {
             text: i18n("Selecting icons outside of the project directory is unsupported.")
         }

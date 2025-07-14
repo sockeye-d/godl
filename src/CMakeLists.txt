@@ -74,6 +74,7 @@ target_link_libraries(godl
     KF6::ConfigGui
     KF6::ConfigWidgets
     KF6::Archive
+    KF6::IconThemes
     KirigamiAddonsStatefulApp
 )
 

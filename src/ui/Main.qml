@@ -216,7 +216,7 @@ StatefulApp.StatefulWindow {
         }
     }
     globalDrawer: Kirigami.GlobalDrawer {
-        isMenu: false
+        isMenu: true
 
         actions: [
             Kirigami.Action {
@@ -311,27 +311,27 @@ StatefulApp.StatefulWindow {
         deferredComponent.createObject(root);
     }
 
-    Platform.MenuBar {
-        Platform.Menu {
-            title: "Edit"
+    // Platform.MenuBar {
+    //     Platform.Menu {
+    //         title: "Edit"
 
-            PlatformActionMenuItem {
-                action: root.application.action("options_configure")
-            }
+    //         PlatformActionMenuItem {
+    //             action: root.application.action("options_configure")
+    //         }
 
-            PlatformActionMenuItem {
-                action: root.application.action("options_configure_keybinding")
-            }
-        }
+    //         PlatformActionMenuItem {
+    //             action: root.application.action("options_configure_keybinding")
+    //         }
+    //     }
 
-        Platform.Menu {
-            title: "Help"
+    //     Platform.Menu {
+    //         title: "Help"
 
-            PlatformActionMenuItem {
-                action: root.application.action("open_about_page")
-            }
-        }
-    }
+    //         PlatformActionMenuItem {
+    //             action: root.application.action("open_about_page")
+    //         }
+    //     }
+    // }
 
     Kirigami.ApplicationWindow {
         id: aboutPage
