@@ -17,7 +17,7 @@ GodlConfigPage {
             id: projectLocationField
 
             label: i18n("Projects location")
-            text: Config.projectLocation
+            text: Configuration.projectLocation
 
             rightActions: [
                 Kirigami.Action {
@@ -26,21 +26,21 @@ GodlConfigPage {
                     onTriggered: folderDialog.open()
                 },
                 Kirigami.Action {
-                    enabled: Config.projectLocation !== Config.defaultProjectLocationValue
+                    enabled: Configuration.projectLocation !== Configuration.defaultProjectLocationValue
                     icon.name: "document-revert"
 
-                    onTriggered: Config.projectLocation = Config.defaultProjectLocationValue
+                    onTriggered: Configuration.projectLocation = Configuration.defaultProjectLocationValue
                 }
             ]
 
-            onTextChanged: Config.projectLocation = text
+            onTextChanged: Configuration.projectLocation = text
 
             Connections {
                 function onProjectLocationChanged() {
-                    projectLocationField.text = Config.projectLocation;
+                    projectLocationField.text = Configuration.projectLocation;
                 }
 
-                target: Config
+                target: Configuration
             }
         }
     }
@@ -50,8 +50,8 @@ GodlConfigPage {
 
         fileFilters: BetterFileDialog.Hidden | BetterFileDialog.NoDotAndDotDot
         mode: QWidgets.FileDialog.Directory
-        startDirectory: Config.projectLocation
+        startDirectory: Configuration.projectLocation
 
-        onAccepted: path => Config.projectLocation = path
+        onAccepted: path => Configuration.projectLocation = path
     }
 }

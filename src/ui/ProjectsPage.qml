@@ -182,7 +182,7 @@ Kirigami.Page {
 
         fileFilters: BetterFileDialog.Hidden | BetterFileDialog.NoDotAndDotDot
         mode: QWidgets.FileDialog.Directory
-        startDirectory: Config.projectLocation
+        startDirectory: Configuration.projectLocation
 
         onAccepted: path => ProjectsRegistry.scan(path)
     }
@@ -192,7 +192,7 @@ Kirigami.Page {
 
         fileFilters: BetterFileDialog.Hidden | BetterFileDialog.NoDotAndDotDot
         mode: QWidgets.FileDialog.ExistingFile
-        startDirectory: Config.projectLocation
+        startDirectory: Configuration.projectLocation
 
         onAccepted: path => ProjectsRegistry.import(path)
     }

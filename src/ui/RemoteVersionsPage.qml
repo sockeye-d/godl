@@ -10,7 +10,7 @@ Kirigami.Page {
 
     property DownloadManager dl
     property bool hasContent: false
-    property string rawRepo: Config.sources[0]
+    property string rawRepo: Configuration.sources[0]
     property int requestCount: 100
     property bool show_alpha: true
     property bool show_beta: true
@@ -120,7 +120,7 @@ Kirigami.Page {
 
                 Controls.ComboBox {
                     enabled: !request.running
-                    model: Config.sources
+                    model: Configuration.sources
 
                     onCurrentValueChanged: {
                         root.rawRepo = currentValue;
@@ -271,7 +271,7 @@ Kirigami.Page {
             }
 
             function filterAsset(el) {
-                return Config.downloadFilter.some(e => el.name.indexOf(e) !== -1);
+                return Configuration.downloadFilter.some(e => el.name.indexOf(e) !== -1);
             }
 
             function nameFilter(el) {

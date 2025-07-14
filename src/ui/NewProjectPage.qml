@@ -57,7 +57,7 @@ Kirigami.ScrollablePage {
 
         Controls.TextField {
             Kirigami.FormData.label: i18n("Project location")
-            placeholderText: Config.projectLocation + "/" + formName.text
+            placeholderText: Configuration.projectLocation + "/" + formName.text
         }
 
         Controls.Button {

@@ -11,7 +11,7 @@ import org.kde.desktop as KdeDesktop
 
 import org.fishy.godl
 
-import "config" as Config
+import "config" as Configuration
 
 // Provides basic features needed for all kirigami applications
 StatefulApp.StatefulWindow {
@@ -348,21 +348,21 @@ StatefulApp.StatefulWindow {
     Component {
         id: generalConfigPage
 
-        Config.GeneralConfigPage {
+        Configuration.GeneralConfigPage {
         }
     }
 
     Component {
         id: downloadsConfigPage
 
-        Config.DownloadsConfigPage {
+        Configuration.DownloadsConfigPage {
         }
     }
 
     Component {
         id: projectsConfigPage
 
-        Config.ProjectsConfigPage {
+        Configuration.ProjectsConfigPage {
         }
     }
 

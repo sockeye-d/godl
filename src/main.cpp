@@ -19,6 +19,7 @@
 #endif
 #include <QMenuBar>
 #include <QWindow>
+#include <QtSystemDetection>
 #include "chainedjsonrequest.h"
 #include "downloadmanager.h"
 #include "main.h"
@@ -52,18 +53,26 @@ using namespace Qt::Literals::StringLiterals;
 
 int main(int argc, char *argv[])
 {
-    KIconTheme::initTheme();
+    // KIconTheme::initTheme();
     QApplication app(argc, argv);
     KLocalizedString::setApplicationDomain("godl");
     QApplication::setOrganizationName(QStringLiteral("fishy"));
     QApplication::setOrganizationDomain(QStringLiteral("fishy.org"));
     QApplication::setApplicationName(QStringLiteral("godl"));
     QApplication::setDesktopFileName(QStringLiteral("org.fishy.godl"));
+#ifdef Q_OS_LINUX
+    QApplication::setStyle(QStringLiteral("Breeze"));
+    if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
+        QQuickStyle::setStyle(QStringLiteral("org.kde.desktop"));
+    }
+#endif
 
+#ifdef Q_OS_WIN32
     QApplication::setStyle(QStringLiteral("FluentWinUI3"));
     if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
         QQuickStyle::setStyle(QStringLiteral("FluentWinUI3"));
     }
+#endif
 
     KAboutData aboutData(QStringLiteral("godl"),
                          i18nc("@title", "godl"),
@@ -107,8 +116,6 @@ int main(int argc, char *argv[])
         Main::engine = nullptr;
         return -1;
     }
-
-    // engine.rootObjects().constFirst()->setProperty("hi", QVariant::fromValue(menuBar));
 
     auto return_code = app.exec();
 

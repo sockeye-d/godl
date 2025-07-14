@@ -64,11 +64,11 @@ Kirigami.Card {
 
         customFooterActions: [
             Kirigami.Action {
-                enabled: textField.text !== Config.defaultCommand
+                enabled: textField.text !== Configuration.defaultCommand
                 icon.name: "reset"
                 text: i18n("Reset")
 
-                onTriggered: textField.text = Config.defaultCommand
+                onTriggered: textField.text = Configuration.defaultCommand
             }
         ]
         footerLeadingComponent: ColumnLayout {

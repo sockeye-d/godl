@@ -14,28 +14,28 @@ GodlConfigPage {
 
     FormCard.FormCard {
         ConfigStringListFormCard {
-            configValue: Config.downloadFilter
-            defaultConfigValue: Config.defaultDownloadFilterValue
+            configValue: Configuration.downloadFilter
+            defaultConfigValue: Configuration.defaultDownloadFilterValue
             text: i18n("Add new filter")
 
-            onConfigChanged: (i, v) => Config.downloadFilter[i] = v
-            onConfigRemoved: i => Config.downloadFilter.splice(i, 1)
+            onConfigChanged: (i, v) => Configuration.downloadFilter[i] = v
+            onConfigRemoved: i => Configuration.downloadFilter.splice(i, 1)
             onConfigSet: x => {
-                Config.downloadFilter = x;
-                configValue = Config.downloadFilter;
+                Configuration.downloadFilter = x;
+                configValue = Configuration.downloadFilter;
             }
         }
 
         ConfigStringListFormCard {
-            configValue: Config.sources
-            defaultConfigValue: Config.defaultSourcesValue
+            configValue: Configuration.sources
+            defaultConfigValue: Configuration.defaultSourcesValue
             text: i18n("Add new source")
 
-            onConfigChanged: (i, v) => Config.sources[i] = v
-            onConfigRemoved: i => Config.sources.splice(i, 1)
+            onConfigChanged: (i, v) => Configuration.sources[i] = v
+            onConfigRemoved: i => Configuration.sources.splice(i, 1)
             onConfigSet: x => {
-                Config.sources = x;
-                configValue = Config.sources;
+                Configuration.sources = x;
+                configValue = Configuration.sources;
             }
         }
     }

@@ -17,33 +17,33 @@ GodlConfigPage {
             id: godotLocationField
 
             label: i18n("Godot location")
-            text: Config.godotLocation
+            text: Configuration.godotLocation
 
             rightActions: [
                 Kirigami.Action {
                     icon.name: "folder-open"
 
                     onTriggered: {
-                        folderDialog.startDirectory = Config.godotLocation;
+                        folderDialog.startDirectory = Configuration.godotLocation;
                         folderDialog.open();
                     }
                 },
                 Kirigami.Action {
-                    enabled: Config.godotLocation !== Config.defaultGodotLocationValue
+                    enabled: Configuration.godotLocation !== Configuration.defaultGodotLocationValue
                     icon.name: "document-revert"
 
-                    onTriggered: Config.godotLocation = Config.defaultGodotLocationValue
+                    onTriggered: Configuration.godotLocation = Configuration.defaultGodotLocationValue
                 }
             ]
 
-            onTextChanged: Config.godotLocation = text
+            onTextChanged: Configuration.godotLocation = text
 
             Connections {
                 function onGodotLocationChanged() {
-                    godotLocationField.text = Config.godotLocation;
+                    godotLocationField.text = Configuration.godotLocation;
                 }
 
-                target: Config
+                target: Configuration
             }
         }
 
@@ -51,33 +51,33 @@ GodlConfigPage {
             id: projectLocationField
 
             label: i18n("Projects location")
-            text: Config.projectLocation
+            text: Configuration.projectLocation
 
             rightActions: [
                 Kirigami.Action {
                     icon.name: "folder-open"
 
                     onTriggered: {
-                        folderDialog.startDirectory = Config.projectLocation;
+                        folderDialog.startDirectory = Configuration.projectLocation;
                         folderDialog.open();
                     }
                 },
                 Kirigami.Action {
-                    enabled: Config.projectLocation !== Config.defaultProjectLocationValue
+                    enabled: Configuration.projectLocation !== Configuration.defaultProjectLocationValue
                     icon.name: "document-revert"
 
-                    onTriggered: Config.projectLocation = Config.defaultProjectLocationValue
+                    onTriggered: Configuration.projectLocation = Configuration.defaultProjectLocationValue
                 }
             ]
 
-            onTextChanged: Config.projectLocation = text
+            onTextChanged: Configuration.projectLocation = text
 
             Connections {
                 function onProjectLocationChanged() {
-                    projectLocationField.text = Config.projectLocation;
+                    projectLocationField.text = Configuration.projectLocation;
                 }
 
-                target: Config
+                target: Configuration
             }
         }
     }
@@ -88,10 +88,10 @@ GodlConfigPage {
 
     FormCard.FormCard {
         FormCard.FormCheckDelegate {
-            checked: Config.cacheVersions
+            checked: Configuration.cacheVersions
             text: i18n("Cache downloaded versions")
 
-            onCheckedChanged: Config.cacheVersions = checked
+            onCheckedChanged: Configuration.cacheVersions = checked
         }
     }
 
@@ -101,6 +101,6 @@ GodlConfigPage {
         fileFilters: BetterFileDialog.Hidden | BetterFileDialog.NoDotAndDotDot
         mode: QWidgets.FileDialog.Directory
 
-        onAccepted: path => Config.godotLocation = path
+        onAccepted: path => Configuration.godotLocation = path
     }
 }
