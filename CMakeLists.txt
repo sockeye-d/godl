@@ -54,6 +54,12 @@ ecm_find_qmlmodule(org.kde.kirigamiaddons.components REQUIRED)
 ecm_find_qmlmodule(org.kde.kirigamiaddons.formcard REQUIRED)
 ecm_find_qmlmodule(org.kde.desktop REQUIRED)
 
+message(NOTICE "Build type is " ${CMAKE_BUILD_TYPE})
+if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    message(NOTICE "Debugging is on")
+    add_definitions(-DDEBUG=ON)
+endif()
+
 add_subdirectory(src)
 
 install(PROGRAMS org.fishy.godl.desktop DESTINATION ${KDE_INSTALL_APPDIR})
