@@ -17,6 +17,7 @@
 #include "config.h"
 #include "configsignals.h"
 #endif
+#include <QDesktopServices>
 #include <QMenuBar>
 #include <QWindow>
 #include <QtSystemDetection>
@@ -51,6 +52,40 @@ using namespace Qt::Literals::StringLiterals;
                                    name, \
                                    [](QQmlEngine *, QJSEngine *) { return method; })
 
+QString prependLines(QString string, QString prepension)
+{
+    static QRegularExpression re("^", QRegularExpression::MultilineOption);
+    return string.replace(re, prepension);
+}
+
+QString printFs(const QString &path)
+{
+    QString current = "";
+    QDirIterator dirs = QDirIterator(path, QDir::Dirs);
+    QDirIterator files = QDirIterator(path, QDir::Files);
+    while (dirs.hasNext()) {
+        dirs.next();
+        auto prefix = files.hasNext() || dirs.hasNext() ? u"│"_s : u" "_s;
+        auto preprefix = files.hasNext() || dirs.hasNext() ? u"├╮"_s : u"╰"_s;
+        if (dirs.filePath() == "") {
+            continue;
+        }
+        current
+            += prependLines(printFs(dirs.filePath()), prefix).prepend(" ").replace(0, 2, preprefix);
+    }
+
+    while (files.hasNext()) {
+        files.next();
+        if (files.fileName() == "") {
+            continue;
+        }
+        auto preprefix = files.hasNext() ? u"├"_s : u"╰"_s;
+        current += preprefix % files.fileName() % "\n";
+    }
+
+    return path % "\n" % current;
+}
+
 int main(int argc, char *argv[])
 {
     // KIconTheme::initTheme();
@@ -67,12 +102,23 @@ int main(int argc, char *argv[])
     }
 #endif
 
-#ifdef Q_OS_WIN32
+    // #ifdef Q_OS_WIN32
     QApplication::setStyle(QStringLiteral("FluentWinUI3"));
     if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
         QQuickStyle::setStyle(QStringLiteral("FluentWinUI3"));
     }
-#endif
+    // #endif
+    // QIcon::setThemeSearchPaths({":/icons"});
+    // debug() << QIcon::themeSearchPaths();
+    // debug() << QIcon::fallbackSearchPaths();
+    // debug() << printFs(":");
+    QFile file(QStandardPaths::standardLocations(QStandardPaths::TempLocation)[0] / "qrcfs.txt");
+    file.open(QFile::WriteOnly);
+    file.write(printFs(":").toUtf8());
+    file.close();
+    QDesktopServices::openUrl(QUrl::fromLocalFile(file.fileName()));
+
+    return 0;
 
     KAboutData aboutData(QStringLiteral("godl"),
                          i18nc("@title", "godl"),
