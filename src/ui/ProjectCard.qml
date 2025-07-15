@@ -83,73 +83,79 @@ Kirigami.Card {
 
             onYChanged: y = 0
 
-            Kirigami.InlineMessage {
-                id: msg
+            RowLayout {
+                ColumnLayout {
+                    Layout.fillWidth: false
 
-                Layout.fillWidth: true
-                text: ({
-                        0: null,
-                        1: i18n("Opened project"),
-                        2: i18n("No editor bound"),
-                        3: i18n("No editor found"),
-                        4: i18n("Failed to start editor")
-                    }[root.error + 1])
-                type: root.error === 0 ? Kirigami.MessageType.Positive : Kirigami.MessageType.Error
-                visible: root.error !== -1
+                    Controls.Label {
+                        property bool hasDescription: root.modelData.description !== ""
 
-                actions: Kirigami.Action {
-                    displayComponent: Controls.ToolButton {
-                        icon.name: "dialog-close"
-
-                        onClicked: root.error = -1
+                        Layout.fillWidth: true
+                        color: hasDescription ? palette.windowText : palette.placeholderText
+                        elide: Text.ElideRight
+                        text: hasDescription ? root.modelData.description : i18n("<no description>")
                     }
-                }
-            }
 
-            ColumnLayout {
-                Controls.Label {
-                    property bool hasDescription: root.modelData.description !== ""
+                    DateLabel {
+                        Layout.fillWidth: true
+                        color: palette.placeholderText
+                        dateTime: root.modelData.lastEditedTime
+                        elide: Text.ElideRight
+                        prefix: "Last edited "
+                    }
 
-                    Layout.fillWidth: true
-                    color: hasDescription ? palette.windowText : palette.placeholderText
-                    elide: Text.ElideRight
-                    text: hasDescription ? root.modelData.description : i18n("<no description>")
-                }
+                    Controls.Label {
+                        id: versionLabel
 
-                DateLabel {
-                    Layout.fillWidth: true
-                    color: palette.placeholderText
-                    dateTime: root.modelData.lastEditedTime
-                    elide: Text.ElideRight
-                    prefix: "Last edited "
-                }
+                        property int forceColor: 0
+                        property bool versionSet: root.modelData.godotVersion !== null
 
-                Controls.Label {
-                    id: versionLabel
+                        Layout.fillWidth: true
+                        color: {
+                            forceColor;
+                            if (!versionSet) {
+                                return palette.placeholderText;
+                            } else if (!VersionRegistry.hasVersion(root.modelData.godotVersion)) {
+                                return Kirigami.Theme.negativeTextColor;
+                            } else {
+                                return versionSet ? palette.windowText : palette.placeholderText;
+                            }
+                        }
+                        elide: Text.ElideRight
+                        text: versionSet ? root.modelData.godotVersion + "" : i18n("<no version>")
 
-                    property int forceColor: 0
-                    property bool versionSet: root.modelData.godotVersion !== null
+                        Connections {
+                            function onHasVersionChanged() {
+                                versionLabel.forceColor++;
+                            }
 
-                    Layout.fillWidth: true
-                    color: {
-                        forceColor;
-                        if (!versionSet) {
-                            return palette.placeholderText;
-                        } else if (!VersionRegistry.hasVersion(root.modelData.godotVersion)) {
-                            return Kirigami.Theme.negativeTextColor;
-                        } else {
-                            return versionSet ? palette.windowText : palette.placeholderText;
+                            target: VersionRegistry
                         }
                     }
-                    elide: Text.ElideRight
-                    text: versionSet ? root.modelData.godotVersion + "" : i18n("<no version>")
+                }
 
-                    Connections {
-                        function onHasVersionChanged() {
-                            versionLabel.forceColor++;
+                Kirigami.InlineMessage {
+                    id: msg
+
+                    Layout.alignment: Qt.AlignTop
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: Kirigami.Units.gridUnit * 10
+                    text: ({
+                            0: null,
+                            1: i18n("Opened project"),
+                            2: i18n("No editor bound"),
+                            3: i18n("No editor found"),
+                            4: i18n("Failed to start editor")
+                        }[root.error + 1])
+                    type: root.error === 0 ? Kirigami.MessageType.Positive : Kirigami.MessageType.Error
+                    visible: root.error !== -1
+
+                    actions: Kirigami.Action {
+                        displayComponent: Controls.ToolButton {
+                            icon.name: "dialog-close"
+
+                            onClicked: root.error = -1
                         }
-
-                        target: VersionRegistry
                     }
                 }
             }
@@ -175,11 +181,18 @@ Kirigami.Card {
                     spacing: Kirigami.Units.mediumSpacing
 
                     Kirigami.Chip {
-                        id: addTag
+                        id: measureChip
 
-                        Layout.preferredWidth: height
+                        Layout.preferredWidth: 0
                         checkable: false
                         closable: false
+                    }
+
+                    Controls.ToolButton {
+                        id: addTag
+
+                        Layout.preferredHeight: measureChip.height
+                        Layout.preferredWidth: measureChip.height
                         enabled: !tags.editing || root.modelData.tags.indexOf(addTagField.editText) === -1
                         icon.name: "tag-new"
                         text: ""
@@ -195,7 +208,7 @@ Kirigami.Card {
                     Controls.ComboBox {
                         id: addTagField
 
-                        Layout.maximumHeight: addTag.height
+                        Layout.maximumHeight: measureChip.height
                         Layout.preferredWidth: Kirigami.Units.gridUnit * 7
                         editable: true
                         model: {

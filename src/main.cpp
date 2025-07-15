@@ -88,7 +88,7 @@ QString printFs(const QString &path)
 
 int main(int argc, char *argv[])
 {
-    // KIconTheme::initTheme();
+    KIconTheme::initTheme();
     QApplication app(argc, argv);
     KLocalizedString::setApplicationDomain("godl");
     QApplication::setOrganizationName(QStringLiteral("fishy"));
@@ -102,23 +102,23 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    // #ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN32
     QApplication::setStyle(QStringLiteral("FluentWinUI3"));
     if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
         QQuickStyle::setStyle(QStringLiteral("FluentWinUI3"));
     }
-    // #endif
+#endif
     // QIcon::setThemeSearchPaths({":/icons"});
     // debug() << QIcon::themeSearchPaths();
     // debug() << QIcon::fallbackSearchPaths();
     // debug() << printFs(":");
-    QFile file(QStandardPaths::standardLocations(QStandardPaths::TempLocation)[0] / "qrcfs.txt");
-    file.open(QFile::WriteOnly);
-    file.write(printFs(":").toUtf8());
-    file.close();
-    QDesktopServices::openUrl(QUrl::fromLocalFile(file.fileName()));
+    // QFile file(QStandardPaths::standardLocations(QStandardPaths::TempLocation)[0] / "qrcfs.txt");
+    // file.open(QFile::WriteOnly);
+    // file.write(printFs(":").toUtf8());
+    // file.close();
+    // QDesktopServices::openUrl(QUrl::fromLocalFile(file.fileName()));
 
-    return 0;
+    // return 0;
 
     KAboutData aboutData(QStringLiteral("godl"),
                          i18nc("@title", "godl"),
