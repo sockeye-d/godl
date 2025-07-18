@@ -21,6 +21,8 @@ public:
 
     Template() {}
     Template(const QString &p_name, const QString &p_path);
+
+    QString directory() const;
 };
 
 bool operator==(const Template &left, const Template &right);

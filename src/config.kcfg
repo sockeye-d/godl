@@ -10,8 +10,12 @@
       <default code="true">QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).first() / "versions"</default>
     </entry>
     <entry name="templateLocation" type="Path">
-    <label>Template location</label>
-    <default code="true">QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).first() / "templates"</default>
+      <label>Template location</label>
+      <default code="true">QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).first() / "templates"</default>
+    </entry>
+    <entry name="defaultTemplate" type="String">
+      <label>Default template</label>
+      <default>default</default>
     </entry>
     <entry name="projectLocation" type="Path">
       <label>Project location</label>
@@ -27,7 +31,7 @@
     </entry>
     <entry name="defaultCommand" type="String">
       <label>The command to use for newly downloaded Godot versions.</label>
-      <default>{executable} -e {projectPath}</default>
+      <default>"{executable}" -e "{projectPath}"</default>
     </entry>
     <entry name="cacheVersions" type="Bool">
       <label>Whether to keep the versions in the temporary folder or not. For development use only—most people should keep this off.</label>

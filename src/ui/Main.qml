@@ -242,6 +242,7 @@ StatefulApp.StatefulWindow {
                 ActionGroup.group: actionGroup
                 checkable: true
                 checked: mainPage.activePageIndex === 0
+                displayHint: Kirigami.DisplayHint.KeepVisible
                 icon.name: "document-edit"
                 text: "Projects"
 
@@ -251,6 +252,7 @@ StatefulApp.StatefulWindow {
                 ActionGroup.group: actionGroup
                 checkable: true
                 checked: mainPage.activePageIndex === 1
+                displayHint: Kirigami.DisplayHint.KeepVisible
                 icon.name: "drive"
                 text: "Local versions"
 
@@ -260,6 +262,7 @@ StatefulApp.StatefulWindow {
                 ActionGroup.group: actionGroup
                 checkable: true
                 checked: mainPage.activePageIndex === 2
+                displayHint: Kirigami.DisplayHint.KeepVisible
                 icon.name: "globe"
                 text: "Remote versions"
 

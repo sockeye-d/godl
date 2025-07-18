@@ -12,6 +12,7 @@ FormCard.FormCard {
 
     property list<string> configValue
     property list<string> defaultConfigValue
+    property string help
     property alias text: button.text
 
     signal configChanged(int index, string newValue)
@@ -40,6 +41,14 @@ FormCard.FormCard {
             onClicked: {
                 configValue.push("");
                 internal.refreshFilters();
+            }
+            onHoveredChanged: if (root.help !== "")
+                tt.visible = hovered
+
+            Controls.ToolTip {
+                id: tt
+
+                text: root.help
             }
         }
 

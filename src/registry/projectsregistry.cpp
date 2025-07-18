@@ -43,7 +43,12 @@ void ProjectsRegistry::import(const QString filepath)
     }
     auto project = load(filepath);
     if (!project) {
-        // debug() << "Failed to load project at" << filepath;
+        project = load(filepath / "godlproject");
+    }
+    if (!project) {
+        project = load(filepath / "project.godot");
+    }
+    if (!project) {
         return;
     }
     config().group(project->path());

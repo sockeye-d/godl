@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QFile>
+#include <QFileInfo>
 
 bool operator==(const Template &left, const Template &right)
 {
@@ -15,6 +16,11 @@ Template::Template(const QString &p_name, const QString &p_path)
     QFile f{p_path};
     f.open(QFile::ReadOnly | QFile::Text);
     meta = QString::fromUtf8(f.readAll());
+}
+
+QString Template::directory() const
+{
+    return QFileInfo(path).path();
 }
 
 void operator<<(QDebug &debug, const Template &t)

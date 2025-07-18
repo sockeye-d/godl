@@ -1,34 +1,37 @@
-[
-    {
-        "type": "header",
-        "label": "Project metadata"
-    },
-    {
-        "type": "string",
-        "label": "Description",
-        "template": "description"
-    },
-    {
-        "type": "header",
-        "label": "Project settings"
-    },
-    {
-        "type": "enum",
-        "label": "Renderer",
-        "template": "renderer",
-        "values": [
-            {
-                "label": "Forward+",
-                "key": "forward_plus"
-            },
-            {
-                "label": "Mobile",
-                "key": "mobile"
-            },
-            {
-                "label": "Compatibility",
-                "key": "gl_compatibility"
-            }
-        ]
-    }
-]
+{
+    "ignore": [],
+    "replacements": [
+        {
+            "type": "header",
+            "label": "Project metadata"
+        },
+        {
+            "type": "multistring",
+            "label": "Description",
+            "template": "description"
+        },
+        {
+            "type": "header",
+            "label": "Project settings"
+        },
+        {
+            "type": "enum",
+            "label": "Renderer",
+            "template": "renderer",
+            "values": [
+                {
+                    "label": "Forward+",
+                    "key": "forward_plus"
+                },
+                {
+                    "label": "Mobile",
+                    "key": "mobile"
+                },
+                {
+                    "label": "Compatibility",
+                    "key": "gl_compatibility"
+                }
+            ]
+        }
+    ]
+}

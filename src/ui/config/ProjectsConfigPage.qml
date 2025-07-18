@@ -43,6 +43,34 @@ GodlConfigPage {
                 target: Configuration
             }
         }
+
+        RowLayout {
+            FormCard.FormComboBoxDelegate {
+                id: defaultTemplateField
+
+                Layout.fillWidth: true
+                model: ProjectTemplates.templates
+                text: i18n("Default project template")
+
+                Component.onCompleted: {
+                    ProjectTemplates.rescan();
+                    currentIndex = ProjectTemplates.templates.indexOf(Configuration.defaultTemplate);
+                }
+                onCurrentTextChanged: Configuration.defaultTemplate = currentText
+            }
+
+            FormCard.FormButtonDelegate {
+                Layout.fillHeight: true
+                Layout.fillWidth: false
+                icon.name: "view-refresh"
+                trailingLogo.visible: false
+
+                onClicked: {
+                    ProjectTemplates.rescan();
+                    defaultTemplateField.currentIndex = ProjectTemplates.templates.indexOf(Configuration.defaultTemplate);
+                }
+            }
+        }
     }
 
     BetterFileDialog {

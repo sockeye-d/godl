@@ -56,6 +56,7 @@ Kirigami.Card {
             onTriggered: bindDialog.open()
         },
         Kirigami.Action {
+            displayHint: Kirigami.DisplayHint.AlwaysHide
             icon.name: "delete"
             text: i18n("Remove")
 
@@ -180,14 +181,6 @@ Kirigami.Card {
 
                     spacing: Kirigami.Units.mediumSpacing
 
-                    Kirigami.Chip {
-                        id: measureChip
-
-                        Layout.preferredWidth: 0
-                        checkable: false
-                        closable: false
-                    }
-
                     Controls.ToolButton {
                         id: addTag
 
@@ -241,6 +234,14 @@ Kirigami.Card {
                                 root.modelData.tags = newArr;
                             }
                         }
+                    }
+
+                    Kirigami.Chip {
+                        id: measureChip
+
+                        Layout.preferredWidth: 0
+                        checkable: false
+                        closable: false
                     }
                 }
             }

@@ -71,7 +71,7 @@ Kirigami.Page {
 
             Kirigami.Action {
                 icon.color: Kirigami.Theme.positiveTextColor
-                icon.name: "project-development-new-template"
+                icon.name: "document-new-from-template"
                 text: i18n("New project")
 
                 onTriggered: applicationWindow().pageStack.layers.push(Qt.resolvedUrl("NewProjectPage.qml"))

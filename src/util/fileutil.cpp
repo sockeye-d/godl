@@ -4,7 +4,7 @@
 
 QFileInfoList getEntries(const QString &path, QDir::Filters filters)
 {
-    QDirIterator it(path, filters);
+    QDirIterator it(path, filters | QDir::NoDotAndDotDot);
     QFileInfoList results{};
     while (it.hasNext())
         results.append(it.nextFileInfo());
