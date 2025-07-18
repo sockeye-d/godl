@@ -9,50 +9,49 @@ import org.fishy.godl
 import org.fishy.godl.qwidgets as QWidgets
 
 Kirigami.ScrollablePage {
+    id: root
+
+    property projectTemplate activeTemplate: ProjectTemplates.templ(templateSelector.currentValue)
+    property var configComponents: {
+        "string": stringComponent,
+        "enum": enumComponent,
+        "header": headerComponent
+    }
+
     title: i18n("New project")
+
+    actions: [
+        Kirigami.Action {
+            icon.color: Kirigami.Theme.positiveTextColor
+            icon.name: "document-new-from-template"
+            text: i18n("Create project")
+        }
+    ]
+
+    Component.onCompleted: ProjectTemplates.rescan()
+
     Kirigami.FormLayout {
-        anchors.fill: parent
+        id: form
+
+        Layout.fillHeight: false
+        Layout.fillWidth: true
+
         Item {
             Layout.preferredWidth: Kirigami.Units.gridUnit * 30
         }
 
-        Item {
-            Kirigami.FormData.label: i18n("Project metadata")
-            Kirigami.FormData.isSection: true
+        Controls.ComboBox {
+            id: templateSelector
+
+            Kirigami.FormData.label: i18n("Template")
+            Layout.fillWidth: true
+            model: ProjectTemplates.templates
         }
 
         Controls.TextField {
             id: formName
+
             Kirigami.FormData.label: i18n("Name")
-        }
-
-        Controls.TextField {
-            Kirigami.FormData.label: i18n("Description")
-        }
-
-        Item {
-            Kirigami.FormData.label: i18n("Project settings")
-            Kirigami.FormData.isSection: true
-        }
-
-        Controls.ComboBox {
-            id: rendererComboBox
-            Layout.fillWidth: true
-            model: ["Forward+", "Mobile", "Compatibility",]
-
-            Kirigami.FormData.label: i18n("Renderer")
-        }
-
-        Item {
-            Kirigami.FormData.label: i18n("Other")
-            Kirigami.FormData.isSection: true
-        }
-
-        Controls.ComboBox {
-            model: ["None", "Git"]
-            currentIndex: 1
-            Layout.fillWidth: true
-            Kirigami.FormData.label: i18n("Version control system")
         }
 
         Controls.TextField {
@@ -60,9 +59,58 @@ Kirigami.ScrollablePage {
             placeholderText: Configuration.projectLocation + "/" + formName.text
         }
 
-        Controls.Button {
-            Layout.fillWidth: true
-            text: i18n("Create project")
+        Repeater {
+            model: JSON.parse(root.activeTemplate.meta)
+
+            delegate: Item {
+                property Item component
+                required property string label
+                required property var modelData
+                required property string type
+
+                Kirigami.FormData.isSection: type == "header"
+                Kirigami.FormData.label: label
+                Layout.fillWidth: true
+                Layout.preferredHeight: component?.height
+                implicitHeight: component?.implicitHeight
+
+                Component.onCompleted: component = root.configComponents[type].createObject(this, modelData)
+                onWidthChanged: component.width = width
+            }
+        }
+    }
+
+    Component {
+        id: stringComponent
+
+        Controls.TextField {
+            required property string label
+            required property string template
+            required property string type
+        }
+    }
+
+    Component {
+        id: headerComponent
+
+        Item {
+            required property string label
+            required property string type
+        }
+    }
+
+    Component {
+        id: enumComponent
+
+        Controls.ComboBox {
+            required property string label
+            required property string template
+            required property string type
+            required property list<var> values
+
+            model: values
+            textRole: "label"
+            valueRole: "key"
         }
     }
 }

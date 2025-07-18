@@ -7,11 +7,15 @@
   <group name="General">
     <entry name="godotLocation" type="Path">
       <label>Godot location</label>
-      <default code="true">QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).first()</default>
+      <default code="true">QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).first() / "versions"</default>
+    </entry>
+    <entry name="templateLocation" type="Path">
+    <label>Template location</label>
+    <default code="true">QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).first() / "templates"</default>
     </entry>
     <entry name="projectLocation" type="Path">
-    <label>Project location</label>
-    <default code="true">findGodotProjectLocation()</default>
+      <label>Project location</label>
+      <default code="true">findGodotProjectLocation()</default>
     </entry>
     <entry name="downloadFilter" type="StringList">
       <label>Substrings to look for in remote asset names to highlight the one you most likely want</label>

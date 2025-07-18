@@ -180,7 +180,7 @@ Kirigami.Page {
     BetterFileDialog {
         id: scanDialog
 
-        fileFilters: BetterFileDialog.Hidden | BetterFileDialog.NoDotAndDotDot
+        fileFilters: BetterFileDialog.NoDotAndDotDot
         mode: QWidgets.FileDialog.Directory
         startDirectory: Configuration.projectLocation
 
@@ -190,7 +190,8 @@ Kirigami.Page {
     BetterFileDialog {
         id: importDialog
 
-        fileFilters: BetterFileDialog.Hidden | BetterFileDialog.NoDotAndDotDot
+        fileFilters: BetterFileDialog.NoDotAndDotDot
+        filters: ["Godot project files (*.godot)", "All files (*)"]
         mode: QWidgets.FileDialog.ExistingFile
         startDirectory: Configuration.projectLocation
 

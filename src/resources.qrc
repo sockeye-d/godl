@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>templates/default/.gitattributes</file>
+        <file>templates/default/.gitignore</file>
+        <file>templates/default/godlproject</file>
+        <file>templates/default/icon.svg</file>
+        <file>templates/default/project.godot</file>
+        <file>templates/default/metatemplate.json</file>
+    </qresource>
+</RCC>

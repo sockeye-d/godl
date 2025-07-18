@@ -1,6 +1,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <QDir>
 #include <QList>
 #include <QVariant>
 #include <KArchive>

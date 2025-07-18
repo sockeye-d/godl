@@ -25,6 +25,7 @@
 #include "downloadmanager.h"
 #include "main.h"
 #include "projectsregistry.h"
+#include "projecttemplates.h"
 #include "versionregistry.h"
 #include <KConfigDialog>
 #include <KIconColors>
@@ -108,17 +109,22 @@ int main(int argc, char *argv[])
         QQuickStyle::setStyle(QStringLiteral("FluentWinUI3"));
     }
 #endif
-    // QIcon::setThemeSearchPaths({":/icons"});
-    // debug() << QIcon::themeSearchPaths();
-    // debug() << QIcon::fallbackSearchPaths();
-    // debug() << printFs(":");
-    // QFile file(QStandardPaths::standardLocations(QStandardPaths::TempLocation)[0] / "qrcfs.txt");
-    // file.open(QFile::WriteOnly);
-    // file.write(printFs(":").toUtf8());
-    // file.close();
-    // QDesktopServices::openUrl(QUrl::fromLocalFile(file.fileName()));
+#if 0
+    QFile file(QStandardPaths::standardLocations(QStandardPaths::TempLocation).constFirst()
+               / "qrcfs.txt");
+    file.open(QFile::WriteOnly);
+    file.write(printFs(":").toUtf8());
+    file.close();
+    QDesktopServices::openUrl(QUrl::fromLocalFile(file.fileName()));
 
-    // return 0;
+    QFile f(":/templates/default/metatemplate.json");
+    f.open(QFile::ReadOnly);
+    debug() << f.readAll();
+
+    return 0;
+#endif
+
+    ProjectTemplates::instance()->extractDefault();
 
     KAboutData aboutData(QStringLiteral("godl"),
                          i18nc("@title", "godl"),
@@ -145,6 +151,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<QAction>("org.fishy.godl.qwidgets", 0, 1, "QAction");
     qmlRegisterType<QIcon>("org.fishy.godl.qwidgets", 0, 1, "QIcon");
     qmlRegisterType<ProjectsRegistryModel>("org.fishy.godl", 0, 1, "ProjectsRegistryModel");
+    qmlRegisterType<Template>("org.fishy.godl", 0, 1, "projectTemplate");
     registerSingletonPtr("org.fishy.godl", 0, 1, IconConverter);
     registerSingletonPtr("org.fishy.godl", 0, 1, DateConverter);
     registerSingletonPtr("org.fishy.godl", 0, 1, ProjectsRegistry);
@@ -152,6 +159,7 @@ int main(int argc, char *argv[])
     registerSingletonPtr("org.fishy.godl", 0, 1, NetworkResponseCode);
     registerSingletonPtrSpecialNamed("org.fishy.godl", 0, 1, Config, "Configuration", Config::self());
     registerSingletonPtr("org.fishy.godl", 0, 1, ConfigSignals);
+    registerSingletonPtr("org.fishy.godl", 0, 1, ProjectTemplates);
     QQmlApplicationEngine engine;
     Main::engine = &engine;
 

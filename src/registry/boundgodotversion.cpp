@@ -26,5 +26,6 @@ QString BoundGodotVersion::toString() const
 
 bool operator==(BoundGodotVersion left, BoundGodotVersion right)
 {
-    return left.tagName() == right.tagName() && left.isMono() == right.isMono();
+    return left.isMono() == right.isMono() && left.tagName() == right.tagName()
+           && left.repo() == right.repo();
 }

@@ -1,5 +1,5 @@
 #include "util.h"
-#include <QDir>
+#include <QDirIterator>
 #include <QFile>
 #include <QStandardPaths>
 #include <QSysInfo>

@@ -1,3 +1,5 @@
+find_package(Qt6 REQUIRED COMPONENTS Core)
+
 qt_add_executable(godl)
 
 kconfig_add_kcfg_files(config_SRCS config.kcfgc GENERATE_MOC)
@@ -56,6 +58,10 @@ qt_add_qml_module(godl
     QML_FILES ui/ProjectCard.qml
     QML_FILES ui/NewProjectPage.qml
     QML_FILES ui/LocalVersionCard.qml
+    RESOURCES resources.qrc
+    SOURCES projecttemplates.h projecttemplates.cpp
+    SOURCES util/fileutil.h util/fileutil.cpp
+    SOURCES template.h template.cpp
 )
 
 target_link_libraries(godl
@@ -77,6 +83,7 @@ target_link_libraries(godl
     KF6::IconThemes
     KirigamiAddonsStatefulApp
 )
+target_link_libraries(godl PRIVATE Qt6::Core)
 
 if (WIN32)
     set(ADDITIONAL_DLLS
