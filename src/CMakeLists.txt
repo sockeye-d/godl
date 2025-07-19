@@ -3,7 +3,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 if (LINUX)
     qt_add_executable(godl)
 elseif(WIN32)
-    qt_add_executable(godl ${CMAKE_CURRENT_SOURCE_DIR}/icon.ico)
+    qt_add_executable(godl ${CMAKE_CURRENT_SOURCE_DIR}/godl.ico)
 else()
     qt_add_executable(godl)
 endif()
@@ -155,6 +155,13 @@ if (WIN32)
         --qmlimport ${CMAKE_CURRENT_BINARY_DIR}
         --no-translations
         $<TARGET_FILE:godl>
+    )
+
+    find_program(RCEDIT_EXE rcedit REQUIRED)
+
+    add_custom_command(TARGET godl POST_BUILD
+        COMMAND ${RCEDIT_EXE} $<TARGET_FILE:godl>
+        --set-icon ${CMAKE_CURRENT_SOURCE_DIR}/godl.ico
     )
 endif()
 
