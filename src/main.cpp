@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
     QApplication::setApplicationName(QStringLiteral("godl"));
     QApplication::setDesktopFileName(QStringLiteral("org.fishy.godl"));
     QIcon::setFallbackSearchPaths(QIcon::fallbackSearchPaths() << ":/");
-    app.setWindowIcon(QIcon::fromTheme("icon"));
+    app.setWindowIcon(QIcon::fromTheme("icon2"));
 #ifdef Q_OS_LINUX
     QApplication::setStyle(QStringLiteral("Breeze"));
     if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
