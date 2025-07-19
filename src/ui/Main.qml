@@ -75,12 +75,11 @@ StatefulApp.StatefulWindow {
             Layout.fillWidth: true
         }
 
-        Button {
+        ToolButton {
             id: notificationPopupToggle
 
             checkable: true
             checked: notificationPopup.visible
-            flat: true
             icon.name: "download"
 
             onCheckedChanged: if (checked) {
@@ -92,11 +91,11 @@ StatefulApp.StatefulWindow {
             Popup {
                 id: notificationPopup
 
-                property real wantedHeight
+                property bool visible2
 
                 closePolicy: Popup.NoAutoClose
                 // this is so cursed... but it works
-                height: wantedHeight == -1 ? (visible ? notificationCardsScroll.height + padding * 2.0 : 0.0) : wantedHeight
+                height: visible2 ? notificationCardsScroll.height + padding * 2.0 : 0
                 rightPadding: 0
                 width: Math.min(Kirigami.Units.gridUnit * 20.0, Math.round(root.width / 2))
                 x: parent.width - width
@@ -110,15 +109,15 @@ StatefulApp.StatefulWindow {
                     }
                 }
 
-                onAboutToHide: wantedHeight = 0
-                onAboutToShow: wantedHeight = -1
+                onAboutToHide: visible2 = false
+                onAboutToShow: visible2 = true
 
                 ScrollView {
                     id: notificationCardsScroll
 
                     ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
                     clip: true
-                    height: Math.min(notificationCards.height + notificationPopup.padding * 2.0, Math.min(Kirigami.Units.gridUnit * 15.0, Math.round(root.height / 2)))
+                    height: Kirigami.Units.gridUnit * 15
                     width: notificationPopup.availableWidth
 
                     ColumnLayout {
