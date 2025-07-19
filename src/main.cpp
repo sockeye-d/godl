@@ -18,6 +18,7 @@
 #include "configsignals.h"
 #endif
 #include <QDesktopServices>
+#include <QIconEngine>
 #include <QMenuBar>
 #include <QWindow>
 #include <QtSystemDetection>
@@ -91,13 +92,14 @@ int main(int argc, char *argv[])
 {
     KIconTheme::initTheme();
     QApplication app(argc, argv);
+    app.setWindowIcon(QIcon::fromTheme("godl"));
+
     KLocalizedString::setApplicationDomain("godl");
     QApplication::setOrganizationName(QStringLiteral("fishy"));
     QApplication::setOrganizationDomain(QStringLiteral("fishy.org"));
     QApplication::setApplicationName(QStringLiteral("godl"));
     QApplication::setDesktopFileName(QStringLiteral("org.fishy.godl"));
     QIcon::setFallbackSearchPaths(QIcon::fallbackSearchPaths() << ":/");
-    app.setWindowIcon(QIcon::fromTheme("icon2"));
 #ifdef Q_OS_LINUX
     QApplication::setStyle(QStringLiteral("Breeze"));
     if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {

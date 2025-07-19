@@ -1,6 +1,12 @@
 find_package(Qt6 REQUIRED COMPONENTS Core)
 
-qt_add_executable(godl)
+if (LINUX)
+    qt_add_executable(godl)
+elseif(WIN32)
+    qt_add_executable(godl ${CMAKE_CURRENT_SOURCE_DIR}/icon.ico)
+else()
+    qt_add_executable(godl)
+endif()
 
 kconfig_add_kcfg_files(config_SRCS config.kcfgc GENERATE_MOC)
 

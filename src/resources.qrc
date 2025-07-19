@@ -6,7 +6,6 @@
         <file>templates/default/icon.svg</file>
         <file>templates/default/project.godot</file>
         <file>templates/default/metatemplate.json</file>
-        <file>icon.svg</file>
-        <file>icon2.svg</file>
+        <file>godl.svg</file>
     </qresource>
 </RCC>
