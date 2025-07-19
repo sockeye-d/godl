@@ -27,7 +27,6 @@ Kirigami.ScrollablePage {
             "name": formName.text
         };
         setupReplacements();
-        console.log(JSON.stringify(replacements));
         ProjectTemplates.createProject(templateSelector.currentValue, projectLocation.currentText, replacements);
         ProjectsRegistry.import(projectLocation.currentText);
         ProjectsRegistry.model.filter = formName.text;

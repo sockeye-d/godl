@@ -83,8 +83,6 @@ FormCard.FormCard {
 
                 Kirigami.ActionTextField {
                     text: item.modelData
-
-                    // Layout.fillWidth: true
                     width: item.width - FormCard.FormCardUnits.horizontalPadding * 2
                     x: FormCard.FormCardUnits.horizontalPadding
 

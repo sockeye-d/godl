@@ -34,7 +34,6 @@ Kirigami.Page {
         }
 
         source = `${VersionRegistry.resolveSourceUrl(root.rawRepo)}/releases?per_page=${requestCount}`;
-        console.log(source);
         request.execute([Qt.url(source)]);
     }
 
@@ -182,7 +181,6 @@ Kirigami.Page {
         }
         onFinished: result => {
             lastResult = result[0];
-            console.log("got result");
             currentPage = 0;
             resultList.fullReleases = releases;
             hasContent = true;
@@ -195,20 +193,12 @@ Kirigami.Page {
         property string body
         property string created_at
 
-        // contentHeight: label.implicitHeight + Kirigami.Units.gridUnit * 10
-        // height: root.height
-        // padding: Kirigami.Units.largeSpacing
-        // width: root.width
-        // y: root.padding
         implicitHeight: root.height - y
 
         Kirigami.SelectableLabel {
             id: label
 
             Layout.fillWidth: true
-
-            // clip: true
-            // Layout.fillHeight: true
             bottomPadding: Kirigami.Units.largeSpacing
             text: new Date(patchNotesSheet.created_at).toLocaleString() + "\n\n" + patchNotesSheet.body
             textFormat: Text.MarkdownText
@@ -299,7 +289,6 @@ Kirigami.Page {
                         text: i18n("Download")
 
                         onTriggered: {
-                            // dlDialog.close()
                             dl.download(name, dlDialog.tagName, Qt.url(browser_download_url), root.rawRepo);
                         }
                     }
@@ -356,8 +345,6 @@ Kirigami.Page {
                 }
 
                 Layout.fillWidth: true
-                // cacheBuffer: 100000
-                // cellWidth: width / Math.max(1, Math.round(root.width / (Kirigami.Units.gridUnit * 30)))
                 clip: true
                 leftMargin: 0
                 model: fullReleases.filter(el => filterText === "" || el.tag_name.indexOf(filterText) !== -1).filter(getFilter("stable")).filter(getFilter("dev")).filter(getFilter("alpha")).filter(getFilter("beta")).filter(getFilter("rc"))
@@ -375,8 +362,6 @@ Kirigami.Page {
 
                     banner.title: tag_name
 
-                    // height: resultList.cellHeight - Kirigami.Units.largeSpacing
-                    // width: resultList.cellWidth - Kirigami.Units.largeSpacing
                     actions: [
                         Kirigami.Action {
                             icon.name: "document-preview"
@@ -421,7 +406,6 @@ Kirigami.Page {
                         border.color: Kirigami.Theme.positiveTextColor
                         border.width: 1
                         color: "transparent"
-                        // opacity: 0.5
                         radius: parent.background.radius
                         visible: VersionRegistry.downloaded(card.tag_name, root.rawRepo) || (update && !update)
 
@@ -473,5 +457,4 @@ Kirigami.Page {
             visible: resultList.model.length === 0 && !request.running
         }
     }
-    // onCurrentPageChanged: progress.value = currentPage
 }

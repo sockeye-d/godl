@@ -11,8 +11,6 @@ Controls.Label {
     text: prefix + DateConverter.relativeFormat(dateTime) + postfix
 
     Controls.ToolTip {
-        // parent: cardLabel
-        // anchors.centerIn: cardLabel
         text: dateTime.toLocaleString()
         visible: ma.containsMouse
         x: 0

@@ -1,4 +1,3 @@
-// Includes relevant modules used by the QML
 import QtQuick
 import QtQuick.Layouts
 import Qt.labs.platform as Platform
@@ -13,9 +12,7 @@ import org.fishy.godl
 
 import "config" as Configuration
 
-// Provides basic features needed for all kirigami applications
 StatefulApp.StatefulWindow {
-    // Unique identifier to reference this object
     id: root
 
     property string text
@@ -30,8 +27,6 @@ StatefulApp.StatefulWindow {
         id: app
 
         configurationView: KirigamiSettings.ConfigurationView {
-
-            // window: root
             modules: [
                 KirigamiSettings.ConfigurationModule {
                     category: "general"
@@ -272,8 +267,6 @@ StatefulApp.StatefulWindow {
 
         actions: swipeView.children[swipeView.currentIndex].actions.concat(baseActions)
 
-        // title: swipeView.children[swipeView.currentIndex].title
-
         ActionGroup {
             id: actionGroup
 
@@ -313,28 +306,6 @@ StatefulApp.StatefulWindow {
     Component.onCompleted: {
         deferredComponent.createObject(root);
     }
-
-    // Platform.MenuBar {
-    //     Platform.Menu {
-    //         title: "Edit"
-
-    //         PlatformActionMenuItem {
-    //             action: root.application.action("options_configure")
-    //         }
-
-    //         PlatformActionMenuItem {
-    //             action: root.application.action("options_configure_keybinding")
-    //         }
-    //     }
-
-    //     Platform.Menu {
-    //         title: "Help"
-
-    //         PlatformActionMenuItem {
-    //             action: root.application.action("open_about_page")
-    //         }
-    //     }
-    // }
 
     Kirigami.ApplicationWindow {
         id: aboutPage

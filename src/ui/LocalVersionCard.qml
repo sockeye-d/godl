@@ -46,10 +46,6 @@ Kirigami.Card {
             onTriggered: VersionRegistry.removeVersion(root.modelData)
         }
     ]
-
-    // contentItem: Controls.Label {
-    //     text: modelData.tag
-    // }
     contentItem: Item {
     }
 

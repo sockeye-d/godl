@@ -96,6 +96,8 @@ int main(int argc, char *argv[])
     QApplication::setOrganizationDomain(QStringLiteral("fishy.org"));
     QApplication::setApplicationName(QStringLiteral("godl"));
     QApplication::setDesktopFileName(QStringLiteral("org.fishy.godl"));
+    QIcon::setFallbackSearchPaths(QIcon::fallbackSearchPaths() << ":/");
+    app.setWindowIcon(QIcon::fromTheme("icon"));
 #ifdef Q_OS_LINUX
     QApplication::setStyle(QStringLiteral("Breeze"));
     if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
@@ -109,6 +111,7 @@ int main(int argc, char *argv[])
         QQuickStyle::setStyle(QStringLiteral("FluentWinUI3"));
     }
 #endif
+
 #if 0
     QFile file(QStandardPaths::standardLocations(QStandardPaths::TempLocation).constFirst()
                / "qrcfs.txt");
@@ -163,8 +166,8 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     Main::engine = &engine;
 
-    Main::engine->rootContext()->setContextObject(new KLocalizedContext(&engine));
-    Main::engine->loadFromModule(u"org.fishy.godl"_s, u"Main"_s);
+    engine.rootContext()->setContextObject(new KLocalizedContext(&engine));
+    engine.loadFromModule(u"org.fishy.godl"_s, u"Main"_s);
 
     if (engine.rootObjects().isEmpty()) {
         Main::engine = nullptr;
@@ -173,7 +176,8 @@ int main(int argc, char *argv[])
 
     auto return_code = app.exec();
 
-    Config::self()->save();
+    if (return_code == 0)
+        Config::self()->save();
 
     Main::engine = nullptr;
     return return_code;

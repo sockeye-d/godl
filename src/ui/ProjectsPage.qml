@@ -115,7 +115,6 @@ Kirigami.Page {
 
         Controls.Button {
             Layout.fillWidth: true
-            // flat: true
             icon.name: "edit-clear-all"
             text: i18n("Clear all")
             visible: loadErrorRepeater.visible && loadErrorRepeater.count >= 1
@@ -138,8 +137,6 @@ Kirigami.Page {
                 reuseItems: false
 
                 delegate: ProjectCard {
-                    // height: Kirigami.Units.gridUnit * 10
-                    // height: projectsView.cellHeight - Kirigami.Units.largeSpacing
                     width: projectsView.cellWidth - Kirigami.Units.largeSpacing
 
                     onHeightChanged: projectsView.cellHeight = Math.floor(height + Kirigami.Units.largeSpacing)
