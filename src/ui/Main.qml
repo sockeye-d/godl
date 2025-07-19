@@ -19,7 +19,7 @@ StatefulApp.StatefulWindow {
 
     height: Kirigami.Units.gridUnit * 30
     minimumHeight: Kirigami.Units.gridUnit * 10
-    minimumWidth: Kirigami.Units.gridUnit * 10
+    minimumWidth: Kirigami.Units.gridUnit * 30
     width: Kirigami.Units.gridUnit * 45
     windowName: i18nc("@title:window", "godl")
 

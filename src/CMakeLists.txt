@@ -1,12 +1,6 @@
 find_package(Qt6 REQUIRED COMPONENTS Core)
 
-if (LINUX)
-    qt_add_executable(godl)
-elseif(WIN32)
-    qt_add_executable(godl ${CMAKE_CURRENT_SOURCE_DIR}/godl.ico)
-else()
-    qt_add_executable(godl)
-endif()
+qt_add_executable(godl)
 
 kconfig_add_kcfg_files(config_SRCS config.kcfgc GENERATE_MOC)
 
@@ -69,6 +63,10 @@ qt_add_qml_module(godl
     SOURCES util/fileutil.h util/fileutil.cpp
     SOURCES template.h template.cpp
 )
+
+file(GLOB_RECURSE qml_modules CONFIGURE_DEPENDS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ui/*.qml)
+qt_add_resources(godl "qml_modules" PREFIX "/" FILES ${qml_modules})
+message(NOTICE "Adding the modules in ${qml_modules}")
 
 target_link_libraries(godl
     PRIVATE
@@ -163,6 +161,21 @@ if (WIN32)
         COMMAND ${RCEDIT_EXE} $<TARGET_FILE:godl>
         --set-icon ${CMAKE_CURRENT_SOURCE_DIR}/godl.ico
     )
+endif()
+
+if (LINUX)
+    set(DEPLOY_DIR ${CMAKE_BINARY_DIR}/deploy)
+    add_custom_command(TARGET godl POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${DEPLOY_DIR}
+    )
+
+    add_custom_command(TARGET godl POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:godl> ${DEPLOY_DIR}/$<TARGET_FILE_NAME:godl>
+    )
+
+    # add_custom_command(TARGET godl POST_BUILD
+    #     COMMAND ${CMAKE_COMMAND} -E copy_directory $<TARGET_FILE_DIR:godl>/org ${DEPLOY_DIR}/org
+    # )
 endif()
 
 target_include_directories(godl

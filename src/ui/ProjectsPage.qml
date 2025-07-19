@@ -131,15 +131,16 @@ Kirigami.Page {
                 id: projectsView
 
                 Layout.fillWidth: true
+                cacheBuffer: 2147483647
+                cellHeight: Math.max(...[...Array(projectsView.count).keys()].map(x => projectsView.itemAtIndex(x)?.height)) + Kirigami.Units.largeSpacing
                 cellWidth: Math.floor(width / Math.max(1, Math.round(root.width / (Kirigami.Units.gridUnit * 40))))
                 clip: true
                 model: ProjectsRegistry.model
-                reuseItems: false
+                reuseItems: true
 
                 delegate: ProjectCard {
                     width: projectsView.cellWidth - Kirigami.Units.largeSpacing
 
-                    onHeightChanged: projectsView.cellHeight = Math.floor(height + Kirigami.Units.largeSpacing)
                     onTagSelected: tag => ProjectsRegistry.model.filter = `tag:${tag}`
                 }
             }

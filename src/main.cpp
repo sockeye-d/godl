@@ -170,7 +170,7 @@ int main(int argc, char *argv[])
     Main::engine = &engine;
 
     engine.rootContext()->setContextObject(new KLocalizedContext(&engine));
-    engine.loadFromModule(u"org.fishy.godl"_s, u"Main"_s);
+    engine.load(QUrl("qrc:/org/fishy/godl/ui/Main.qml"));
 
     if (engine.rootObjects().isEmpty()) {
         Main::engine = nullptr;

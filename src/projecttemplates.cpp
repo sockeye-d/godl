@@ -142,7 +142,9 @@ QString ProjectTemplates::generateRandomName() const
                      * QRandomGenerator::global()->generateDouble()
                      * QRandomGenerator::global()->generateDouble()
                      * QRandomGenerator::global()->generateDouble()
-                     * QRandomGenerator::global()->generateDouble() * 30
+                     * QRandomGenerator::global()->generateDouble()
+                     * QRandomGenerator::global()->generateDouble()
+                     * QRandomGenerator::global()->generateDouble() * 60
                  + 2;
     for (int i = 0; i < length; i++) {
         result.append(random(segments));

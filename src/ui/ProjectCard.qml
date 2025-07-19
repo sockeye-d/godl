@@ -270,11 +270,20 @@ Kirigami.Card {
 
                 anchors.fill: parent
                 flat: true
-                icon.height: projectIcon.height - Kirigami.Units.largeSpacing
+                icon.height: 128
                 icon.name: "entry-edit"
-                icon.width: projectIcon.width - Kirigami.Units.largeSpacing
+                icon.width: 128
                 opacity: projectIconArea.containsMouse ? 1 : 0
 
+                // contentItem: Kirigami.ShadowedImage {
+                //     color: "transparent"
+                //     shadow.size: 64
+                //     shadow.xOffset: 5
+                //     shadow.yOffset: 5
+                //     source: IconConverter.path("entry-edit", 128)
+                //     sourceSize.height: 128
+                //     sourceSize.width: 128
+                // }
                 Behavior on opacity {
                     NumberAnimation {
                         duration: Kirigami.Units.veryLongDuration
@@ -287,14 +296,27 @@ Kirigami.Card {
                     iconPickerFileDialog.open();
                 }
 
-                Effects.RectangularShadow {
-                    anchors.fill: parent
-                    anchors.margins: Kirigami.Units.largeSpacing * 2
-                    blur: 64
-                    color: Kirigami.Theme.backgroundColor
-                    spread: 0
-                    z: -1
-                }
+                // Effects.RectangularShadow {
+                //     anchors.fill: parent
+                //     anchors.margins: Kirigami.Units.largeSpacing * 2
+                //     blur: 64
+                //     color: Kirigami.Theme.backgroundColor
+                //     spread: 0
+                //     z: -1
+                // }
+            }
+
+            Effects.MultiEffect {
+                anchors.fill: projectIconEditButton
+                blurMax: 24
+                blurMultiplier: 2
+                opacity: projectIconEditButton.opacity
+                shadowBlur: 1.0
+                shadowColor: "black"
+                shadowEnabled: true
+                shadowHorizontalOffset: 0
+                shadowVerticalOffset: 10
+                source: projectIconEditButton
             }
 
             MouseArea {

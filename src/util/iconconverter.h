@@ -19,6 +19,7 @@ public:
     }
 
     Q_INVOKABLE QString name(QIcon icon) { return icon.name(); }
+    Q_INVOKABLE QUrl path(QString name, int size) const;
 };
 
 #endif // ICONCONVERTER_H
