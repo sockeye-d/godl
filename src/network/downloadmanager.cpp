@@ -67,7 +67,9 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
         if (!archive->directory()->copyTo(dest)) {
             info->setStage(DownloadInfo::UnzipError);
         } else {
-            if (archive->directory()->entry(archive->directory()->entries().first())->isDirectory()) {
+            QThread::sleep(200ms);
+            if (archive->directory()->entry(archive->directory()->entries().first())->isDirectory()
+                && archive->directory()->entries().size() == 1) {
                 dest = dest / archive->directory()->entries().first();
             }
             auto entries = QDir(dest).entryInfoList(QDir::Files | QDir::Executable);
