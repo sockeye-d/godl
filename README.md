@@ -135,3 +135,19 @@ stuff and I ended up uninstalling it and just installing it through the package
 manager like I should have done to begin with.
 
 Linux builds are just a single executable in the `build/<target>/deploy` path.
+
+If you want the full experience, make a desktop entry like this one:
+
+```ini
+[Desktop Entry]
+Name=godl
+Exec={the executable}
+Icon=godl
+Type=Application
+Terminal=false
+Categories=Utility
+```
+
+and put it in `~/.local/share/applications/`,
+and also copy [godl.svg](src/godl.svg) to
+`/usr/share/icons/hicolor/scalable/apps/godl.svg` or similar.
