@@ -2,6 +2,10 @@
 
 [yeah yeah just skip to the installation](#installation-instructions)
 
+<p align=center>
+    <img width=128 alt="godl logo" src="https://github.com/sockeye-d/godl/blob/b98e3bd46a260c69a78c8e346d29c67909ccb2b7/src/godl.svg"/>
+</p>
+
 A version manager for Godot, written in QML/C++ with the Qt Quick libraries.
 
 ![The local versions page](assets/overview.png)
