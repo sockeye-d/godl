@@ -27,9 +27,6 @@ combobox)*
 ...including first-class support for forks:
 ![forks](assets/forks.png)
 
-*(note: I am in no way endorsing Blazium — they just happened to be a convenient
-fork)*
-
 ...your local versions:
 
 ![local versions](assets/local-versions.png)
