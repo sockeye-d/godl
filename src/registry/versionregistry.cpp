@@ -25,6 +25,7 @@ void VersionRegistry::removeVersion(GodotVersion *version)
     debug() << "attempted to remove" << *version;
     model()->remove(version);
     m_config->deleteGroup(version->assetName());
+    m_config->sync();
     auto path = QFileInfo(version->absolutePath()).path();
     debug() << "removing" << path;
     QDir(path).removeRecursively();

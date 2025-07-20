@@ -68,6 +68,10 @@ std::unique_ptr<KArchive> openArchive(const QString &filePath)
         archive = std::make_unique<KTar>(filePath);
     }
 
+    if (!archive) {
+        return nullptr;
+    }
+
     if (!archive->open(QIODevice::ReadWrite)) {
         return {};
     }

@@ -2,8 +2,11 @@
 #include <QDir>
 #include <QFile>
 #include <QFutureWatcher>
+#include <QMimeDatabase>
+#include <QMimeType>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QNtfsPermissionCheckGuard>
 #include <QUrl>
 #include <QtConcurrentRun>
 #include "macros.h"
@@ -38,6 +41,7 @@ DownloadInfo *DownloadManager::createDlInfo(const QString &assetName,
 
 void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString destFilePath)
 {
+    // TODO: clean up this spaghetti
     debug() << "Opening archive";
     info->setStage(DownloadInfo::Unzipping);
     info->setProgress(-1.0);
@@ -47,11 +51,40 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
         using namespace std::chrono_literals;
         auto archive = openArchive(sourceFilePath);
         if (!archive) {
-            debug() << "Failed to open archive at " << sourceFilePath;
-            info->setStage(DownloadInfo::UnzipError);
-            info->setError(i18n("Failed to unzip archive"));
-            promise.finish();
-            return;
+            const auto dl = QFileInfo(sourceFilePath);
+            if (dl.isExecutable()
+                || QMimeDatabase()
+                       .mimeTypeForFile(sourceFilePath)
+                       .inherits("application/x-executable")) {
+                debug() << "Detected uncompressed executable";
+
+#ifdef Q_OS_WIN
+                QNtfsPermissionCheckGuard permissionGuard;
+#endif
+                if (!dl.isExecutable()) {
+                    QFile(sourceFilePath).setPermissions(QFile::ExeOwner | dl.permissions());
+                }
+
+                const auto destName = dl.fileName();
+                const auto path = destFilePath / destName / dl.fileName();
+                QDir(destFilePath).mkpath(destName);
+                if (!QFile::copy(sourceFilePath, path)) {
+                    debug() << "failed to copy executable";
+                }
+                promise.addResult(destName / dl.fileName());
+
+                if (!Config::cacheVersions())
+                    QFile(sourceFilePath).remove();
+
+                promise.finish();
+                return;
+            } else {
+                debug() << "Failed to open archive at " << sourceFilePath;
+                info->setStage(DownloadInfo::UnzipError);
+                info->setError(i18n("Failed to unzip archive"));
+                promise.finish();
+                return;
+            }
         }
         auto dest = destFilePath;
         debug() << archive->directory()->entries().size();
