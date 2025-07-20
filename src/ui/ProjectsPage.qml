@@ -25,6 +25,14 @@ Kirigami.Page {
                 text: ProjectsRegistry.model.filter
 
                 onTextChanged: ProjectsRegistry.model.filter = textFilter.text
+
+                Connections {
+                    function onTriggered() {
+                        ProjectsRegistry.model.filter = "";
+                    }
+
+                    target: textFilter.rightActions[0]
+                }
             }
         },
         Kirigami.Action {
@@ -87,7 +95,7 @@ Kirigami.Page {
 
             model: ProjectsRegistry.loadErrors
 
-            delegate: Kirigami.InlineMessage {
+            Kirigami.InlineMessage {
                 id: message
 
                 required property int index
@@ -117,9 +125,9 @@ Kirigami.Page {
             Layout.fillWidth: true
             icon.name: "edit-clear-all"
             text: i18n("Clear all")
-            visible: loadErrorRepeater.visible && loadErrorRepeater.count >= 1
+            visible: [...Array(loadErrorRepeater.count).keys()].some(x => loadErrorRepeater.itemAt(x).visible)
 
-            onClicked: loadErrorRepeater.model = []
+            onClicked: [...Array(loadErrorRepeater.count).keys()].map(x => loadErrorRepeater.itemAt(x).visible = false)
         }
 
         Controls.ScrollView {
@@ -143,6 +151,16 @@ Kirigami.Page {
 
                     onTagSelected: tag => ProjectsRegistry.model.filter = `tag:${tag}`
                 }
+
+                Connections {
+                    function onFilterChanged() {
+                        // ????
+                        projectsView.width += 1;
+                        projectsView.width -= 1;
+                    }
+
+                    target: ProjectsRegistry.model
+                }
             }
         }
     }
@@ -153,7 +171,7 @@ Kirigami.Page {
         // @disable-check M17
         icon.name: "edit-none"
         text: i18n("No projects have been imported")
-        visible: projectsView.count === 0
+        visible: projectsView.count === 0 && ProjectsRegistry.model.filter === ""
 
         KirigamiAddons.SegmentedButton {
             Layout.alignment: Qt.AlignHCenter
@@ -173,6 +191,14 @@ Kirigami.Page {
                 }
             ]
         }
+    }
+
+    Kirigami.PlaceholderMessage {
+        anchors.centerIn: parent
+        // @disable-check M17
+        icon.name: "edit-none"
+        text: i18n("No projects matched your query")
+        visible: projectsView.count === 0 && ProjectsRegistry.model.filter !== ""
     }
 
     BetterFileDialog {

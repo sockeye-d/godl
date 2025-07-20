@@ -95,11 +95,14 @@ void ProjectTemplates::rescan()
 
 void ProjectTemplates::extractDefault()
 {
-    if (QDir(Config::templateLocation() / "default").exists()) {
-        return;
+    const auto templates = getEntries(":/templates/", QDir::Dirs);
+    for (const auto &t : templates) {
+        if (QDir(Config::templateLocation() / t.fileName()).exists()) {
+            continue;
+        }
+        debug() << "Extracting template" << t;
+        copyRecursive(":/templates" / t.fileName(), Config::templateLocation() / t.fileName());
     }
-    debug() << "Extracting templates";
-    copyRecursive(":/templates/default", Config::templateLocation() / "default");
 }
 
 void ProjectTemplates::createProject(const QString &name,

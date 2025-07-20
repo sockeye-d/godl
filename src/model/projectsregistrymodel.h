@@ -2,6 +2,7 @@
 #define PROJECTSREGISTRYMODEL_H
 
 #include "internalprojectsregistrymodel.h"
+#include "util.h"
 
 // I'm going to <omitted> lose it
 class ProjectsRegistry;
@@ -70,6 +71,7 @@ public:
         beginFilterChange();
         m_filter = filter;
         invalidateFilter();
+        resort();
         Q_EMIT filterChanged();
     }
 

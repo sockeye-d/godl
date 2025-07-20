@@ -3,6 +3,33 @@
 #include <qnamespace.h>
 #include <qtimer.h>
 
+namespace {
+int sortFilterPrecedence(const ProjectsRegistryModel *t, const GodotProject *item)
+{
+    if (t->filter().startsWith("tag:")) {
+        auto tagFilter = t->filter().sliced(4);
+        const QStringList &tags = item->tags();
+        for (const QString &tag : tags) {
+            if (tag == tagFilter) {
+                return 4;
+            }
+        }
+        return 0;
+    }
+    if (t->filterCaseInsensitive()) {
+        if (item->name().toLower().contains(t->filter().toLower())) {
+            return 3;
+        }
+        return 2;
+    } else {
+        if (item->name().contains(t->filter())) {
+            return 1;
+        }
+        return 0;
+    }
+}
+} // namespace
+
 ProjectsRegistryModel::ProjectsRegistryModel(InternalProjectsRegistryModel *model, QObject *parent)
     : QSortFilterProxyModel{parent}
 {
@@ -71,6 +98,14 @@ bool ProjectsRegistryModel::lessThan(const QModelIndex &source_left,
 
     if (a->favorite() && !b->favorite()) {
         return ascending();
+    }
+
+    if (!filter().isEmpty()) {
+        auto l = sortFilterPrecedence(this, a);
+        auto r = sortFilterPrecedence(this, b);
+        if (r > l) {
+            return !ascending();
+        }
     }
 
     if (sortBy() == ModifiedDate) {

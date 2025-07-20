@@ -157,7 +157,10 @@ int main(int argc, char *argv[])
     qmlRegisterType<QAction>("org.fishy.godl.qwidgets", 0, 1, "QAction");
     qmlRegisterType<QIcon>("org.fishy.godl.qwidgets", 0, 1, "QIcon");
     qmlRegisterType<ProjectsRegistryModel>("org.fishy.godl", 0, 1, "ProjectsRegistryModel");
-    qmlRegisterType<Template>("org.fishy.godl", 0, 1, "projectTemplate");
+    qmlRegisterType<Template>("org.fishy.godl",
+                              0,
+                              1,
+                              "projectTemplate"); // clazy:exclude=lowercase-qml-type-name
     registerSingletonPtr("org.fishy.godl", 0, 1, IconConverter);
     registerSingletonPtr("org.fishy.godl", 0, 1, DateConverter);
     registerSingletonPtr("org.fishy.godl", 0, 1, ProjectsRegistry);

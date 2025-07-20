@@ -98,7 +98,7 @@ Kirigami.ScrollablePage {
         Repeater {
             model: JSON.parse(root.activeTemplate.meta).replacements
 
-            delegate: Item {
+            Item {
                 id: item
 
                 property Item component

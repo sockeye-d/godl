@@ -6,6 +6,12 @@
         <file>templates/default/icon.svg</file>
         <file>templates/default/project.godot</file>
         <file>templates/default/metatemplate.json</file>
+        <file>templates/default (Godot 3)/.gitattributes</file>
+        <file>templates/default (Godot 3)/.gitignore</file>
+        <file>templates/default (Godot 3)/godlproject</file>
+        <file>templates/default (Godot 3)/icon.png</file>
+        <file>templates/default (Godot 3)/project.godot</file>
+        <file>templates/default (Godot 3)/metatemplate.json</file>
         <file>godl.svg</file>
     </qresource>
 </RCC>

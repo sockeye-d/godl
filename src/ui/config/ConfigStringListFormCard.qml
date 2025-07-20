@@ -72,7 +72,7 @@ FormCard.FormCard {
         Repeater {
             id: repeater
 
-            delegate: Item {
+            Item {
                 id: item
 
                 required property int index

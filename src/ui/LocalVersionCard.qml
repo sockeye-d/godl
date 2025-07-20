@@ -84,7 +84,7 @@ Kirigami.Card {
                     }
                 ]
 
-                delegate: RowLayout {
+                RowLayout {
                     id: expansionsDelegate
 
                     required property string description

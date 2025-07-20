@@ -132,7 +132,7 @@ StatefulApp.StatefulWindow {
                             Layout.fillWidth: true
                             model: dl.model
 
-                            delegate: Kirigami.Card {
+                            Kirigami.Card {
                                 id: card
 
                                 required property string assetName

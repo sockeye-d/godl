@@ -1,0 +1,33 @@
+{
+    "ignore": [],
+    "replacements": [
+        {
+            "type": "header",
+            "label": "Project metadata"
+        },
+        {
+            "type": "multistring",
+            "label": "Description",
+            "template": "description"
+        },
+        {
+            "type": "header",
+            "label": "Project settings"
+        },
+        {
+            "type": "enum",
+            "label": "Renderer",
+            "template": "renderer",
+            "values": [
+                {
+                    "label": "GLES3",
+                    "key": "GLES3"
+                },
+                {
+                    "label": "GLES2",
+                    "key": "GLES2"
+                }
+            ]
+        }
+    ]
+}

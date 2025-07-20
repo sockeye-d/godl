@@ -105,6 +105,7 @@ ProjectsRegistry::ProjectsRegistry(QObject *parent)
         auto proj = load(path);
         if (!proj) {
             m_loadErrors.append(path);
+            debug() << "Couldn't find project at" << path;
             config().deleteGroup(path);
         }
     }
@@ -113,6 +114,9 @@ ProjectsRegistry::ProjectsRegistry(QObject *parent)
 
 KConfig &ProjectsRegistry::config()
 {
-    static KConfig config("godlprojects", KConfig::SimpleConfig);
+    static KConfig config(QStandardPaths::standardLocations(QStandardPaths::AppDataLocation)
+                                  .constFirst()
+                              / "godlprojects",
+                          KConfig::SimpleConfig);
     return config;
 }

@@ -220,7 +220,7 @@ Kirigami.Card {
                     Repeater {
                         model: root.modelData.tags
 
-                        delegate: Kirigami.Chip {
+                        Kirigami.Chip {
                             required property int index
                             required property string modelData
 
@@ -275,15 +275,6 @@ Kirigami.Card {
                 icon.width: 128
                 opacity: projectIconArea.containsMouse ? 1 : 0
 
-                // contentItem: Kirigami.ShadowedImage {
-                //     color: "transparent"
-                //     shadow.size: 64
-                //     shadow.xOffset: 5
-                //     shadow.yOffset: 5
-                //     source: IconConverter.path("entry-edit", 128)
-                //     sourceSize.height: 128
-                //     sourceSize.width: 128
-                // }
                 Behavior on opacity {
                     NumberAnimation {
                         duration: Kirigami.Units.veryLongDuration
@@ -295,15 +286,6 @@ Kirigami.Card {
                     iconPickerFileDialog.startDirectory = root.modelData.iconDirectory;
                     iconPickerFileDialog.open();
                 }
-
-                // Effects.RectangularShadow {
-                //     anchors.fill: parent
-                //     anchors.margins: Kirigami.Units.largeSpacing * 2
-                //     blur: 64
-                //     color: Kirigami.Theme.backgroundColor
-                //     spread: 0
-                //     z: -1
-                // }
             }
 
             Effects.MultiEffect {
@@ -312,9 +294,10 @@ Kirigami.Card {
                 blurMultiplier: 2
                 opacity: projectIconEditButton.opacity
                 shadowBlur: 1.0
-                shadowColor: "black"
+                shadowColor: Kirigami.Theme.backgroundColor
                 shadowEnabled: true
                 shadowHorizontalOffset: 0
+                shadowOpacity: 1.0
                 shadowVerticalOffset: 10
                 source: projectIconEditButton
             }
