@@ -10,10 +10,10 @@ def main [release_cycle: string = "stable", zip_dir: string = "deploy"] {
     let build_dir: string = glob build/* | first
     print $"Assuming build directory is ($build_dir)"
 
-    let deploy_dir = $"($build_dir)\\bin"
+    let deploy_dir = $"($build_dir)\\deploy"
     print $"Zipping files in ($deploy_dir)"
 
-    let zip_name = $"godl-(git describe --tags --abbrev=0)-($release_cycle)-win64"
+    let zip_name = $"godl-(git describe --tags --abbrev=0)-($release_cycle)-linux"
 
     print $zip_name
 
