@@ -13,13 +13,13 @@ def main [release_cycle: string = "stable", zip_dir: string = "deploy"] {
     let deploy_dir = $"($build_dir)\\deploy"
     print $"Zipping files in ($deploy_dir)"
 
-    let zip_name: string = $zip_dir | path join $"godl-(git describe --tags --abbrev=0)-($release_cycle)-linux"
+    let zip_name: string = $zip_dir | path join $"godl-(git describe --tags --abbrev=0)-($release_cycle)-linux.zip"
 
     print $zip_name
 
     let files = glob $"($deploy_dir | str replace --all '\' '/')/*"
 
-    7z a $"($zip_name).zip" ...$files
+    7z a $zip_name ...$files
 
     if ((input -d N "Upload to GitHub? [y/N] " | str downcase) == "y") {
         if (which 7z | is-empty) {
