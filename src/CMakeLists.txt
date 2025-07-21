@@ -150,7 +150,7 @@ if (WIN32)
     add_custom_command(TARGET godl POST_BUILD
         COMMAND ${WINDEPLOYQT_EXE}
         --qmldir ${CMAKE_CURRENT_BINARY_DIR}
-        --qmlimport ${CMAKE_CURRENT_BINARY_DIR}
+        # --qmlimport ${CMAKE_CURRENT_BINARY_DIR}
         --no-translations
         $<TARGET_FILE:godl>
     )
