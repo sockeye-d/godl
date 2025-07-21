@@ -5,7 +5,7 @@ def main [release_cycle: string = "stable", zip_dir: string = "deploy"] {
         exit 1
     }
 
-    let current_dir = pwd
+    let current_dir: string = pwd
 
     let build_dir: string = glob build/* | first
     print $"Assuming build directory is ($build_dir)"
@@ -13,11 +13,11 @@ def main [release_cycle: string = "stable", zip_dir: string = "deploy"] {
     let deploy_dir = $"($build_dir)\\deploy"
     print $"Zipping files in ($deploy_dir)"
 
-    let zip_name = $"godl-(git describe --tags --abbrev=0)-($release_cycle)-linux"
+    let zip_name: string = $zip_dir | path join $"godl-(git describe --tags --abbrev=0)-($release_cycle)-linux"
 
     print $zip_name
 
-    let files = glob ($zip_dir | path join $"($deploy_dir | str replace --all '\' '/')/*")
+    let files = glob $"($deploy_dir | str replace --all '\' '/')/*"
 
     7z a $"($zip_name).zip" ...$files
 

@@ -13,7 +13,7 @@ def main [release_cycle: string = "stable", zip_dir: string = "deploy"] {
     let deploy_dir = $"($build_dir)\\bin"
     print $"Zipping files in ($deploy_dir)"
 
-    let zip_name = $"godl-(git describe --tags --abbrev=0)-($release_cycle)-win64"
+    let zip_name = $zip_dir | path join $"godl-(git describe --tags --abbrev=0)-($release_cycle)-win64"
 
     print $zip_name
 
