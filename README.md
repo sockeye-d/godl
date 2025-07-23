@@ -55,10 +55,117 @@ You'll need to install these dependencies (at least — I haven't tried running 
 on a non-Plasma desktop, so this is just what I got from ldd)
 
 - kdeclarative
+- kirigami-addons
 - breeze-icons
 - kirigami
+- qqc2-desktop-style
 
 Then, you should be able to download, extract, and run the executable.
+
+## Templates
+
+The create project page operates on templates, which you can find in
+`~/.local/share/fishy/godl/templates` (Linux)
+`%AppData%\fishy\godl\templates` (Windows).
+You'll find the default template there, which if deleted will be regenerated on
+app startup, but you can also create a new template by creating a new folder and
+including a `metatemplate.json` file in it.
+
+The metatemplate file defines which keys are available for replacement and how
+they should be shown to the user. The basic structure is
+
+```json
+{
+  "replacements": [
+    // ...
+  ]
+}
+```
+
+A replacement key is an object that contains the following keys:
+
+```json
+{
+  "type": /* ... */,
+  "label": /* ... */
+}
+```
+
+The available types are `header`, `string`, `multistring`, and `enum`. All the
+types except `header` get another key called `template`; this is the key that
+will get replaced in the source files of the template. For example, if you had
+this file:
+
+```gdscript
+extends Node
+
+func _ready() -> void:
+  print("{node_name}")
+```
+
+and a metatemplate like this:
+
+```json
+{
+  "replacements": [
+    {
+      "type": "string",
+      "label": "Node name",
+      "template": "node_name"
+    }
+  ]
+}
+```
+
+when the template gets generated, the `{node_name}` in the script will be
+replaced with whatever the user typed into the field labeled "Node name".
+
+`multistring` is like `string`, except it gets a
+[TextArea](https://doc.qt.io/qt-6/qml-qtquick-controls-textarea.html) instead of
+a [TextField](https://doc.qt.io/qt-6/qml-qtquick-controls-textfield.html) so you
+can enter multi-line strings.
+
+`enum` allows you to define a ComboBox. It has a structure like this:
+
+```json
+{
+  "type": "enum",
+  "label": /* ... */,
+  "template": /* ... */,
+  "values": [
+    {
+      "label": /* the text that will be shown to the user */,
+      "key": /* the value that will be inserted when the template gets generated */
+    }
+  ]
+}
+```
+
+For example, a widget for selecting the renderer of a Godot 4 project:
+
+```json
+{
+    "type": "enum",
+    "label": "Renderer",
+    "template": "renderer",
+    "values": [
+        {
+            "label": "Forward+",
+            "key": "forward_plus"
+        },
+        {
+            "label": "Mobile",
+            "key": "mobile"
+        },
+        {
+            "label": "Compatibility",
+            "key": "gl_compatibility"
+        }
+    ]
+}
+```
+
+You can look at the default templates at [src/templates](src/templates/).
 
 ## Building from source
 
@@ -82,7 +189,7 @@ But basically,
 2. Make sure you've activated the craft environment!
 3. Set the Qt version to 6.9.1 if it's still at 6.8.3 with
 `craft --set version=6.9.1 libs/qt6`
-4. Install libs/qt6 with
+4. Install libs/qt6 and dependencies with
 `craft libs/qt6 kirigami kirigami-addons extra-cmake-modules karchive kiconthemes
 kconfigwidgets qqc2-desktop-style qqc2-breeze-style`, and make sure to set MinGW
 as the default compiler, not MSVC
@@ -121,6 +228,7 @@ You'll need to install
 - breeze-icons
 - kirigami
 - qtcreator
+- qqc2-desktop-style
 
 (I think)
 
