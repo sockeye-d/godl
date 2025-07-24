@@ -138,9 +138,14 @@ Kirigami.Page {
             GridView {
                 id: projectsView
 
+                property int recomputeHeight: 0
+
                 Layout.fillWidth: true
                 cacheBuffer: 2147483647
-                cellHeight: Math.max(...[...Array(projectsView.count).keys()].map(x => projectsView.itemAtIndex(x)?.height)) + Kirigami.Units.largeSpacing
+                cellHeight: {
+                    recomputeHeight;
+                    return Math.max(...[...Array(projectsView.count).keys()].map(x => projectsView.itemAtIndex(x)?.height)) + Kirigami.Units.largeSpacing;
+                }
                 cellWidth: Math.floor(width / Math.max(1, Math.round(root.width / (Kirigami.Units.gridUnit * 40))))
                 clip: true
                 model: ProjectsRegistry.model
@@ -152,6 +157,8 @@ Kirigami.Page {
                     onTagSelected: tag => ProjectsRegistry.model.filter = `tag:${tag}`
                 }
 
+                onCountChanged: recomputeHeightTimer.restart()
+
                 Connections {
                     function onFilterChanged() {
                         // ????
@@ -160,6 +167,14 @@ Kirigami.Page {
                     }
 
                     target: ProjectsRegistry.model
+                }
+
+                Timer {
+                    id: recomputeHeightTimer
+
+                    interval: 0
+
+                    onTriggered: projectsView.recomputeHeight++
                 }
             }
         }
@@ -171,7 +186,7 @@ Kirigami.Page {
         // @disable-check M17
         icon.name: "edit-none"
         text: i18n("No projects have been imported")
-        visible: projectsView.count === 0 && ProjectsRegistry.model.filter === ""
+        visible: projectsView.count === 0 && ProjectsRegistry.model.filter === "" && !ProjectsRegistry.scanning
 
         KirigamiAddons.SegmentedButton {
             Layout.alignment: Qt.AlignHCenter
@@ -199,6 +214,12 @@ Kirigami.Page {
         icon.name: "edit-none"
         text: i18n("No projects matched your query")
         visible: projectsView.count === 0 && ProjectsRegistry.model.filter !== ""
+    }
+
+    Kirigami.LoadingPlaceholder {
+        anchors.centerIn: parent
+        text: i18n("Scanning...")
+        visible: ProjectsRegistry.scanning
     }
 
     BetterFileDialog {

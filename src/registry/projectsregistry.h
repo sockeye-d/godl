@@ -13,6 +13,22 @@ class ProjectsRegistry : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(ProjectsRegistryModel *model READ model CONSTANT FINAL)
+private:
+    Q_PROPERTY(bool scanning READ scanning NOTIFY scanningChanged FINAL)
+    bool m_scanning = false;
+
+    void setScanning(bool scanning)
+    {
+        if (m_scanning == scanning)
+            return;
+        m_scanning = scanning;
+        Q_EMIT scanningChanged();
+    }
+
+public:
+    bool scanning() const { return m_scanning; }
+
+    Q_SIGNAL void scanningChanged();
 
     // KConfig m_config = KConfig("godlprojects", KConfig::SimpleConfig);
     static KConfig &config();
@@ -41,9 +57,9 @@ public:
      * @param filepath
      * @return 
      */
-    GodotProject *load(const QString filepath);
+    GodotProject *load(const QString filepath, bool invalidate = true);
     Q_INVOKABLE void scan(const QString directory);
-    Q_INVOKABLE void import(const QString filepath);
+    Q_INVOKABLE void import(const QString filepath, bool invalidate = true);
     Q_INVOKABLE void remove(GodotProject *project, bool moveToTrash);
     Q_INVOKABLE void setFavorite(const GodotProject *project, bool favorite);
     Q_INVOKABLE bool favorite(const GodotProject *project);

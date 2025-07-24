@@ -22,14 +22,14 @@ void VersionRegistry::registerVersion(GodotVersion *version)
 
 void VersionRegistry::removeVersion(GodotVersion *version)
 {
-    debug() << "attempted to remove" << *version;
+    print_debug() << "attempted to remove" << *version;
     model()->remove(version);
     m_config->deleteGroup(version->assetName());
     m_config->sync();
     auto path = QFileInfo(version->absolutePath()).path();
-    debug() << "removing" << path;
+    print_debug() << "removing" << path;
     QDir(path).removeRecursively();
-    debug() << "done removing" << path;
+    print_debug() << "done removing" << path;
     Q_EMIT downloadedChanged();
     Q_EMIT hasVersionChanged();
     version->deleteLater();
@@ -136,7 +136,7 @@ QStringList VersionRegistry::detectLeakedVersions() const
 void VersionRegistry::deleteLeakedVersions(QStringList versions) const
 {
     for (const QString &version : versions) {
-        debug() << "Removing" << version;
+        print_debug() << "Removing" << version;
         QDir(version).removeRecursively();
     }
 }

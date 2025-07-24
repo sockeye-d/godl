@@ -62,6 +62,8 @@ qt_add_qml_module(godl
     SOURCES projecttemplates.h projecttemplates.cpp
     SOURCES util/fileutil.h util/fileutil.cpp
     SOURCES template.h template.cpp
+    SOURCES cli/installcommand.h cli/installcommand.cpp
+    SOURCES cli/parser.h cli/parser.cpp
 )
 
 file(GLOB_RECURSE qml_modules CONFIGURE_DEPENDS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ui/*.qml)

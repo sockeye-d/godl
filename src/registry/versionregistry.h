@@ -27,8 +27,11 @@ class VersionRegistry : public QObject
 
     void add(GodotVersion *version);
 
-    const QString location() const { return Config::godotLocation() / "godlversions"; }
+public:
+    const QString location() const { return locationDirectory() / "godlversions"; }
+    const QString locationDirectory() const { return Config::godotLocation(); }
 
+private:
     void refreshConfigFile()
     {
         m_config = KSharedConfig::openConfig(location(), KSharedConfig::SimpleConfig);

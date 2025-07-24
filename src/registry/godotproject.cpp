@@ -39,16 +39,21 @@ GodotProject *loadInternal(const QString &path)
     if (!file.exists()) {
         return nullptr;
     }
+    QFileInfo preferredFile(file.path() / "godlproject");
+    if (preferredFile.exists()) {
+        file = preferredFile;
+    }
 
     if (file.fileName() == "godlproject") {
         auto project = new GodotProject();
-        project->deserialize(KConfig(path, KConfig::SimpleConfig).group(""), path);
+        project->deserialize(KConfig(file.filePath(), KConfig::SimpleConfig).group(""),
+                             file.filePath());
         return project;
     }
 
     if (file.fileName() == "project.godot") {
         auto project = new GodotProject();
-        auto s = QSettings(path, QSettings::IniFormat);
+        auto s = QSettings(file.filePath(), QSettings::IniFormat);
         project->setName(s.value("application/config/name").toString());
         project->setDescription(s.value("application/config/description").toString());
         project->setTags(getArray(s, "application/config/tags"));
@@ -136,7 +141,7 @@ GodotProject::OpenError GodotProject::open() const
     QString cmd = v->cmd()
                       .replace("{executable}", v->absolutePath())
                       .replace("{projectPath}", projectPath());
-    debug() << "Starting" << cmd;
+    print_debug() << "Starting" << cmd;
     QStringList args = QProcess::splitCommand(cmd);
     QString exe = args.first();
     args.removeFirst();

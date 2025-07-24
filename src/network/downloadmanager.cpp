@@ -7,6 +7,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QNtfsPermissionCheckGuard>
+#include <QRegularExpression>
 #include <QUrl>
 #include <QtConcurrentRun>
 #include "macros.h"
@@ -18,6 +19,20 @@
 #include <KTar>
 #include <KZip>
 #include <config.h>
+
+namespace {
+QString sanitize(QString input, const QString &withWhat = "_")
+{
+    static QRegularExpression re{"[<!>:\"\\/\\|?*]", QRegularExpression::MultilineOption};
+    return input.replace(re, withWhat);
+}
+
+QString getDownloadLocation(const DownloadInfo &info)
+{
+    return Config::godotLocation() / QUuid::createUuid().toString(QUuid::WithoutBraces) % "-"
+           % sanitize(info.assetName());
+}
+} // namespace
 
 DownloadInfo *DownloadManager::createDlInfo(const QString &assetName,
                                             const QString &tagName,
@@ -42,7 +57,7 @@ DownloadInfo *DownloadManager::createDlInfo(const QString &assetName,
 void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString destFilePath)
 {
     // TODO: clean up this spaghetti
-    debug() << "Opening archive";
+    print_debug() << "Opening archive";
     info->setStage(DownloadInfo::Unzipping);
     info->setProgress(-1.0);
 
@@ -56,7 +71,7 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
                 || QMimeDatabase()
                        .mimeTypeForFile(sourceFilePath)
                        .inherits("application/x-executable")) {
-                debug() << "Detected uncompressed executable";
+                print_debug() << "Detected uncompressed executable";
 
 #ifdef Q_OS_WIN
                 QNtfsPermissionCheckGuard permissionGuard;
@@ -69,7 +84,7 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
                 const auto path = destFilePath / destName / dl.fileName();
                 QDir(destFilePath).mkpath(destName);
                 if (!QFile::copy(sourceFilePath, path)) {
-                    debug() << "failed to copy executable";
+                    print_debug() << "failed to copy executable";
                 }
                 promise.addResult(destName / dl.fileName());
 
@@ -79,7 +94,7 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
                 promise.finish();
                 return;
             } else {
-                debug() << "Failed to open archive at " << sourceFilePath;
+                print_debug() << "Failed to open archive at " << sourceFilePath;
                 info->setStage(DownloadInfo::UnzipError);
                 info->setError(i18n("Failed to unzip archive"));
                 promise.finish();
@@ -87,11 +102,11 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
             }
         }
         auto dest = destFilePath;
-        debug() << archive->directory()->entries().size();
-        debug() << archive->directory()->name();
+        print_debug() << archive->directory()->entries().size();
+        print_debug() << archive->directory()->name();
         if (archive->directory()->entries().size() != 1
             || archive->directory()->entry(archive->directory()->entries().at(0))->isFile()) {
-            debug() << "Cursed zip, extracting to folder";
+            print_debug() << "Cursed zip, extracting to folder";
             dest = QFileInfo(sourceFilePath).completeBaseName();
             QDir(destFilePath).mkpath(dest);
             dest = destFilePath / dest;
@@ -107,11 +122,13 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
             }
             auto entries = QDir(dest).entryInfoList(QDir::Files | QDir::Executable);
             for (const QFileInfo &file : std::as_const(entries)) {
-                debug() << file.canonicalFilePath();
-                debug() << file.isExecutable();
+                print_debug() << file.canonicalFilePath();
+                print_debug() << file.isExecutable();
                 if (!file.fileName().contains("console")) {
-                    promise.addResult(removePrefix(file.absoluteFilePath(),
-                                                   normalizeDirectoryPath(destFilePath)));
+                    promise.addResult(
+                        removePrefix(file.absoluteFilePath(),
+                                     normalizeDirectoryPath(
+                                         VersionRegistry::instance()->locationDirectory())));
                     break;
                 }
             }
@@ -174,7 +191,7 @@ void DownloadManager::download(const QString &assetName,
         qInfo() << "Already found downloaded godot, not downloading";
         m_model->append(info);
         Q_EMIT downloadStarted();
-        unzip(info, path, Config::godotLocation());
+        unzip(info, path, getDownloadLocation(*info));
         return;
     }
 
@@ -209,7 +226,7 @@ void DownloadManager::download(const QString &assetName,
                                     &DownloadManager::cancelRequested,
                                     this,
                                     [info, reply](QUuid id) {
-                                        debug() << reply->headers().toMultiMap();
+                                        print_debug() << reply->headers().toMultiMap();
                                         if (info->id() == id) {
                                             reply->abort();
                                         }
@@ -254,7 +271,7 @@ void DownloadManager::download(const QString &assetName,
                 info->setStage(DownloadInfo::DownloadError);
                 info->setError(reply->errorString());
             } else {
-                unzip(info, path, Config::godotLocation());
+                unzip(info, path, getDownloadLocation(*info));
             }
         },
         Qt::QueuedConnection);

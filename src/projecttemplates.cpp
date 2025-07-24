@@ -89,7 +89,7 @@ void ProjectTemplates::rescan()
             templates.append(Template(dir.fileName(), dir.absoluteFilePath() / "metatemplate.json"));
         }
     }
-    debug() << "Found templates" << templates;
+    print_debug() << "Found templates" << templates;
     setTemplates(templates);
 }
 
@@ -100,7 +100,7 @@ void ProjectTemplates::extractDefault()
         if (QDir(Config::templateLocation() / t.fileName()).exists()) {
             continue;
         }
-        debug() << "Extracting template" << t;
+        print_debug() << "Extracting template" << t;
         copyRecursive(":/templates" / t.fileName(), Config::templateLocation() / t.fileName());
     }
 }
@@ -109,7 +109,7 @@ void ProjectTemplates::createProject(const QString &name,
                                      const QString &dest,
                                      const QVariant &replacements)
 {
-    debug() << "Creating project from template" << name << "at" << dest << "with replacements"
+    print_debug() << "Creating project from template" << name << "at" << dest << "with replacements"
             << replacements.toMap();
     copyTemplateRecursive(templ(name).directory(), dest, replacements.toMap());
 }

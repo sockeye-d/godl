@@ -86,9 +86,12 @@ template<typename T>
 using qobj_unique_ptr = std::unique_ptr<T, QObjDeleter<T>>;
 
 #ifdef DEBUG
-#define debug() qDebug() << QString(__FILE__) % "@" % QString::number(__LINE__) % QString(":")
+#define print_debug() \
+    (qDebug() << QString(__FILE__) % "@" % QString::number(__LINE__) % QString(":"))
 #else
-#define debug() qDebug()
+#define print_debug() qDebug()
 #endif
+
+#define print_clean() qDebug()
 
 #endif // UTIL_H

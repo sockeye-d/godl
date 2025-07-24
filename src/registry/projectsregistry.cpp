@@ -1,52 +1,81 @@
 #include "projectsregistry.h"
 #include <QDir>
+#include <QFutureWatcher>
+#include <QSet>
+#include <QtConcurrentRun>
 #include "godotproject.h"
 #include "util.h"
 #include <KConfigGroup>
-#include <qcontainerfwd.h>
-#include <qset.h>
 
-GodotProject *ProjectsRegistry::load(const QString filepath)
+namespace {
+QStringList scanInternal(const QString &directory)
 {
-    auto project = GodotProject::load(filepath);
-    if (!project) {
-        debug() << "Failed to load project at " << filepath;
-        return nullptr;
-    }
-    project->setFavorite(config().group(project->path()).readEntry("favorite", false));
-    project->m_registry = this;
-    m_internalModel.append(project);
-    m_model->resort();
-    return project;
-}
-
-void ProjectsRegistry::scan(const QString directory)
-{
+    QStringList result{};
     const auto files = QDir(directory).entryList(QDir::Files);
     for (const QString &file : files) {
         if (file == "project.godot") {
-            import(directory / file);
+            return {directory / file};
         }
     }
 
     const auto dirs = QDir(directory).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
     for (const QString &dir : dirs) {
-        scan(directory / dir);
+        result.append(scanInternal(directory / dir));
     }
+    return result;
+}
+} // namespace
+
+GodotProject *ProjectsRegistry::load(const QString filepath, bool invalidate)
+{
+    auto project = GodotProject::load(filepath);
+    if (!project) {
+        print_debug() << "Failed to load project at " << filepath;
+        return nullptr;
+    }
+    project->setFavorite(config().group(project->path()).readEntry("favorite", false));
+    project->m_registry = this;
+    m_internalModel.append(project);
+    if (invalidate)
+        m_model->invalidate();
+    return project;
 }
 
-void ProjectsRegistry::import(const QString filepath)
+void ProjectsRegistry::scan(const QString directory)
+{
+    setScanning(true);
+
+    auto future = QtConcurrent::run([directory](QPromise<QStringList> &promise) {
+        promise.start();
+        promise.addResult(scanInternal(directory));
+        promise.finish();
+    });
+
+    auto watcher = new QFutureWatcher<QStringList>();
+    connect(watcher, &QFutureWatcher<QString>::finished, this, [this, watcher, future]() {
+        const auto results = future.result();
+        for (const QString &result : results) {
+            import(result, false);
+        }
+        m_model->invalidate();
+        watcher->deleteLater();
+        setScanning(false);
+    });
+    watcher->setFuture(future);
+}
+
+void ProjectsRegistry::import(const QString filepath, bool invalidate)
 {
     if (config().hasGroup(QFileInfo(filepath).path() / GodotProject::projectFilename)) {
-        debug() << "Already loaded project at" << filepath;
+        print_debug() << "Already loaded project at" << filepath;
         return;
     }
-    auto project = load(filepath);
+    auto project = load(filepath, invalidate);
     if (!project) {
-        project = load(filepath / "godlproject");
+        project = load(filepath / "godlproject", invalidate);
     }
     if (!project) {
-        project = load(filepath / "project.godot");
+        project = load(filepath / "project.godot", invalidate);
     }
     if (!project) {
         return;
@@ -105,7 +134,7 @@ ProjectsRegistry::ProjectsRegistry(QObject *parent)
         auto proj = load(path);
         if (!proj) {
             m_loadErrors.append(path);
-            debug() << "Couldn't find project at" << path;
+            print_debug() << "Couldn't find project at" << path;
             config().deleteGroup(path);
         }
     }

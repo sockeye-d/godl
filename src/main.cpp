@@ -23,6 +23,8 @@
 #include <QWindow>
 #include <QtSystemDetection>
 #include "chainedjsonrequest.h"
+#include "cli/installcommand.h"
+#include "cli/parser.h"
 #include "downloadmanager.h"
 #include "main.h"
 #include "projectsregistry.h"
@@ -90,6 +92,54 @@ QString printFs(const QString &path)
 
 int main(int argc, char *argv[])
 {
+    if (true || argc != 1) {
+        QStringList args;
+        for (int i = 1; i < argc; i++) {
+            args << QString::fromLocal8Bit(argv[i]);
+        }
+        Parser parser;
+        using enum Parser::Option::Mode;
+        parser.addOption(Parser::Option(Command,
+                                        "install",
+                                        {"install", "i"},
+                                        "Install a Godot version",
+                                        1,
+                                        {{{"version"}, {"The version to install"}}}));
+        parser.addOption(Parser::Option(Command, "edit", {"edit", "e"}, "Edit a Godot project"));
+        parser.addOption(Parser::Option(Switch,
+                                        "help",
+                                        {"h", "help", "?"},
+                                        "Show this help message. Can also be combined with a "
+                                        "command to show specific help about that command"));
+        if (parser.parse(args)) {
+            return 1;
+        }
+        if (parser.set("install")) {
+            return cli::install(parser);
+        }
+        if (parser.set("edit")) {
+            parser.addOption(Parser::Option(Switch,
+                                            "path",
+                                            {"p", "path"},
+                                            "Path to the Godot project",
+                                            1,
+                                            {{{"path"}, {""}}}));
+            parser.addOption(
+                Parser::Option(Switch,
+                               "run",
+                               {"r", "run"},
+                               "Whether or not to run the project instead of editing it",
+                               1,
+                               {{{"run"}, {"y/n/true/false (lowercased automatically)"}}}));
+            if (parser.parse(args, false)) {
+                return 1;
+            }
+            print_debug() << parser;
+        }
+        parser.parse(args, false);
+        return 0;
+    }
+
     KIconTheme::initTheme();
     QApplication app(argc, argv);
     app.setWindowIcon(QIcon::fromTheme("godl"));
