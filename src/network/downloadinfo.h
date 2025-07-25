@@ -96,6 +96,17 @@ public:
     qreal progress() const { return m_progress; }
     qreal downloadSpeed() const { return m_downloadSpeed; }
     int stage() const { return m_stage; }
+    bool hasError() const
+    {
+        switch (stage()) {
+        case DownloadError:
+        case UnzipError:
+        case UnknownError:
+            return true;
+        default:
+            return false;
+        }
+    }
     const QUuid id() const { return m_id; }
 
     const QString assetName() const { return m_assetName; }

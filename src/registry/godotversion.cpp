@@ -54,9 +54,13 @@ void GodotVersion::showExternally() const
     QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(absolutePath()).absolutePath()));
 }
 
-void GodotVersion::start() const
+void GodotVersion::start(bool showOutput) const
 {
-    QProcess::startDetached(absolutePath());
+    QProcess proc;
+    if (!showOutput)
+        proc.setStandardOutputFile(QProcess::nullDevice());
+    proc.setProgram(absolutePath());
+    proc.startDetached();
 }
 
 BoundGodotVersion *GodotVersion::boundVersion() const

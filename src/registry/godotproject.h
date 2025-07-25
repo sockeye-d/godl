@@ -232,6 +232,7 @@ public:
     static GodotProject *load(const QString &path);
     Q_INVOKABLE void save();
     Q_INVOKABLE OpenError open() const;
+    OpenError openQuiet() const;
 };
 
 #endif // GODOTPROJECT_H

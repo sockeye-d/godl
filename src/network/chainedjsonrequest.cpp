@@ -47,6 +47,12 @@ ChainedJsonRequest *ChainedJsonRequest::add(const QJSValue &transformer) {
     return this;
 }
 
+ChainedJsonRequest &ChainedJsonRequest::addStep(std::function<JsonTransformer> transformer)
+{
+    transformers.push_back(transformer);
+    return *this;
+}
+
 void ChainedJsonRequest::executeInternal(const QList<QUrl> &baseUrls) {
     currentTransformer++;
     if (baseUrls.empty()) {

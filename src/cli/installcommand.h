@@ -3,8 +3,8 @@
 
 #include "parser.h"
 
-namespace cli {
+namespace cli::install {
 int install(const Parser &parser);
-} // namespace cli
+} // namespace cli::install
 
 #endif // INSTALLCOMMAND_H

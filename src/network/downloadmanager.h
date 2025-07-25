@@ -35,10 +35,10 @@ public:
     Q_SIGNAL void downloadStarted();
 
     DownloadManagerModel *model() { return m_model; }
-    Q_INVOKABLE void download(const QString &assetName,
-                              const QString &tagName,
-                              const QUrl &asset,
-                              const QString &repo);
+    Q_INVOKABLE const DownloadInfo *download(const QString &assetName,
+                                             const QString &tagName,
+                                             const QUrl &asset,
+                                             const QString &repo);
     Q_INVOKABLE void cancel(const QUuid &id) { Q_EMIT cancelRequested(id); }
 };
 

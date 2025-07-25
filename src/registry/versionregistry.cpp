@@ -64,6 +64,26 @@ GodotVersion *VersionRegistry::version(QString assetName) const
     return version;
 }
 
+QList<GodotVersion *> VersionRegistry::find(const QStringList &assetFilters,
+                                            const QString &repo,
+                                            const QString &tag)
+{
+    QList<GodotVersion *> versions;
+    for (const auto &allVersions = this->versions(); const auto &version : allVersions) {
+        if ((repo.isEmpty() || version->repo() == repo)
+            && (tag.isEmpty() || version->tag() == tag)) {
+            for (const QString &filter : assetFilters) {
+                if (!version->assetName().contains(filter)) {
+                    goto notFound;
+                }
+            }
+            versions.append(version);
+        }
+    notFound:;
+    }
+    return versions;
+}
+
 const QStringList VersionRegistry::assets() const
 {
     return m_config->groupList();

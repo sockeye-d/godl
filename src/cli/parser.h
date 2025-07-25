@@ -3,7 +3,6 @@
 
 #include <QDebug>
 #include <QStringList>
-#include "util.h"
 
 class Parser
 {
@@ -25,15 +24,15 @@ public:
                QString _name = "",
                QStringList _switches = {},
                QString _description = "",
-               int _parameterCount = 0,
                QList<std::pair<QString, QString>> _parameterDescriptions = {})
             : mode{_mode}
             , name{_name}
             , switches{_switches}
             , description{_description}
-            , parameterCount{_parameterCount}
             , parameterDescriptions{_parameterDescriptions}
-        {}
+        {
+            parameterCount = _parameterDescriptions.size();
+        }
         Mode mode = Switch;
         QString name = "";
         QStringList switches = {};
@@ -43,13 +42,15 @@ public:
 
         bool set() const { return m_set; }
         const QStringList &params() const { return m_params; }
+        const QString &param(const QString &name, const QString &defaultValue = "") const;
     };
 
     enum ParseResult {
         Success,
+        Error,
         UnknownArgument,
         UnknownCommand,
-        TooFewArguments,
+        TooFewParams,
         HelpRequested,
     };
 
@@ -61,21 +62,19 @@ private:
     QList<Option> m_options;
     QMap<QString, int> m_optionsByName;
     QMap<QString, int> m_optionsBySwitches;
+    QStringList m_errors;
 
     QList<int> filter(Option::Mode mode) const;
 
+    bool canTakeArgs(int count, const QStringList &args);
+
 public:
-    void addOption(Option option)
-    {
-        m_options.append(option);
-        m_optionsByName[option.name] = m_options.size() - 1;
-        for (const QString &s : std::as_const(option.switches)) {
-            m_optionsBySwitches[s] = m_options.size() - 1;
-        }
-    }
+    void addOption(Option option);
+    void clearCommands(const QSet<QString> &exclusions = {});
     Parser();
 
     ParseResult parse(const QStringList &args, bool quiet = true);
+    const QStringList &errors() const { return m_errors; }
     bool set(const QString &name) const;
     const QStringList &params(const QString &name) const;
     const Option &op(const QString name) const;

@@ -1,7 +1,3 @@
-//
-// Created by fish on 5/31/25.
-//
-
 #ifndef CHAINEDJSONREQUEST_H
 #define CHAINEDJSONREQUEST_H
 
@@ -12,6 +8,7 @@
 using namespace Qt::Literals::StringLiterals;
 
 class ChainedJsonRequest : public QObject {
+public:
     typedef QVariant JsonTransformer(const QVariant &result, const QVariant &headers);
 
     Q_OBJECT
@@ -37,6 +34,7 @@ class ChainedJsonRequest : public QObject {
 public:
     explicit ChainedJsonRequest(QObject *parent = nullptr) : QObject(parent) {}
     Q_INVOKABLE ChainedJsonRequest *add(const QJSValue &transformer);
+    ChainedJsonRequest &addStep(std::function<JsonTransformer> transformer);
 
     Q_SIGNAL void error(size_t step, const QNetworkReply::NetworkError &error,
                         const QString &errorString);

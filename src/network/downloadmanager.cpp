@@ -166,10 +166,10 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
     watcher->setFuture(future);
 }
 
-void DownloadManager::download(const QString &assetName,
-                               const QString &tagName,
-                               const QUrl &asset,
-                               const QString &repo)
+const DownloadInfo *DownloadManager::download(const QString &assetName,
+                                              const QString &tagName,
+                                              const QUrl &asset,
+                                              const QString &repo)
 {
     auto downloadLocation = QStandardPaths::standardLocations(QStandardPaths::TempLocation)
                                 .constFirst();
@@ -179,7 +179,7 @@ void DownloadManager::download(const QString &assetName,
         qWarning() << u"Godot versions path doesn't exist, attempting to create...";
         if (!QDir().mkpath(downloadLocation)) {
             qCritical() << u"Failed to create godot path :(";
-            return;
+            return nullptr;
         }
     }
 
@@ -192,14 +192,14 @@ void DownloadManager::download(const QString &assetName,
         m_model->append(info);
         Q_EMIT downloadStarted();
         unzip(info, path, getDownloadLocation(*info));
-        return;
+        return info;
     }
 
     if (!file->open(QIODeviceBase::WriteOnly | QIODeviceBase::Truncate)) {
         qCritical() << u"Failed to open file at %1"_s.arg(path);
         file->deleteLater();
         info->deleteLater();
-        return;
+        return nullptr;
     }
 
     QNetworkRequest request(asset);
@@ -275,4 +275,6 @@ void DownloadManager::download(const QString &assetName,
             }
         },
         Qt::QueuedConnection);
+
+    return info;
 }

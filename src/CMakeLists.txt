@@ -17,6 +17,7 @@ qt_add_qml_module(godl
     VERSION 0.1
     SOURCES main.cpp main.h
     SOURCES util/util.h util/util.cpp
+    SOURCES util/fileutil.h util/fileutil.cpp
     SOURCES godlapp.h godlapp.cpp
     SOURCES configsignals.h configsignals.cpp
     SOURCES model/downloadmanagermodel.h model/downloadmanagermodel.cpp
@@ -43,6 +44,11 @@ qt_add_qml_module(godl
     SOURCES util/dateconverter.h util/dateconverter.cpp
     SOURCES config.kcfg
     SOURCES config.kcfgc
+    SOURCES projecttemplates.h projecttemplates.cpp
+    SOURCES template.h template.cpp
+    SOURCES cli/installcommand.h cli/installcommand.cpp
+    SOURCES cli/parser.h cli/parser.cpp
+    SOURCES cli/interface.h cli/interface.cpp
     QML_FILES ui/Main.qml
     QML_FILES ui/RemoteVersionsPage.qml
     QML_FILES ui/LocalVersionsPage.qml
@@ -59,11 +65,11 @@ qt_add_qml_module(godl
     QML_FILES ui/NewProjectPage.qml
     QML_FILES ui/LocalVersionCard.qml
     RESOURCES resources.qrc
-    SOURCES projecttemplates.h projecttemplates.cpp
-    SOURCES util/fileutil.h util/fileutil.cpp
-    SOURCES template.h template.cpp
-    SOURCES cli/installcommand.h cli/installcommand.cpp
-    SOURCES cli/parser.h cli/parser.cpp
+    SOURCES cli/ansi.h cli/ansi.cpp
+    SOURCES cli/testcommand.h cli/testcommand.cpp
+    SOURCES cli/versioncommand.h cli/versioncommand.cpp
+    SOURCES cli/remotecommand.h cli/remotecommand.cpp
+    SOURCES cli/editcommand.h cli/editcommand.cpp
 )
 
 file(GLOB_RECURSE qml_modules CONFIGURE_DEPENDS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ui/*.qml)

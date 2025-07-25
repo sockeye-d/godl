@@ -94,4 +94,10 @@ using qobj_unique_ptr = std::unique_ptr<T, QObjDeleter<T>>;
 
 #define print_clean() qDebug()
 
+template<typename T>
+inline const T &firstOrDefault(const QList<T> &list, const T &defaultValue = T())
+{
+    return list.isEmpty() ? defaultValue : list.constFirst();
+}
+
 #endif // UTIL_H

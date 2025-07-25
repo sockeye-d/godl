@@ -2,6 +2,12 @@
 #include <QMainWindow>
 #include <QQuickStyle>
 #include <QtQml>
+#include "cli/ansi.h"
+#include "cli/editcommand.h"
+#include "cli/interface.h"
+#include "cli/remotecommand.h"
+#include "cli/testcommand.h"
+#include "cli/versioncommand.h"
 #include "dateconverter.h"
 #include "godlapp.h"
 #include "networkresponsecode.h"
@@ -90,54 +96,221 @@ QString printFs(const QString &path)
     return path % "\n" % current;
 }
 
-int main(int argc, char *argv[])
+void setAppMetadata()
 {
-    if (true || argc != 1) {
-        QStringList args;
-        for (int i = 1; i < argc; i++) {
-            args << QString::fromLocal8Bit(argv[i]);
+    QCoreApplication::setOrganizationName(QStringLiteral("fishy"));
+    QCoreApplication::setOrganizationDomain(QStringLiteral("fishy.org"));
+    QCoreApplication::setApplicationName(QStringLiteral("godl"));
+}
+
+#define nonTerminalParse() \
+    if (parser.parse(args)) { \
+        return 1; \
+    }
+#define terminalParse() \
+    if (parser.parse(args, false)) { \
+        if (parser.set("help")) { \
+            qStdOut() << parser.helpText(); \
+            return 0; \
+        } \
+        return 1; \
+    } \
+    if (parser.set("help")) { \
+        qStdOut() << parser.helpText(); \
+        return 0; \
+    }
+
+int runCli(int argc, char *argv[])
+{
+    QCoreApplication app(argc, argv);
+    setAppMetadata();
+    QStringList args;
+    for (int i = 1; i < argc; i++) {
+        args << QString::fromLocal8Bit(argv[i]);
+    }
+    Parser parser;
+    auto errorPrinter = qScopeGuard([&parser]() {
+        if (!parser.errors().empty()) {
+            for (const auto &errors = parser.errors(); const QString &error : errors) {
+                qStdOut() << cli::error() << error << cli::ansi::nl;
+            }
         }
-        Parser parser;
-        using enum Parser::Option::Mode;
-        parser.addOption(Parser::Option(Command,
-                                        "install",
-                                        {"install", "i"},
-                                        "Install a Godot version",
-                                        1,
-                                        {{{"version"}, {"The version to install"}}}));
-        parser.addOption(Parser::Option(Command, "edit", {"edit", "e"}, "Edit a Godot project"));
+    });
+    using enum Parser::Option::Mode;
+    parser.addOption(Parser::Option(Command,
+                                    "install",
+                                    {"install"},
+                                    "Install a Godot version",
+                                    {{{"repo"}, {"The repo to install from"}},
+                                     {{"tag"}, {"The tag name to get it from"}},
+                                     {{"asset"}, {"The asset to install"}}}));
+    parser.addOption(Parser::Option(Command, "edit", {"edit", "e"}, "Edit a Godot project"));
+    parser.addOption(
+        Parser::Option(Command, "version", {"version", "ver"}, "Modify downloaded versions"));
+    parser.addOption(Parser::Option(Command, "config", {"config", "cfg"}, "Modify configuration"));
+    parser.addOption(Parser::Option(Switch,
+                                    "help",
+                                    {"h", "help", "?"},
+                                    "Show this help message. Can also be combined with a "
+                                    "command to show specific help about that command"));
+    parser.addOption(Parser::Option(Switch, "verbose", {"v", "verbose"}, "Enable debug output"));
+    parser.addOption(
+        Parser::Option(Command, "remote", {"remote"}, "Lookup information on remote versions"));
+#ifdef DEBUG
+    parser.addOption(Parser::Option(Command, "test", {"test"}, "Test CLI tool"));
+#endif
+    nonTerminalParse();
+    if (!parser.set("verbose")) {
+        QLoggingCategory::setFilterRules("*=false\n");
+    }
+    if (parser.set("install")) {
+        parser.clearCommands({"install"});
         parser.addOption(Parser::Option(Switch,
-                                        "help",
-                                        {"h", "help", "?"},
-                                        "Show this help message. Can also be combined with a "
-                                        "command to show specific help about that command"));
-        if (parser.parse(args)) {
-            return 1;
+                                        "force",
+                                        {"force", "f"},
+                                        "Force installation, overriding if the particular version "
+                                        "had already been downloaded"));
+        terminalParse();
+        return cli::install::install(parser);
+    }
+    if (parser.set("version")) {
+        parser.clearCommands({"version"});
+        parser.addOption(Parser::Option(Command,
+                                        "remove",
+                                        {"remove", "rm"},
+                                        "Remove a downloaded version",
+                                        {{{"filter-term"}, {"The filter terms to use"}}}));
+        parser.addOption(
+            Parser::Option(Command, "list", {"list", "ls", "l"}, "List downloaded versions"));
+        parser.addOption(Parser::Option(Command,
+                                        "run",
+                                        {"run"},
+                                        "Run a downloaded version",
+                                        {{"filter-term", "The filter terms to use"}}));
+        nonTerminalParse();
+        if (parser.set("list")) {
+            parser.clearCommands({"version", "list"});
+            terminalParse();
+            return cli::version::list(parser);
         }
-        if (parser.set("install")) {
-            return cli::install(parser);
-        }
-        if (parser.set("edit")) {
+        if (parser.set("remove")) {
+            parser.clearCommands({"version", "remove"});
             parser.addOption(Parser::Option(Switch,
-                                            "path",
-                                            {"p", "path"},
-                                            "Path to the Godot project",
-                                            1,
-                                            {{{"path"}, {""}}}));
+                                            "repo",
+                                            {"repo", "r"},
+                                            "The repository to use",
+                                            {{"repo", ""}}));
+            parser.addOption(
+                Parser::Option(Switch, "tag", {"tag", "t"}, "The tag to use", {{"tag", ""}}));
+            parser.addOption(Parser::Option(Switch,
+                                            "force",
+                                            {"force", "f"},
+                                            "Force remove without confirmation"));
+            terminalParse();
+            return cli::version::remove(parser);
+        }
+        if (parser.set("run")) {
+            parser.clearCommands({"version", "run"});
+            parser.addOption(Parser::Option(Switch,
+                                            "repo",
+                                            {"repo", "r"},
+                                            "The repository to use",
+                                            {{"repo", ""}}));
+            parser.addOption(
+                Parser::Option(Switch, "tag", {"tag", "t"}, "The tag to use", {{"tag", ""}}));
             parser.addOption(
                 Parser::Option(Switch,
-                               "run",
-                               {"r", "run"},
-                               "Whether or not to run the project instead of editing it",
-                               1,
-                               {{{"run"}, {"y/n/true/false (lowercased automatically)"}}}));
-            if (parser.parse(args, false)) {
-                return 1;
-            }
-            print_debug() << parser;
+                               "output",
+                               {"output", "o"},
+                               "Show the output of the Godot executable. Not recommended, because "
+                               "the godl process exits before Godot does"));
+            terminalParse();
+            return cli::version::run(parser);
         }
-        parser.parse(args, false);
         return 0;
+    }
+    if (parser.set("edit")) {
+        parser.clearCommands({"edit"});
+        parser.addOption(Parser::Option(Switch,
+                                        "path",
+                                        {"path", "p"},
+                                        "Path to the Godot project",
+                                        {{"path", ""}}));
+        parser.addOption(Parser::Option(Command, "bind", {"bind"}, "Bind an editor to a project"));
+        terminalParse();
+        return cli::edit::edit(parser);
+    }
+    if (parser.set("remote")) {
+        parser.clearCommands({"remote"});
+        parser.addOption(Parser::Option(
+            Switch,
+            "repo",
+            {"repo", "r"},
+            "The repository to look in. If not specified, the default repository is used.",
+            {{"repo", ""}}));
+        parser.addOption(Parser::Option(Command,
+                                        "list",
+                                        {"list", "ls"},
+                                        "List the assets for a given tag",
+                                        {{"tag",
+                                          "The tag to list the assets for. If set to 'tag', it'll "
+                                          "output the tags on the server instead"}}));
+        nonTerminalParse();
+        if (parser.set("list")) {
+            parser.clearCommands({"remote", "list"});
+            if (parser.op("list").param("tag") == "tag") {
+                parser.addOption(
+                    Parser::Option(Switch,
+                                   "list-all",
+                                   {"all", "a"},
+                                   "List all the tags, not just the first 25. Will take longer "
+                                   "since it needs to make multiple requests"));
+                terminalParse();
+                return cli::remote::listTags(parser);
+            } else {
+                parser.addOption(Parser::Option(
+                    Switch,
+                    "list-all",
+                    {"all", "a"},
+                    "List all the releases, not just the recommended ones for your system"));
+                terminalParse();
+                return cli::remote::list(parser);
+            }
+            terminalParse();
+            return 0;
+        }
+        return 0;
+    }
+    if (parser.set("test")) {
+        parser.clearCommands({"test"});
+        parser.addOption(Parser::Option(Command, "bar", {"bar", "b"}, "Test progress bars"));
+        nonTerminalParse();
+
+        if (parser.set("bar")) {
+            parser.clearCommands({"test", "bar"});
+            parser.addOption(
+                Parser::Option(Switch, "determinate", {"d"}, "Test determinate progress bars"));
+            parser.addOption(
+                Parser::Option(Switch, "indeterminate", {"i"}, "Test indeterminate progress bars"));
+            parser.addOption(Parser::Option(Switch,
+                                            "ticks",
+                                            {"ticks", "t"},
+                                            "How many ticks (each tick is 10ms) to run for",
+                                            {{"ticks", "the number of ticks"}}));
+            terminalParse();
+            return cli::test::testBars(parser);
+        }
+        terminalParse();
+        return 0;
+    }
+    terminalParse();
+    return 0;
+}
+
+int main(int argc, char *argv[])
+{
+    if (argc > 1) {
+        return runCli(argc, argv);
     }
 
     KIconTheme::initTheme();
@@ -145,9 +318,7 @@ int main(int argc, char *argv[])
     app.setWindowIcon(QIcon::fromTheme("godl"));
 
     KLocalizedString::setApplicationDomain("godl");
-    QApplication::setOrganizationName(QStringLiteral("fishy"));
-    QApplication::setOrganizationDomain(QStringLiteral("fishy.org"));
-    QApplication::setApplicationName(QStringLiteral("godl"));
+    setAppMetadata();
     QApplication::setDesktopFileName(QStringLiteral("org.fishy.godl"));
     QIcon::setFallbackSearchPaths(QIcon::fallbackSearchPaths() << ":/");
 

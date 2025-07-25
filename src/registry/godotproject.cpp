@@ -42,6 +42,11 @@ GodotProject *loadInternal(const QString &path)
     QFileInfo preferredFile(file.path() / "godlproject");
     if (preferredFile.exists()) {
         file = preferredFile;
+    } else {
+        preferredFile = QFileInfo(file.path() / "project.godot");
+        if (preferredFile.exists()) {
+            file = preferredFile;
+        }
     }
 
     if (file.fileName() == "godlproject") {
@@ -146,6 +151,36 @@ GodotProject::OpenError GodotProject::open() const
     QString exe = args.first();
     args.removeFirst();
     if (!QProcess::startDetached(exe, args)) {
+        return GodotProject::FailedToStartEditor;
+    }
+
+    return GodotProject::NoError;
+}
+
+GodotProject::OpenError GodotProject::openQuiet() const
+{
+    if (!godotVersion()) {
+        return GodotProject::NoEditorBound;
+    }
+
+    auto v = VersionRegistry::instance()->findVersion(godotVersion());
+
+    if (!v) {
+        return GodotProject::NoEditorFound;
+    }
+
+    QString cmd = v->cmd()
+                      .replace("{executable}", v->absolutePath())
+                      .replace("{projectPath}", projectPath());
+    print_debug() << "Starting" << cmd;
+    QStringList args = QProcess::splitCommand(cmd);
+    QString exe = args.first();
+    args.removeFirst();
+    QProcess proc;
+    proc.setProgram(exe);
+    proc.setArguments(args);
+    proc.setStandardOutputFile(QProcess::nullDevice());
+    if (!proc.startDetached()) {
         return GodotProject::FailedToStartEditor;
     }
 

@@ -66,6 +66,9 @@ public:
 
     QMap<QString, GodotVersion *> versions() const;
     GodotVersion *version(QString assetName) const;
+    QList<GodotVersion *> find(const QStringList &assetFilters,
+                               const QString &repo = "",
+                               const QString &tag = "");
     const QStringList assets() const;
     Q_INVOKABLE bool downloaded(const QString &tag, const QString &repo) const;
     Q_INVOKABLE bool hasVersion(const BoundGodotVersion *version) const;

@@ -155,7 +155,7 @@ public:
 
     void writeTo(KSharedConfig::Ptr config) const;
     Q_INVOKABLE void showExternally() const;
-    Q_INVOKABLE void start() const;
+    Q_INVOKABLE void start(bool showOutput = true) const;
     Q_INVOKABLE BoundGodotVersion *boundVersion() const;
 
     Q_INVOKABLE QString toString() const;
