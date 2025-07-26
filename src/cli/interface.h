@@ -1,6 +1,7 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
+#include <QMap>
 #include <QString>
 #include <QStringList>
 #include <chrono>
@@ -32,6 +33,10 @@ inline const QStringList indeterminate{
     "⡆ ",
 };
 inline const QString separator = " ";
+inline const QMap<QString, bool> toggleValues{{"true", true},
+                                              {"false", false},
+                                              {"yes", true},
+                                              {"no", false}};
 
 QString progressBar(std::chrono::nanoseconds startTime,
                     const QString &caption,
@@ -46,6 +51,8 @@ QString error();
 QString info();
 QString note();
 QString positive();
+bool parseBool(const QString &str, bool &out);
+QString strBool(bool value);
 
 } // namespace cli
 

@@ -141,6 +141,16 @@ ProjectsRegistry::ProjectsRegistry(QObject *parent)
     config().sync();
 }
 
+GodotProject *ProjectsRegistry::loadCli(const QString &filepath)
+{
+    auto project = GodotProject::load(filepath);
+    if (!project) {
+        return nullptr;
+    }
+    project->setFavorite(config().group(project->path()).readEntry("favorite", false));
+    return project;
+}
+
 KConfig &ProjectsRegistry::config()
 {
     static KConfig config(QStandardPaths::standardLocations(QStandardPaths::AppDataLocation)

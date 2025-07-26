@@ -4,13 +4,16 @@
 #include "cli/versioncommand.h"
 #include "godotproject.h"
 #include "godotversion.h"
+#include "projectsregistry.h"
 #include "util.h"
 
 #include <QDir>
+#include <QProcess>
 
 bool loadProject(GodotProject *&out)
 {
-    GodotProject *proj = GodotProject::load(QDir::currentPath() / "project.godot");
+    GodotProject *proj = ProjectsRegistry::instance()->loadCli(QDir::currentPath()
+                                                               / "project.godot");
     if (!proj) {
         qStdOut() << cli::error() << "no project found in directory" << cli::ansi::nl;
         qStdOut().flush();
@@ -22,14 +25,15 @@ bool loadProject(GodotProject *&out)
 
 namespace cli::edit {
 
-int edit(const Parser &)
+int edit(const Parser &parser)
 {
     GodotProject *proj;
     if (loadProject(proj)) {
         return 1;
     }
 
-    auto openError = proj->openQuiet();
+    auto openError = proj->openQuiet(parser.op("extra-args").param("args"),
+                                     parser.set("no-default-args"));
     switch (openError) {
     case GodotProject::NoError:
         qStdOut() << positive() << "opened project " << proj->path();
@@ -70,6 +74,18 @@ int configure(const Parser &parser)
             qStdOut() << proj->description() << ansi::nl;
         } else {
             proj->setDescription(newValue);
+        }
+    }
+    if (parser.set("favorite")) {
+        const QString &newValue = parser.op("favorite").param("value");
+        if (newValue.isEmpty()) {
+            qStdOut() << strBool(proj->favorite()) << ansi::nl;
+        } else {
+            bool favorite;
+            if (parseBool(newValue, favorite)) {
+                return 1;
+            }
+            proj->setFavorite(favorite);
         }
     }
     if (parser.set("icon")) {

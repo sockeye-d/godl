@@ -44,17 +44,18 @@ int Parser::allowedArgCount(int count, const QStringList &args)
     return takenArgs;
 }
 
-#define UnknownError (mode == Option::Command ? Parser::UnknownCommand : Parser::UnknownArgument)
 std::pair<Parser::ParseResult, int> Parser::parseArgument(const QString &argument,
                                                           const QStringList &params,
                                                           const Option::Mode &mode)
 {
+    const Parser::ParseResult unknownError = (mode == Option::Command ? Parser::UnknownCommand
+                                                                      : Parser::UnknownArgument);
     if (!m_optionsBySwitches.contains(argument)) {
-        return {UnknownError, 0};
+        return {unknownError, 0};
     }
     auto &op = m_options[m_optionsBySwitches.value(argument)];
     if (op.mode != mode) {
-        return {UnknownError, 0};
+        return {unknownError, 0};
     }
     int reqCount = op.requiredParamCount();
     if (params.size() - 1 < reqCount) {
@@ -72,7 +73,6 @@ std::pair<Parser::ParseResult, int> Parser::parseArgument(const QString &argumen
     }
     return {Parser::Success, op.parameterCount};
 }
-#undef UnknownError
 
 QList<int> Parser::filter(Option::Mode mode) const
 {

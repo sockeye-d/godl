@@ -232,7 +232,7 @@ public:
     static GodotProject *load(const QString &path);
     Q_INVOKABLE void save();
     Q_INVOKABLE OpenError open() const;
-    OpenError openQuiet() const;
+    OpenError openQuiet(const QString &args, bool noDefaultArgs) const;
 };
 
 #endif // GODOTPROJECT_H

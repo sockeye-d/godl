@@ -281,6 +281,13 @@ int runCli(int argc, char *argv[])
                                  "The path to the icon, relative to the root directory of the "
                                  "project. If not given, it'll output the current value",
                                  true}}));
+            parser.addOption(
+                Parser::Option(Switch,
+                               "favorite",
+                               {"favorite", "f"},
+                               "Favorite or unfavorite the project. This value is stored in the "
+                               "local configuration, not in the project file",
+                               {{"value", "", true}}));
             parser.addOption(Parser::Option(
                 Command,
                 "tag",
@@ -310,6 +317,19 @@ int runCli(int argc, char *argv[])
             return cli::edit::configure(parser);
         }
 
+        parser.addOption(
+            Parser::Option(Switch,
+                           "extra-args",
+                           {"args", "a"},
+                           "Extra arguments to be passed to Godot",
+                           {{"args",
+                             "A space-separated string of arguments. {projectPath} gets replaced "
+                             "by the actual project path"}}));
+        parser.addOption(
+            Parser::Option(Switch,
+                           "no-default-args",
+                           {"no-args", "n"},
+                           "Don't pass the executable-specified arguments (e.g. --editor)"));
         terminalParse();
         return cli::edit::edit(parser);
     }

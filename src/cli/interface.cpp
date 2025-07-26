@@ -159,6 +159,21 @@ QString positive()
     return ansi::fgcolor(ansi::Green) % u"success: "_s % ansi::reset;
 }
 
+bool parseBool(const QString &str, bool &out)
+{
+    if (toggleValues.contains(str)) {
+        out = toggleValues.value(str);
+        return false;
+    }
+    qStdOut() << error() << "value " << str << " not allowed" << ansi::nl;
+    return true;
+}
+
+QString strBool(bool value)
+{
+    return value ? "true" : "false";
+}
+
 } // namespace cli
 
 double toSeconds(std::chrono::nanoseconds time)

@@ -157,7 +157,7 @@ GodotProject::OpenError GodotProject::open() const
     return GodotProject::NoError;
 }
 
-GodotProject::OpenError GodotProject::openQuiet() const
+GodotProject::OpenError GodotProject::openQuiet(const QString &extraArgs, bool noDefaultArgs) const
 {
     if (!godotVersion()) {
         return GodotProject::NoEditorBound;
@@ -169,17 +169,18 @@ GodotProject::OpenError GodotProject::openQuiet() const
         return GodotProject::NoEditorFound;
     }
 
-    QString cmd = v->cmd()
+    QString cmd = ((noDefaultArgs ? "" : v->cmd()) + " " + extraArgs)
                       .replace("{executable}", v->absolutePath())
                       .replace("{projectPath}", projectPath());
     print_debug() << "Starting" << cmd;
     QStringList args = QProcess::splitCommand(cmd);
-    QString exe = args.first();
+    QString exe = noDefaultArgs ? v->absolutePath() : args.first();
     args.removeFirst();
     QProcess proc;
     proc.setProgram(exe);
     proc.setArguments(args);
     proc.setStandardOutputFile(QProcess::nullDevice());
+    proc.setStandardErrorFile(QProcess::nullDevice());
     if (!proc.startDetached()) {
         return GodotProject::FailedToStartEditor;
     }

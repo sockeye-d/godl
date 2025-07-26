@@ -52,6 +52,7 @@ public:
 
     ProjectsRegistryModel *model() { return m_model; }
 
+    GodotProject *loadCli(const QString &filepath);
     /**
      * @brief load Loads a project from the given filepath. This adds it to the model, but doesn't add it to the configuration.
      * @param filepath
