@@ -5,7 +5,7 @@
 
 namespace cli::version {
 
-int list(const Parser &parser)
+int list(const Parser &)
 {
     QList<QStringList> columns;
     columns.append({"repository", "tag", "asset"});
@@ -63,29 +63,41 @@ int run(const Parser &parser)
     const bool &showOutput = parser.set("output");
     const QStringList &assetFilters = parser.op("run").param("filter-term").split(",");
 
-    VersionRegistry *vr = VersionRegistry::instance();
-    const auto &versions = vr->find(assetFilters, repo, tag);
-    if (versions.isEmpty()) {
-        qStdOut() << error() << "couldn't find version " << repo << " " << tag << " "
-                  << assetFilters.join(",") << ansi::nl;
+    GodotVersion *version;
+    if (getVersion(version, repo, tag, assetFilters)) {
         return 1;
     }
-    if (versions.size() > 1) {
-        qStdOut() << error() << "found more than one version:" << ansi::reset << ansi::nl;
-        QList<QStringList> table;
-        table.append({"repository", "tag", "asset"});
-        for (const auto &version : versions) {
-            table.append({version->repo(), version->tag(), version->assetName()});
-        }
-        qStdOut() << asColumns(table) << note()
-                  << "specify a repo and tag to narrow the search further with --repo and --tag"
-                  << ansi::nl << note()
-                  << "specify more filter terms (comma-separated) to narrow the search further";
-        return 1;
-    }
-    const GodotVersion *version = versions.constFirst();
     version->start(showOutput);
     return 0;
 }
 
 } // namespace cli::version
+
+bool getVersion(GodotVersion *&out,
+                const QString &repo,
+                const QString &tag,
+                const QStringList &assetFilters)
+{
+    const auto &versions = VersionRegistry::instance()->find(assetFilters, repo, tag);
+    if (versions.isEmpty()) {
+        qStdOut() << cli::error() << "couldn't find version " << repo << " " << tag << " "
+                  << assetFilters.join(",") << cli::ansi::nl;
+        return true;
+    }
+    if (versions.size() > 1) {
+        qStdOut() << cli::error() << "found more than one version:" << cli::ansi::reset
+                  << cli::ansi::nl;
+        QList<QStringList> table;
+        table.append({"repository", "tag", "asset"});
+        for (const auto &version : versions) {
+            table.append({version->repo(), version->tag(), version->assetName()});
+        }
+        qStdOut() << cli::asColumns(table) << cli::note()
+                  << "specify a repo and tag to narrow the search further with --repo and --tag"
+                  << cli::ansi::nl << cli::note()
+                  << "specify more filter terms (comma-separated) to narrow the search further";
+        return true;
+    }
+    out = versions.constFirst();
+    return false;
+}

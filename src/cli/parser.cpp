@@ -4,13 +4,13 @@
 
 using namespace Qt::StringLiterals;
 
-bool Parser::canTakeArgs(int count, const QStringList &args)
+int Parser::allowedArgCount(int count, const QStringList &args)
 {
     if (count == 0) {
-        return true;
+        return 0;
     }
     if (count > args.size()) {
-        return false;
+        return args.size();
     }
     int takenArgs = 0;
     for (int j = 0; j < count; j++) {
@@ -18,7 +18,7 @@ bool Parser::canTakeArgs(int count, const QStringList &args)
         if (arg.startsWith("--")) {
             const auto &result = parseArgument(arg.sliced(2), args.sliced(j), Option::Switch);
             if (result.first == Parser::Success) {
-                return false;
+                break;
             }
             takenArgs++;
         } else if (arg.startsWith("-")) {
@@ -26,14 +26,14 @@ bool Parser::canTakeArgs(int count, const QStringList &args)
             for (const QChar &subarg : s) {
                 const auto &result = parseArgument(subarg, args.sliced(j), Option::Switch);
                 if (result.first == Parser::Success) {
-                    return false;
+                    break;
                 }
                 takenArgs++;
             }
         } else {
             const auto &result = parseArgument(arg, args.sliced(j), Option::Command);
             if (result.first == Parser::Success) {
-                return false;
+                break;
             }
             takenArgs++;
         }
@@ -41,10 +41,7 @@ bool Parser::canTakeArgs(int count, const QStringList &args)
             break;
         }
     }
-    if (takenArgs < count) {
-        return false;
-    }
-    return true;
+    return takenArgs;
 }
 
 #define UnknownError (mode == Option::Command ? Parser::UnknownCommand : Parser::UnknownArgument)
@@ -59,15 +56,20 @@ std::pair<Parser::ParseResult, int> Parser::parseArgument(const QString &argumen
     if (op.mode != mode) {
         return {UnknownError, 0};
     }
-    if (params.size() - 1 < op.parameterCount) {
+    int reqCount = op.requiredParamCount();
+    if (params.size() - 1 < reqCount) {
         return {Parser::TooFewParams, 0};
     }
     op.m_set = true;
-    if (!canTakeArgs(op.parameterCount, params.sliced(1))) {
-        print_debug() << op.parameterCount << op.name << params;
+    int argCount = allowedArgCount(op.parameterCount, params.sliced(1));
+    if (argCount < reqCount) {
         return {Parser::TooFewParams, 0};
     }
-    op.m_params = params.sliced(1, op.parameterCount);
+    if (argCount > op.parameterCount) {
+        op.m_params = params.sliced(1, op.parameterCount);
+    } else {
+        op.m_params = params.sliced(1, argCount);
+    }
     return {Parser::Success, op.parameterCount};
 }
 #undef UnknownError
@@ -191,60 +193,63 @@ const QStringList &Parser::params(const QString &name) const
     return m_options[m_optionsByName.value(name)].params();
 }
 
+QList<QStringList> processHelpText(const Parser::Option &op)
+{
+    static const QString &indent = "  ";
+    QList<QStringList> columns;
+    QStringList shortParams;
+    for (const auto &param : op.parameters) {
+        if (param.optional) {
+            shortParams.append(u"[%1]"_s.arg(param.name));
+        } else {
+            shortParams.append(u"<%1>"_s.arg(param.name));
+        }
+    }
+    QString shortParamsStr = shortParams.empty() ? "" : " " + shortParams.join(" ");
+    QString switches;
+    if (op.mode == Parser::Option::Switch) {
+        for (const QString &s : op.switches) {
+            if (s != op.switches.constFirst()) {
+                switches += ", ";
+            }
+            if (s.length() == 1) {
+                switches += "-" + s;
+            } else {
+                switches += "--" + s;
+            }
+        }
+    } else {
+        switches = op.switches.join(", ");
+    }
+    columns.append({indent + switches + shortParamsStr, " " + op.description});
+    bool actuallyAppendedRows = false;
+    for (const auto &param : std::as_const(op.parameters)) {
+        if (!param.description.isEmpty()) {
+            actuallyAppendedRows = true;
+            if (param.optional) {
+                columns.append({"", u" [%1] (optional) %2"_s.arg(param.name, param.description)});
+            } else {
+                columns.append({"", u" <%1> %2"_s.arg(param.name, param.description)});
+            }
+        }
+    }
+    if (actuallyAppendedRows) {
+        columns.append({""});
+    }
+    return columns;
+}
+
 QString Parser::helpText() const
 {
     static const QString &indent = "  ";
     QList<QStringList> columns;
     columns.append({"Commands:"});
     for (const int i : filter(Option::Command)) { // clazy:exclude=range-loop-detach
-        const Option &op = m_options[i];
-        QStringList shortParams;
-        for (const auto &param : op.parameterDescriptions) {
-            shortParams.append(u"<%1>"_s.arg(param.first));
-        }
-        QString shortParamsStr = shortParams.empty() ? "" : " " + shortParams.join(" ");
-        columns.append({indent + op.switches.join(", ") + shortParamsStr, " " + op.description});
-        bool actuallyAppendedRows = false;
-        for (const auto &param : std::as_const(op.parameterDescriptions)) {
-            if (!param.second.isEmpty()) {
-                actuallyAppendedRows = true;
-                columns.append({"", u" <%1> %2"_s.arg(param.first, param.second)});
-            }
-        }
-        if (actuallyAppendedRows) {
-            columns.append({""});
-        }
+        columns.append(processHelpText(m_options[i]));
     }
     columns.append({"Options:"});
     for (const int i : filter(Option::Switch)) { // clazy:exclude=range-loop-detach
-        const Option &op = m_options[i];
-        QStringList shortParams;
-        for (const auto &param : op.parameterDescriptions) {
-            shortParams.append(u"<%1>"_s.arg(param.first));
-        }
-        QString shortParamsStr = shortParams.empty() ? "" : " " + shortParams.join(" ");
-        QStringList switches;
-        for (const QString &s : op.switches) {
-            if (s.length() <= 1) {
-                switches.append("-" + s);
-            }
-        }
-        for (const QString &s : op.switches) {
-            if (s.length() > 1) {
-                switches.append("--" + s);
-            }
-        }
-        columns.append({indent + switches.join(", ") + shortParamsStr, " " + op.description});
-        bool actuallyAppendedRows = false;
-        for (const auto &param : std::as_const(op.parameterDescriptions)) {
-            if (!param.second.isEmpty()) {
-                actuallyAppendedRows = true;
-                columns.append({"", u" <%1> %2"_s.arg(param.first, param.second)});
-            }
-        }
-        if (actuallyAppendedRows) {
-            columns.append({""});
-        }
+        columns.append(processHelpText(m_options[i]));
     }
     return cli::asColumns(columns);
 }
@@ -273,15 +278,46 @@ QDebug operator<<(QDebug left, const Parser::Option &option)
     return left;
 }
 
+Parser::Option::Option(Mode _mode,
+                       QString _name,
+                       QStringList _switches,
+                       QString _description,
+                       QList<Param> _parameterDescriptions)
+    : mode{_mode}
+    , name{_name}
+    , switches{_switches}
+    , description{_description}
+    , parameters{_parameterDescriptions}
+{
+    parameterCount = _parameterDescriptions.size();
+    bool atOptional = false;
+    for (const Param &param : std::as_const(parameters)) {
+        if (param.optional) {
+            atOptional = true;
+        }
+        Q_ASSERT(param.optional == atOptional);
+    }
+}
+
 const QString &Parser::Option::param(const QString &name, const QString &defaultValue) const
 {
-    for (int i = 0; i < parameterDescriptions.size(); i++) {
+    for (int i = 0; i < parameters.size(); i++) {
         if (i >= m_params.size()) {
             break;
         }
-        if (parameterDescriptions[i].first == name) {
+        if (parameters[i].name == name) {
             return m_params[i];
         }
     }
     return defaultValue;
+}
+
+int Parser::Option::requiredParamCount() const
+{
+    for (int i = 0; i < parameters.size(); i++) {
+        if (parameters[i].optional) {
+            return i;
+        }
+    }
+    return parameters.size();
 }

@@ -3,6 +3,12 @@
 
 #include "parser.h"
 
+class GodotVersion;
+bool getVersion(GodotVersion *&out,
+                const QString &repo,
+                const QString &tag,
+                const QStringList &assetFilters);
+
 namespace cli::version {
 
 int list(const Parser &parser);

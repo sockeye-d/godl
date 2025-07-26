@@ -7,6 +7,13 @@
 class Parser
 {
 public:
+    struct Param
+    {
+        QString name;
+        QString description;
+        bool optional = false;
+    };
+
     struct Option
     {
         friend class Parser;
@@ -24,25 +31,18 @@ public:
                QString _name = "",
                QStringList _switches = {},
                QString _description = "",
-               QList<std::pair<QString, QString>> _parameterDescriptions = {})
-            : mode{_mode}
-            , name{_name}
-            , switches{_switches}
-            , description{_description}
-            , parameterDescriptions{_parameterDescriptions}
-        {
-            parameterCount = _parameterDescriptions.size();
-        }
+               QList<Param> _parameterDescriptions = {});
         Mode mode = Switch;
         QString name = "";
         QStringList switches = {};
         QString description = "";
         int parameterCount = 0;
-        QList<std::pair<QString, QString>> parameterDescriptions = {};
+        QList<Param> parameters = {};
 
         bool set() const { return m_set; }
         const QStringList &params() const { return m_params; }
         const QString &param(const QString &name, const QString &defaultValue = "") const;
+        int requiredParamCount() const;
     };
 
     enum ParseResult {
@@ -66,7 +66,7 @@ private:
 
     QList<int> filter(Option::Mode mode) const;
 
-    bool canTakeArgs(int count, const QStringList &args);
+    int allowedArgCount(int count, const QStringList &args);
 
 public:
     void addOption(Option option);

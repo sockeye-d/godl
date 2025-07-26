@@ -147,7 +147,8 @@ int runCli(int argc, char *argv[])
     parser.addOption(Parser::Option(Command, "edit", {"edit", "e"}, "Edit a Godot project"));
     parser.addOption(
         Parser::Option(Command, "version", {"version", "ver"}, "Modify downloaded versions"));
-    parser.addOption(Parser::Option(Command, "config", {"config", "cfg"}, "Modify configuration"));
+    parser.addOption(
+        Parser::Option(Command, "godl-config", {"g-config", "g-cfg"}, "Modify godl configuration"));
     parser.addOption(Parser::Option(Switch,
                                     "help",
                                     {"h", "help", "?"},
@@ -236,7 +237,79 @@ int runCli(int argc, char *argv[])
                                         {"path", "p"},
                                         "Path to the Godot project",
                                         {{"path", ""}}));
-        parser.addOption(Parser::Option(Command, "bind", {"bind"}, "Bind an editor to a project"));
+        parser.addOption(Parser::Option(Command,
+                                        "bind",
+                                        {"bind"},
+                                        "Bind an editor to a project",
+                                        {{"filter-term", "The term to filter editors by"}}));
+        parser.addOption(Parser::Option(Command,
+                                        "configure",
+                                        {"configure", "cfg"},
+                                        "Configure project name, description, icon, and tags"));
+        nonTerminalParse();
+        if (parser.set("bind")) {
+            parser.clearCommands({"edit", "bind"});
+            parser.addOption(Parser::Option(Switch,
+                                            "repo",
+                                            {"repo", "r"},
+                                            "The repository to use",
+                                            {{"repo", ""}}));
+            parser.addOption(
+                Parser::Option(Switch, "tag", {"tag", "t"}, "The tag to use", {{"tag", ""}}));
+            return cli::edit::bind(parser);
+        }
+        if (parser.set("configure")) {
+            parser.clearCommands({"edit", "configure"});
+            parser.addOption(
+                Parser::Option(Switch,
+                               "name",
+                               {"name", "n"},
+                               "Set the name of the project",
+                               {{"value", "If not given, it'll output the current value", true}}));
+            parser.addOption(
+                Parser::Option(Switch,
+                               "description",
+                               {"description", "d"},
+                               "Set the description of the project",
+                               {{"value", "If not given, it'll output the current value", true}}));
+            parser.addOption(
+                Parser::Option(Switch,
+                               "icon",
+                               {"icon", "i"},
+                               "Modify the icon of the project",
+                               {{"value",
+                                 "The path to the icon, relative to the root directory of the "
+                                 "project. If not given, it'll output the current value",
+                                 true}}));
+            parser.addOption(Parser::Option(
+                Command,
+                "tag",
+                {"tag", "i"},
+                "Modify project tags. If no subcommand is used, it'll list the tags"));
+            nonTerminalParse();
+            if (parser.set("tag")) {
+                parser.clearCommands({"edit", "configure", "tag"});
+                parser.addOption(
+                    Parser::Option(Command, "add", {"add"}, "Add a tag", {{"tag", ""}}));
+                parser.addOption(Parser::Option(Command,
+                                                "remove",
+                                                {"remove", "rm"},
+                                                "Remove a tag",
+                                                {{"tag", ""}}));
+                terminalParse();
+                if (parser.set("add")) {
+                    return cli::edit::tags::add(parser);
+                }
+                if (parser.set("remove")) {
+                    return cli::edit::tags::remove(parser);
+                }
+                return cli::edit::tags::list(parser);
+            }
+
+            terminalParse();
+            return cli::edit::configure(parser);
+        }
+
         terminalParse();
         return cli::edit::edit(parser);
     }

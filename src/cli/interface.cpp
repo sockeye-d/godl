@@ -105,9 +105,12 @@ QString asColumns(const QList<QStringList> &columns,
     result.reserve(totalWidth * columns.size());
     for (const QStringList &column : std::as_const(columns)) {
         for (int i = 0; i < column.size(); i++) {
-            result += u"%1"_s.arg(column[i], -columnWidths[i] + 1);
-            if (i != column.size() - 1)
+            if (i == column.size() - 1) {
+                result += column[i];
+            } else {
+                result += u"%1"_s.arg(column[i], -columnWidths[i] + 1);
                 result += columnSeparator;
+            }
         }
         result += "\n";
     }
