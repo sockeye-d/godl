@@ -41,9 +41,9 @@ private:
         }
     }
 
+public:
     KSharedConfig::Ptr config() const { return m_config; }
 
-public:
     VersionRegistry(QObject *parent = nullptr)
         : QObject(parent)
     {

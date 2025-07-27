@@ -14,6 +14,7 @@ namespace cli::version {
 int list(const Parser &parser);
 int remove(const Parser &parser);
 int run(const Parser &parser);
+int command(const Parser &parser);
 
 } // namespace cli::version
 

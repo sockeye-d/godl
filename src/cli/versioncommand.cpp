@@ -25,24 +25,10 @@ int remove(const Parser &parser)
     const QStringList &assetFilters = parser.op("remove").param("filter-term").split(",");
     const bool force = parser.set("force");
 
-    VersionRegistry *vr = VersionRegistry::instance();
-    const auto &versions = vr->find(assetFilters, repo, tag);
-    if (versions.isEmpty()) {
-        qStdOut() << error() << "couldn't find version " << repo << " " << tag << " "
-                  << assetFilters.join(",") << ansi::nl;
+    GodotVersion *version;
+    if (getVersion(version, repo, tag, assetFilters)) {
         return 1;
     }
-    if (versions.size() > 1) {
-        qStdOut() << error() << "found more than one version:" << ansi::reset << ansi::nl;
-        QList<QStringList> table;
-        table.append({"repository", "tag", "asset"});
-        for (const auto &version : versions) {
-            table.append({version->repo(), version->tag(), version->assetName()});
-        }
-        qStdOut() << asColumns(table);
-        return 1;
-    }
-    const GodotVersion *version = versions.constFirst();
     bool result = true;
     if (!force)
         result = prompt("Are you sure you want to remove " % version->assetName() % "?",
@@ -50,7 +36,7 @@ int remove(const Parser &parser)
                         1)
                  == "y";
     if (result) {
-        vr->removeVersion(versions.constFirst());
+        VersionRegistry::instance()->removeVersion(version);
         qStdOut() << positive() << "removed version " << version->assetName();
     }
     return 0;
@@ -60,14 +46,36 @@ int run(const Parser &parser)
 {
     const QString &repo = parser.op("repo").param("repo");
     const QString &tag = parser.op("tag").param("tag");
-    const bool &showOutput = parser.set("output");
     const QStringList &assetFilters = parser.op("run").param("filter-term").split(",");
+    const bool &showOutput = parser.set("output");
 
     GodotVersion *version;
     if (getVersion(version, repo, tag, assetFilters)) {
         return 1;
     }
     version->start(showOutput);
+    return 0;
+}
+
+int command(const Parser &parser)
+{
+    const QString &repo = parser.op("repo").param("repo");
+    const QString &tag = parser.op("tag").param("tag");
+    const QStringList &assetFilters = parser.op("command").param("filter-term").split(",");
+    const QString &cmd = parser.op("command").param("cmd");
+    GodotVersion *version;
+    if (getVersion(version, repo, tag, assetFilters)) {
+        return 1;
+    }
+
+    if (cmd.isEmpty()) {
+        qStdOut() << version->cmd() << ansi::nl;
+        return 0;
+    }
+
+    version->setCmd(cmd);
+    version->writeTo(VersionRegistry::instance()->config());
+
     return 0;
 }
 

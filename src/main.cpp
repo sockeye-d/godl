@@ -4,6 +4,7 @@
 #include <QtQml>
 #include "cli/ansi.h"
 #include "cli/editcommand.h"
+#include "cli/gconfigcommand.h"
 #include "cli/interface.h"
 #include "cli/remotecommand.h"
 #include "cli/testcommand.h"
@@ -120,6 +121,14 @@ void setAppMetadata()
         return 0; \
     }
 
+void addListOptions(Parser &parser, const QString &label)
+{
+    using enum Parser::Option::Mode;
+    parser.addOption(Parser::Option(Command, "add", {"add"}, "Add a " + label, {{label, ""}}));
+    parser.addOption(
+        Parser::Option(Command, "remove", {"remove", "rm"}, "Remove a " + label, {{label, ""}}));
+}
+
 int runCli(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
@@ -164,6 +173,97 @@ int runCli(int argc, char *argv[])
     if (!parser.set("verbose")) {
         QLoggingCategory::setFilterRules("*=false\n");
     }
+    if (parser.set("godl-config")) {
+        parser.clearCommands({"godl-config"});
+        parser.addOption(Parser::Option(Command,
+                                        "godot-location",
+                                        {"godot-location"},
+                                        "Where the Godot versions get downloaded. Defaults to "
+                                            + Config::defaultGodotLocationValue(),
+                                        {{"value", "", true}}));
+        parser.addOption(
+            Parser::Option(Command,
+                           "project-location",
+                           {"project-location"},
+                           "The default location to search in for projects. Defaults to"
+                               + Config::defaultProjectLocationValue(),
+                           {{"value", "", true}}));
+        parser.addOption(Parser::Option(Command,
+                                        "template-location",
+                                        {"template-location"},
+                                        "Where the templates are located. Defaults to "
+                                            + Config::defaultTemplateLocationValue(),
+                                        {{"value", "", true}}));
+        parser.addOption(
+            Parser::Option(Command,
+                           "default-location",
+                           {"default-location"},
+                           "The default template to use when creating a new project. Defaults to "
+                               + Config::defaultTemplateLocationValue(),
+                           {{"value", "", true}}));
+        parser.addOption(
+            Parser::Option(Command, "download", {"download", "dl"}, "Modify download settings"));
+        parser.addOption(
+            Parser::Option(Command, "version", {"version", "ver"}, "Modify version settings"));
+        nonTerminalParse();
+        if (parser.set("download")) {
+            parser.clearCommands({"godl-config", "download"});
+            parser.addOption(
+                Parser::Option(Command, "filter", {"filter"}, "Modify download filters"));
+            parser.addOption(Parser::Option(Command, "source", {"source"}, "Modify sources"));
+            nonTerminalParse();
+            if (parser.set("filter")) {
+                parser.clearCommands({"godl-config", "download", "filter"});
+                addListOptions(parser, "filter");
+                terminalParse();
+                if (parser.set("add")) {
+                    return cli::filter::add(parser);
+                }
+                if (parser.set("remove")) {
+                    return cli::filter::remove(parser);
+                }
+                return cli::filter::list(parser);
+            }
+            if (parser.set("source")) {
+                parser.clearCommands({"godl-config", "download", "source"});
+                addListOptions(parser, "source");
+                terminalParse();
+                if (parser.set("add")) {
+                    return cli::source::add(parser);
+                }
+                if (parser.set("remove")) {
+                    return cli::source::remove(parser);
+                }
+                return cli::source::list(parser);
+            }
+
+            terminalParse();
+            return 0;
+        }
+        if (parser.set("version")) {
+            parser.clearCommands({"godl-config", "download", "version"});
+            parser.addOption(
+                Parser::Option(Command,
+                               "default-command",
+                               {"command", "cmd"},
+                               "The default command to use for new versions. Defaults to "
+                                   + Config::defaultCommand(),
+                               {{"value", "", true}}));
+            parser.addOption(Parser::Option(
+                Command,
+                "cache",
+                {"cache"},
+                "Don't delete deleted versions from the temp directory after they're downloaded. "
+                "You probably want to keep this off - it's mostly for development. Defaults to"
+                    + Config::defaultCommand(),
+                {{"value", "", true}}));
+            return cli::versionConfig(parser);
+        }
+
+        terminalParse();
+        // TODO: this
+        return cli::general(parser);
+    }
     if (parser.set("install")) {
         parser.clearCommands({"install"});
         parser.addOption(Parser::Option(Switch,
@@ -188,6 +288,12 @@ int runCli(int argc, char *argv[])
                                         {"run"},
                                         "Run a downloaded version",
                                         {{"filter-term", "The filter terms to use"}}));
+        parser.addOption(
+            Parser::Option(Command,
+                           "command",
+                           {"command", "cmd"},
+                           "Set or get the command for a version",
+                           {{"filter-term", "The filter terms to use"}, {"cmd", "", true}}));
         nonTerminalParse();
         if (parser.set("list")) {
             parser.clearCommands({"version", "list"});
@@ -228,6 +334,20 @@ int runCli(int argc, char *argv[])
             terminalParse();
             return cli::version::run(parser);
         }
+        if (parser.set("command")) {
+            parser.clearCommands({"version", "command"});
+            parser.addOption(Parser::Option(Switch,
+                                            "repo",
+                                            {"repo", "r"},
+                                            "The repository to use",
+                                            {{"repo", ""}}));
+            parser.addOption(
+                Parser::Option(Switch, "tag", {"tag", "t"}, "The tag to use", {{"tag", ""}}));
+            terminalParse();
+            return cli::version::command(parser);
+        }
+
+        terminalParse();
         return 0;
     }
     if (parser.set("edit")) {
@@ -296,13 +416,7 @@ int runCli(int argc, char *argv[])
             nonTerminalParse();
             if (parser.set("tag")) {
                 parser.clearCommands({"edit", "configure", "tag"});
-                parser.addOption(
-                    Parser::Option(Command, "add", {"add"}, "Add a tag", {{"tag", ""}}));
-                parser.addOption(Parser::Option(Command,
-                                                "remove",
-                                                {"remove", "rm"},
-                                                "Remove a tag",
-                                                {{"tag", ""}}));
+                addListOptions(parser, "tag");
                 terminalParse();
                 if (parser.set("add")) {
                     return cli::edit::tags::add(parser);
