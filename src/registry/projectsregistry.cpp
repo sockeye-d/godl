@@ -26,7 +26,7 @@ QStringList scanInternal(const QString &directory)
 }
 } // namespace
 
-GodotProject *ProjectsRegistry::load(const QString filepath, bool invalidate)
+GodotProject *ProjectsRegistry::load(const QString &filepath, bool invalidate)
 {
     auto project = GodotProject::load(filepath);
     if (!project) {
@@ -41,7 +41,7 @@ GodotProject *ProjectsRegistry::load(const QString filepath, bool invalidate)
     return project;
 }
 
-void ProjectsRegistry::scan(const QString directory)
+void ProjectsRegistry::scan(const QString &directory, QStringList *out)
 {
     setScanning(true);
 
@@ -52,11 +52,12 @@ void ProjectsRegistry::scan(const QString directory)
     });
 
     auto watcher = new QFutureWatcher<QStringList>();
-    connect(watcher, &QFutureWatcher<QString>::finished, this, [this, watcher, future]() {
+    connect(watcher, &QFutureWatcher<QString>::finished, this, [this, watcher, future, out]() {
         const auto results = future.result();
         for (const QString &result : results) {
             import(result, false);
         }
+        *out = results;
         m_model->invalidate();
         watcher->deleteLater();
         setScanning(false);
@@ -64,11 +65,11 @@ void ProjectsRegistry::scan(const QString directory)
     watcher->setFuture(future);
 }
 
-void ProjectsRegistry::import(const QString filepath, bool invalidate)
+ProjectsRegistry::ImportError ProjectsRegistry::import(const QString &filepath, bool invalidate)
 {
     if (config().hasGroup(QFileInfo(filepath).path() / GodotProject::projectFilename)) {
         print_debug() << "Already loaded project at" << filepath;
-        return;
+        return AlreadyLoaded;
     }
     auto project = load(filepath, invalidate);
     if (!project) {
@@ -78,11 +79,13 @@ void ProjectsRegistry::import(const QString filepath, bool invalidate)
         project = load(filepath / "project.godot", invalidate);
     }
     if (!project) {
-        return;
+        return CantLoad;
     }
     config().group(project->path());
     config().group(project->path()).writeEntry("favorite", false);
     config().sync();
+
+    return LoadedSucessfully;
 }
 
 void ProjectsRegistry::remove(GodotProject *project, bool moveToTrash)

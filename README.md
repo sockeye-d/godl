@@ -1,7 +1,5 @@
 # godl
 
-[yeah yeah just skip to the installation](#installation-instructions)
-
 <p align=center>
     <img width=128 alt="godl logo" src="https://github.com/sockeye-d/godl/blob/b98e3bd46a260c69a78c8e346d29c67909ccb2b7/src/godl.svg"/>
 </p>
@@ -10,14 +8,18 @@ A version manager for Godot, written in QML/C++ with the Qt Quick libraries.
 
 ![The local versions page](assets/overview.png)
 
+- Important links:
+  - [CLI usage](#cli-usage)
+  - [Installation instructions](#installation-instructions)
+  - [Build instructions](#building-from-source)
+
 ## It lets you manage...
 
 ...your projects, including adding tags with a fancy interface:
 
 ![managing tags](assets/tags.png)
 
-*(you can also type arbitrary tags into the
-combobox)*
+*(you can also type arbitrary tags into the combobox)*
 
 ...your versions:
 
@@ -31,7 +33,8 @@ combobox)*
 
 ![local versions](assets/local-versions.png)
 
-...and finally, your sanity!
+...and unlike other managers, it's built in 100% native AOT-compiled C++ and
+Qt Quick, offering a fast, responsive, and native look-and-feel across all desktops.
 
 ## Windows build?
 
@@ -61,6 +64,64 @@ on a non-Plasma desktop, so this is just what I got from ldd)
 - qqc2-desktop-style
 
 Then, you should be able to download, extract, and run the executable.
+
+## CLI Usage
+
+godl includes a CLI which you can use to do things without opening the GUI. Examples:
+
+```sh
+# Show help (contextual, works on subcommands too)
+godl --help
+godl edit --help
+godl edit configure tags --help
+```
+
+```sh
+# List release assets given a tag name
+godl remote list 4.5-beta3
+# List release tags
+godl remote list tag # (yeah they're sorted alphabetically, this is GitHub being stupid)
+# List release assets given a tag name and a repository
+godl remote list 4.5-beta3 -r /godotengine/godot-builds
+# Download a version
+godl install /godotengine/godot-builds 4.5-beta3 Godot_v4.5-beta3_linux.x86_64.zip
+```
+
+```sh
+# Open the editor for a project (run in the project directory)
+godl edit
+# Bind an editor to a project
+godl edit bind "filter-terms"
+godl edit bind 4.5-beta3 # bind 4.5-beta3
+godl edit bind 4.5-beta3 --repo /godotengine/godot-builds # bind 4.5-beta3, specifying the official godot-builds repository
+godl edit bind 4.5-beta3,mono # bind 4.5-beta3-mono (the comma separates terms which must all be matched in the asset name)
+# Get the name of a project
+godl edit configure --name
+# Set the name, description, and favorite status of a project
+godl edit configure --name "new_name" --description "new_description" --favorite true
+# List, add, and remove tags of a project
+godl edit configure tags
+godl edit configure tags add new_tag
+godl edit configure tags remove old_tag
+```
+
+```sh
+# Edit global configuration
+godl g-config godot-location ~/Documents/godot/versions
+# List, add, and remove download filters (used for remote list commands, etc.)
+godl g-config download filter
+godl g-config download filter add "new_filter"
+godl g-config download filter remove "new_filter"
+# no command to list, add, and remove work on most (should be all) list types
+# like filters, sources, tags, and more
+# Get, set default source
+godl g-config download source default
+godl g-config download source default /godotengine/godot-builds
+```
+
+`--help`, `-h`, and `-?` all show a contextual help menu which you can also use
+to find shorthand notations for most of these commands. Color can also be
+disabled with the [NO_COLOR=1 environment variable](https://no-color.org/).
 
 ## Templates
 
@@ -256,3 +317,5 @@ Categories=Utility
 and put it in `~/.local/share/applications/`,
 and also copy [godl.svg](src/godl.svg) to
 `/usr/share/icons/hicolor/scalable/apps/godl.svg` or similar.
+
+*No dariacore was harmed in the making of this software*

@@ -11,6 +11,14 @@
 
 class ProjectsRegistry : public QObject
 {
+public:
+    enum ImportError {
+        LoadedSucessfully,
+        AlreadyLoaded,
+        CantLoad,
+    };
+    Q_ENUM(ImportError)
+
     Q_OBJECT
     Q_PROPERTY(ProjectsRegistryModel *model READ model CONSTANT FINAL)
 private:
@@ -58,9 +66,9 @@ public:
      * @param filepath
      * @return 
      */
-    GodotProject *load(const QString filepath, bool invalidate = true);
-    Q_INVOKABLE void scan(const QString directory);
-    Q_INVOKABLE void import(const QString filepath, bool invalidate = true);
+    GodotProject *load(const QString &filepath, bool invalidate = true);
+    Q_INVOKABLE void scan(const QString &directory, QStringList *out = nullptr);
+    Q_INVOKABLE ImportError import(const QString &filepath, bool invalidate = true);
     Q_INVOKABLE void remove(GodotProject *project, bool moveToTrash);
     Q_INVOKABLE void setFavorite(const GodotProject *project, bool favorite);
     Q_INVOKABLE bool favorite(const GodotProject *project);

@@ -174,6 +174,16 @@ QString strBool(bool value)
     return value ? "true" : "false";
 }
 
+QString strGodotVersion(const GodotVersion *version)
+{
+    return u"%1 %2 %3"_s.arg(version->repo(), version->tag(), version->assetName());
+}
+
+QString strGodotVersion(const BoundGodotVersion *version)
+{
+    return u"%1 %2"_s.arg(version->repo(), version->tagName()) + (version->isMono() ? "-mono" : "");
+}
+
 } // namespace cli
 
 double toSeconds(std::chrono::nanoseconds time)

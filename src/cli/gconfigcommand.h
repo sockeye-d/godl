@@ -15,6 +15,7 @@ namespace source {
 int add(const Parser &parser);
 int remove(const Parser &parser);
 int list(const Parser &parser);
+int setDefault(const Parser &parser);
 } // namespace source
 int versionConfig(const Parser &parser);
 

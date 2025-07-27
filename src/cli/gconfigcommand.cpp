@@ -1,14 +1,8 @@
 #include "gconfigcommand.h"
 #include "cli/ansi.h"
 #include "cli/interface.h"
+#include "cliutil.h"
 #include "config.h"
-
-QString makeAbsolute(const QString &path)
-{
-    QDir dir = QDir::current();
-    dir.cd(path);
-    return dir.absolutePath();
-}
 
 namespace cli {
 
@@ -164,13 +158,36 @@ int source::remove(const Parser &parser)
     return 0;
 }
 
-int source::list(const Parser &)
+int source::list(const Parser &parser)
 {
     qStdOut() << Config::sources().join(ansi::nl);
 
     if (Config::sources().isEmpty()) {
         qStdOut() << note() << "no sources have been configured" << ansi::nl;
     }
+    return 0;
+}
+
+int source::setDefault(const Parser &parser)
+{
+    if (parser.op("set-default").hasParam("default")) {
+        QStringList srcs = Config::sources();
+        const QString &newDefault = parser.op("set-default").param("default");
+        if (!srcs.contains(newDefault)) {
+            qStdOut() << error() << newDefault << " is not a source" << ansi::nl;
+            return 1;
+        }
+
+        srcs.removeOne(newDefault);
+        srcs.push_front(newDefault);
+        Config::setSources(srcs);
+        Config::self()->save();
+
+        return 0;
+    }
+
+    qStdOut() << Config::sources().constFirst() << ansi::nl;
+
     return 0;
 }
 

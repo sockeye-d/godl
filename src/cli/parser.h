@@ -42,6 +42,7 @@ public:
         bool set() const { return m_set; }
         const QStringList &params() const { return m_params; }
         const QString &param(const QString &name, const QString &defaultValue = "") const;
+        bool hasParam(const QString &name) const;
         int requiredParamCount() const;
     };
 

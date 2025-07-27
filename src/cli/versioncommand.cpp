@@ -88,8 +88,14 @@ bool getVersion(GodotVersion *&out,
 {
     const auto &versions = VersionRegistry::instance()->find(assetFilters, repo, tag);
     if (versions.isEmpty()) {
-        qStdOut() << cli::error() << "couldn't find version " << repo << " " << tag << " "
-                  << assetFilters.join(",") << cli::ansi::nl;
+        qStdOut() << cli::error() << "couldn't find version "
+                  << (repo.isEmpty() ? "<no repo specified>" : repo) << " "
+                  << (tag.isEmpty() ? "<no tag specified>" : tag) << " " << assetFilters.join(",")
+                  << cli::ansi::nl;
+        qStdOut()
+            << cli::note()
+            << "if you should have this version installed, install it with the install command"
+            << cli::ansi::nl;
         return true;
     }
     if (versions.size() > 1) {

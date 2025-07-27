@@ -1,7 +1,7 @@
 #ifndef GODLAPP_H
 #define GODLAPP_H
 
-#include <AbstractKirigamiApplication>
+#include <KirigamiAddonsStatefulApp/AbstractKirigamiApplication>
 
 class GodlApp : public AbstractKirigamiApplication
 {

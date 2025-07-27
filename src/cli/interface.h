@@ -4,6 +4,7 @@
 #include <QMap>
 #include <QString>
 #include <QStringList>
+#include "godotversion.h"
 #include <chrono>
 
 double toSeconds(std::chrono::nanoseconds time);
@@ -53,6 +54,8 @@ QString note();
 QString positive();
 bool parseBool(const QString &str, bool &out);
 QString strBool(bool value);
+QString strGodotVersion(const GodotVersion *version);
+QString strGodotVersion(const BoundGodotVersion *version);
 
 } // namespace cli
 

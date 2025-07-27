@@ -169,10 +169,29 @@ int bind(const Parser &parser)
 {
     const QString &repo = parser.op("repo").param("repo");
     const QString &tag = parser.op("tag").param("tag");
-    const QStringList &assetFilters = parser.op("run").param("filter-term").split(",");
+    const QStringList &assetFilters = parser.op("bind").param("filter-term").split(",");
     GodotProject *proj;
     if (loadProject(proj)) {
         return 1;
+    }
+
+    if (parser.set("unbind")) {
+        if (!proj->godotVersion()) {
+            qStdOut() << error() << "project has no editor bound";
+            return 1;
+        }
+
+        proj->setGodotVersion(nullptr);
+        return 0;
+    }
+
+    if (!parser.op("bind").hasParam("filter-term")) {
+        if (proj->godotVersion()) {
+            qStdOut() << strGodotVersion(proj->godotVersion()) << ansi::nl;
+        } else {
+            qStdOut() << error() << "project has no editor bound" << ansi::nl;
+        }
+        return 0;
     }
 
     GodotVersion *version;

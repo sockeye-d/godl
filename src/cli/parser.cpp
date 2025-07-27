@@ -312,6 +312,19 @@ const QString &Parser::Option::param(const QString &name, const QString &default
     return defaultValue;
 }
 
+bool Parser::Option::hasParam(const QString &name) const
+{
+    for (int i = 0; i < parameters.size(); i++) {
+        if (i >= m_params.size()) {
+            break;
+        }
+        if (parameters[i].name == name) {
+            return true;
+        }
+    }
+    return false;
+}
+
 int Parser::Option::requiredParamCount() const
 {
     for (int i = 0; i < parameters.size(); i++) {

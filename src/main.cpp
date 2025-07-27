@@ -5,6 +5,7 @@
 #include "cli/ansi.h"
 #include "cli/editcommand.h"
 #include "cli/gconfigcommand.h"
+#include "cli/importcommand.h"
 #include "cli/interface.h"
 #include "cli/remotecommand.h"
 #include "cli/testcommand.h"
@@ -160,18 +161,36 @@ int runCli(int argc, char *argv[])
         Parser::Option(Command, "godl-config", {"g-config", "g-cfg"}, "Modify godl configuration"));
     parser.addOption(Parser::Option(Switch,
                                     "help",
-                                    {"h", "help", "?"},
+                                    {"help", "h", "?"},
                                     "Show this help message. Can also be combined with a "
                                     "command to show specific help about that command"));
-    parser.addOption(Parser::Option(Switch, "verbose", {"v", "verbose"}, "Enable debug output"));
+    parser.addOption(Parser::Option(Switch, "verbose", {"verbose", "v"}, "Enable debug output"));
     parser.addOption(
         Parser::Option(Command, "remote", {"remote"}, "Lookup information on remote versions"));
+    parser.addOption(Parser::Option(
+        Command,
+        "import",
+        {"import", "im"},
+        "Import a project",
+        {{"path",
+          "The path to the project. If not given, the current directory will be used",
+          true}}));
 #ifdef DEBUG
     parser.addOption(Parser::Option(Command, "test", {"test"}, "Test CLI tool"));
 #endif
     nonTerminalParse();
-    if (!parser.set("verbose")) {
+    if (parser.set("verbose")) {
+        QLoggingCategory::setFilterRules("");
+    } else {
         QLoggingCategory::setFilterRules("*=false\n");
+    }
+    if (parser.set("import")) {
+        parser.addOption(Parser::Option(Switch,
+                                        "recursive",
+                                        {"recursive", "r"},
+                                        "Import projects recursively (e.g. scan)"));
+        terminalParse();
+        return cli::import(parser);
     }
     if (parser.set("godl-config")) {
         parser.clearCommands({"godl-config"});
@@ -227,12 +246,21 @@ int runCli(int argc, char *argv[])
             if (parser.set("source")) {
                 parser.clearCommands({"godl-config", "download", "source"});
                 addListOptions(parser, "source");
+                parser.addOption(Parser::Option(
+                    Command,
+                    "set-default",
+                    {"default"},
+                    "Get or set the default source for commands like 'remote list <tag>'",
+                    {{"default", "", true}}));
                 terminalParse();
                 if (parser.set("add")) {
                     return cli::source::add(parser);
                 }
                 if (parser.set("remove")) {
                     return cli::source::remove(parser);
+                }
+                if (parser.set("set-default")) {
+                    return cli::source::setDefault(parser);
                 }
                 return cli::source::list(parser);
             }
@@ -361,7 +389,7 @@ int runCli(int argc, char *argv[])
                                         "bind",
                                         {"bind"},
                                         "Bind an editor to a project",
-                                        {{"filter-term", "The term to filter editors by"}}));
+                                        {{"filter-term", "The term to filter editors by", true}}));
         parser.addOption(Parser::Option(Command,
                                         "configure",
                                         {"configure", "cfg"},
@@ -373,9 +401,11 @@ int runCli(int argc, char *argv[])
                                             "repo",
                                             {"repo", "r"},
                                             "The repository to use",
-                                            {{"repo", ""}}));
+                                            {{"repo", "", false}}));
             parser.addOption(
                 Parser::Option(Switch, "tag", {"tag", "t"}, "The tag to use", {{"tag", ""}}));
+            parser.addOption(Parser::Option(Switch, "unbind", {"unbind", "u"}, "Unbind the editor"));
+            terminalParse();
             return cli::edit::bind(parser);
         }
         if (parser.set("configure")) {
@@ -411,7 +441,7 @@ int runCli(int argc, char *argv[])
             parser.addOption(Parser::Option(
                 Command,
                 "tag",
-                {"tag", "i"},
+                {"tag", "t"},
                 "Modify project tags. If no subcommand is used, it'll list the tags"));
             nonTerminalParse();
             if (parser.set("tag")) {
@@ -486,6 +516,8 @@ int runCli(int argc, char *argv[])
             terminalParse();
             return 0;
         }
+
+        terminalParse();
         return 0;
     }
     if (parser.set("test")) {
