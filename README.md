@@ -69,14 +69,14 @@ Then, you should be able to download, extract, and run the executable.
 
 godl includes a CLI which you can use to do things without opening the GUI. Examples:
 
-```sh
+```nu
 # Show help (contextual, works on subcommands too)
 godl --help
 godl edit --help
 godl edit configure tags --help
 ```
 
-```sh
+```nu
 # List release assets given a tag name
 godl remote list 4.5-beta3
 # List release tags
@@ -87,7 +87,7 @@ godl remote list 4.5-beta3 -r /godotengine/godot-builds
 godl install /godotengine/godot-builds 4.5-beta3 Godot_v4.5-beta3_linux.x86_64.zip
 ```
 
-```sh
+```nu
 # Open the editor for a project (run in the project directory)
 godl edit
 # Bind an editor to a project
@@ -105,7 +105,7 @@ godl edit configure tags add new_tag
 godl edit configure tags remove old_tag
 ```
 
-```sh
+```nu
 # Edit global configuration
 godl g-config godot-location ~/Documents/godot/versions
 # List, add, and remove download filters (used for remote list commands, etc.)
