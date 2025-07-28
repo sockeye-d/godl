@@ -158,7 +158,7 @@ int source::remove(const Parser &parser)
     return 0;
 }
 
-int source::list(const Parser &parser)
+int source::list(const Parser &)
 {
     qStdOut() << Config::sources().join(ansi::nl);
 

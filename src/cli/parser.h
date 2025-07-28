@@ -1,7 +1,8 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include <QDebug>
+#include <QMap>
+#include <QSet>
 #include <QStringList>
 
 class Parser
@@ -10,7 +11,7 @@ public:
     struct Param
     {
         QString name;
-        QString description;
+        QString description = "";
         bool optional = false;
     };
 

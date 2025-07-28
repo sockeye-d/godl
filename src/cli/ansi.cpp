@@ -23,6 +23,17 @@ QString bgcolor(Color color)
     return fgcolor(static_cast<Color>(color + 10));
 }
 
+QString underline(const QString &string, int start, int end)
+{
+    if (end == -1) {
+        end = string.size();
+    } else if (end > string.size()) {
+        end = string.size();
+    }
+    return string.sliced(0, start) + esc + "[4m" + string.sliced(start, end - start) + esc + "[24m"
+           + string.sliced(end);
+}
+
 } // namespace cli::ansi
 
 QTextStream &qStdOut()
@@ -35,4 +46,17 @@ QTextStream &qStdIn()
 {
     static QTextStream qts(stdin);
     return qts;
+}
+
+QTextStream &operator<<(QTextStream &left, TextStreamFlush)
+{
+    left.flush();
+    return left;
+}
+
+QTextStream &operator<<(QTextStream &left, TextStreamFlushNl)
+{
+    left << cli::ansi::nl;
+    left.flush();
+    return left;
 }

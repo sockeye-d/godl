@@ -7,8 +7,12 @@ def main [release_cycle: string = "stable", zip_dir: string = "deploy"] {
 
     let current_dir: string = pwd
 
-    let build_dir: string = glob build/* | first
+    let build_dir: string = ls build/* | sort-by modified | last | get name | path expand
     print $"Assuming build directory is ($build_dir)"
+
+    if ((input -d Y "Is this okay? [Y/n] " | str downcase) == "n") {
+        exit 1
+    }
 
     let deploy_dir = $"($build_dir)\\deploy"
     print $"Zipping files in ($deploy_dir)"

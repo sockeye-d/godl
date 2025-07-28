@@ -18,7 +18,7 @@ int Parser::allowedArgCount(int count, const QStringList &args)
         if (arg.startsWith("--")) {
             const auto &result = parseArgument(arg.sliced(2), args.sliced(j), Option::Switch);
             if (result.first == Parser::Success) {
-                break;
+                return takenArgs;
             }
             takenArgs++;
         } else if (arg.startsWith("-")) {
@@ -26,19 +26,19 @@ int Parser::allowedArgCount(int count, const QStringList &args)
             for (const QChar &subarg : s) {
                 const auto &result = parseArgument(subarg, args.sliced(j), Option::Switch);
                 if (result.first == Parser::Success) {
-                    break;
+                    return takenArgs;
                 }
-                takenArgs++;
             }
+            takenArgs++;
         } else {
             const auto &result = parseArgument(arg, args.sliced(j), Option::Command);
             if (result.first == Parser::Success) {
-                break;
+                return takenArgs;
             }
             takenArgs++;
         }
         if (takenArgs >= count) {
-            break;
+            return takenArgs;
         }
     }
     return takenArgs;
@@ -71,7 +71,7 @@ std::pair<Parser::ParseResult, int> Parser::parseArgument(const QString &argumen
     } else {
         op.m_params = params.sliced(1, argCount);
     }
-    return {Parser::Success, op.parameterCount};
+    return {Parser::Success, op.m_params.size()};
 }
 
 QList<int> Parser::filter(Option::Mode mode) const
@@ -221,20 +221,20 @@ QList<QStringList> processHelpText(const Parser::Option &op)
     } else {
         switches = op.switches.join(", ");
     }
-    columns.append({indent + switches + shortParamsStr, " " + op.description});
+    columns.append({indent + switches + shortParamsStr, op.description});
     bool actuallyAppendedRows = false;
     for (const auto &param : std::as_const(op.parameters)) {
         if (!param.description.isEmpty()) {
             actuallyAppendedRows = true;
             if (param.optional) {
-                columns.append({"", u" [%1] (optional) %2"_s.arg(param.name, param.description)});
+                columns.append({"", u"[%1] (optional) %2"_s.arg(param.name, param.description)});
             } else {
-                columns.append({"", u" <%1> %2"_s.arg(param.name, param.description)});
+                columns.append({"", u"<%1> %2"_s.arg(param.name, param.description)});
             }
         }
     }
     if (actuallyAppendedRows) {
-        columns.append({""});
+        columns.append(QStringList());
     }
     return columns;
 }
@@ -259,11 +259,7 @@ const Parser::Option &Parser::op(const QString name) const
     return m_options[m_optionsByName.value(name)];
 }
 
-QDebug operator<<(QDebug left, const Parser &parser)
-{
-    left.nospace().noquote() << "Parser(options=" << parser.options() << ")";
-    return left;
-}
+
 
 QDebug operator<<(QDebug left, const Parser::Option &option)
 {

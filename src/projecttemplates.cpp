@@ -105,13 +105,13 @@ void ProjectTemplates::extractDefault()
     }
 }
 
-void ProjectTemplates::createProject(const QString &name,
+void ProjectTemplates::createProject(const QString &templateName,
                                      const QString &dest,
                                      const QVariant &replacements)
 {
-    print_debug() << "Creating project from template" << name << "at" << dest << "with replacements"
-            << replacements.toMap();
-    copyTemplateRecursive(templ(name).directory(), dest, replacements.toMap());
+    print_debug() << "Creating project from template" << templateName << "at" << dest
+                  << "with replacements" << replacements.toMap();
+    copyTemplateRecursive(templ(templateName).directory(), dest, replacements.toMap());
 }
 
 bool ProjectTemplates::isProjectValid(const QString &path) const

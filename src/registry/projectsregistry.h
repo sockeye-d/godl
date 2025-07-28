@@ -67,7 +67,7 @@ public:
      * @return 
      */
     GodotProject *load(const QString &filepath, bool invalidate = true);
-    Q_INVOKABLE void scan(const QString &directory, QStringList *out = nullptr);
+    Q_INVOKABLE void scan(const QString &directory, QStringList *out = nullptr, bool dryRun = false);
     Q_INVOKABLE ImportError import(const QString &filepath, bool invalidate = true);
     Q_INVOKABLE void remove(GodotProject *project, bool moveToTrash);
     Q_INVOKABLE void setFavorite(const GodotProject *project, bool favorite);

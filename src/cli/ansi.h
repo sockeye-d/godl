@@ -4,8 +4,34 @@
 #include <QString>
 #include <QTextStream>
 
+class TextStreamFlush
+{
+    friend const TextStreamFlush &flush();
+    TextStreamFlush() {}
+};
+
+class TextStreamFlushNl
+{
+    friend const TextStreamFlushNl &flushnl();
+    TextStreamFlushNl() {}
+};
+
+inline const TextStreamFlush &flush()
+{
+    const static TextStreamFlush flush;
+    return flush;
+}
+
+inline const TextStreamFlushNl &flushnl()
+{
+    const static TextStreamFlushNl flush;
+    return flush;
+}
+
 QTextStream &qStdOut();
 QTextStream &qStdIn();
+QTextStream &operator<<(QTextStream &left, TextStreamFlush);
+QTextStream &operator<<(QTextStream &left, TextStreamFlushNl);
 
 namespace cli::ansi {
 enum Direction {
@@ -40,6 +66,7 @@ const inline QString reset = esc + "[0m";
 QString cursorMove(Direction direction, int count = 1);
 QString fgcolor(Color color);
 QString bgcolor(Color color);
+QString underline(const QString &string, int start = 0, int end = -1);
 } // namespace cli::ansi
 
 #endif // ANSI_H

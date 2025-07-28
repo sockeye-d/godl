@@ -1,10 +1,11 @@
 #include "cliutil.h"
 
 #include <QDir>
+#include "util.h"
 
 QString cli::makeAbsolute(const QString &path)
 {
     QDir dir = QDir::current();
-    dir.cd(path);
+    dir.setPath(dir.absolutePath() / path);
     return dir.absolutePath();
 }

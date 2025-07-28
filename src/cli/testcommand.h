@@ -6,6 +6,7 @@
 namespace cli::test {
 
 int testBars(const Parser &parser);
+int testUnderline(const Parser &parser);
 
 } // namespace cli::test
 

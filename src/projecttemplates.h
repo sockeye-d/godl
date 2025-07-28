@@ -26,7 +26,8 @@ class ProjectTemplates : public QObject
 public:
     QList<Template> templates() const { return m_templates.values(); }
     QStringList templateNames() const { return m_templates.keys(); }
-    Q_INVOKABLE Template templ(const QString &name) { return m_templates[name]; }
+    Q_INVOKABLE Template templ(const QString &name) const { return m_templates.value(name); }
+    bool hasTemplate(const QString &name) const { return m_templates.contains(name); }
 
     Q_SIGNAL void templatesChanged();
 
@@ -40,7 +41,7 @@ public:
     explicit ProjectTemplates(QObject *parent = nullptr);
     Q_INVOKABLE void rescan();
     void extractDefault();
-    Q_INVOKABLE void createProject(const QString &name,
+    Q_INVOKABLE void createProject(const QString &templateName,
                                    const QString &dest,
                                    const QVariant &replacements);
     Q_INVOKABLE bool isProjectValid(const QString &path) const;

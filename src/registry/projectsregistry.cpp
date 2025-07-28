@@ -41,7 +41,7 @@ GodotProject *ProjectsRegistry::load(const QString &filepath, bool invalidate)
     return project;
 }
 
-void ProjectsRegistry::scan(const QString &directory, QStringList *out)
+void ProjectsRegistry::scan(const QString &directory, QStringList *out, bool dryRun)
 {
     setScanning(true);
 
@@ -52,16 +52,23 @@ void ProjectsRegistry::scan(const QString &directory, QStringList *out)
     });
 
     auto watcher = new QFutureWatcher<QStringList>();
-    connect(watcher, &QFutureWatcher<QString>::finished, this, [this, watcher, future, out]() {
-        const auto results = future.result();
-        for (const QString &result : results) {
-            import(result, false);
-        }
-        *out = results;
-        m_model->invalidate();
-        watcher->deleteLater();
-        setScanning(false);
-    });
+    connect(watcher,
+            &QFutureWatcher<QString>::finished,
+            this,
+            [this, watcher, future, out, dryRun]() {
+                const auto results = future.result();
+                if (out) {
+                    *out = results;
+                }
+                if (!dryRun) {
+                    for (const QString &result : results) {
+                        import(result, false);
+                    }
+                    m_model->invalidate();
+                }
+                watcher->deleteLater();
+                setScanning(false);
+            });
     watcher->setFuture(future);
 }
 

@@ -3,6 +3,7 @@
 #include <QQuickStyle>
 #include <QtQml>
 #include "cli/ansi.h"
+#include "cli/createcommand.h"
 #include "cli/editcommand.h"
 #include "cli/gconfigcommand.h"
 #include "cli/importcommand.h"
@@ -175,6 +176,11 @@ int runCli(int argc, char *argv[])
         {{"path",
           "The path to the project. If not given, the current directory will be used",
           true}}));
+    parser.addOption(Parser::Option(Command,
+                                    "create",
+                                    {"create", "new"},
+                                    "Create a new project according to a template",
+                                    {{"template", "The template to use", true}}));
 #ifdef DEBUG
     parser.addOption(Parser::Option(Command, "test", {"test"}, "Test CLI tool"));
 #endif
@@ -184,11 +190,50 @@ int runCli(int argc, char *argv[])
     } else {
         QLoggingCategory::setFilterRules("*=false\n");
     }
+    if (parser.set("create")) {
+        parser.clearCommands({"create"});
+        ProjectTemplates::instance()->extractDefault();
+        ProjectTemplates::instance()->rescan();
+
+        if (!parser.op("create").hasParam("template")) {
+            return cli::list(parser);
+        }
+
+        parser.addOption(Parser::Option(Switch,
+                                        "path",
+                                        {"path", "p"},
+                                        "The path to the new project. Defaults to the current path "
+                                        "joined with the project name",
+                                        {{"path"}}));
+        parser.addOption(
+            Parser::Option(Switch, "name", {"name", "n"}, "The project name", {{"name"}}));
+        parser.addOption(
+            Parser::Option(Switch,
+                           "force",
+                           {"force", "f"},
+                           "Force create the project even if the path already exists"));
+        parser.addOption(Parser::Option(Switch,
+                                        "skip-menu",
+                                        {"skip-menu", "s"},
+                                        "Skip showing project configuration menu"));
+
+        if (cli::addTemplateParams(parser)) {
+            return 1;
+        }
+
+        terminalParse();
+        return cli::create(parser);
+    }
     if (parser.set("import")) {
+        parser.clearCommands({"import"});
         parser.addOption(Parser::Option(Switch,
                                         "recursive",
                                         {"recursive", "r"},
                                         "Import projects recursively (e.g. scan)"));
+        parser.addOption(Parser::Option(Switch,
+                                        "dry-run",
+                                        {"dry-run", "d"},
+                                        "Don't import any projects, only print the results"));
         terminalParse();
         return cli::import(parser);
     }
@@ -523,6 +568,8 @@ int runCli(int argc, char *argv[])
     if (parser.set("test")) {
         parser.clearCommands({"test"});
         parser.addOption(Parser::Option(Command, "bar", {"bar", "b"}, "Test progress bars"));
+        parser.addOption(
+            Parser::Option(Command, "underline", {"underline", "u"}, "Test underlines"));
         nonTerminalParse();
 
         if (parser.set("bar")) {
@@ -538,6 +585,10 @@ int runCli(int argc, char *argv[])
                                             {{"ticks", "the number of ticks"}}));
             terminalParse();
             return cli::test::testBars(parser);
+        }
+        if (parser.set("underline")) {
+            terminalParse();
+            return cli::test::testUnderline(parser);
         }
         terminalParse();
         return 0;

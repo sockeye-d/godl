@@ -60,4 +60,13 @@ int testBars(const Parser &parser)
     return 0;
 }
 
+int testUnderline(const Parser &)
+{
+    const static QString testMessage = "0123456789";
+    qStdOut() << ansi::underline(testMessage) << ansi::nl;
+    qStdOut() << ansi::underline(testMessage, 5, 8) << ansi::nl;
+    qStdOut() << ansi::underline(testMessage, 5) << ansi::nl;
+    return 0;
+}
+
 } // namespace cli::test

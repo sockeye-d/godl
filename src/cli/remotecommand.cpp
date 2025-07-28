@@ -81,7 +81,7 @@ int list(const Parser &parser)
         if (!listAll && !recommended) {
             continue;
         }
-        columns.append({recommended ? ansi::fgcolor(ansi::Green) + "⨯" : " ",
+        columns.append({recommended ? ansi::fgcolor(ansi::Green) + "✔" : " ",
                         repo,
                         tag,
                         assetName + ansi::reset});
