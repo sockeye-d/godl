@@ -110,6 +110,7 @@ int cli::create(const Parser &parser)
 
     if (!valid || !skipMenu) {
         qStdOut() << note() << "skip the menu with --skip-menu" << ansi::nl;
+        qStdOut() << note() << "for a better editing experience, use rlwrap or similar" << ansi::nl;
         while (true) {
             Table table;
             QMap<QString, int> rowMap;

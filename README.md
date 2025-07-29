@@ -119,6 +119,13 @@ godl g-config download source default
 godl g-config download source default /godotengine/godot-builds
 ```
 
+```sh
+# Create a new project using the template called "default"
+godl create default
+# Create a new project with a specific name, description, and renderer
+godl create default --name new-project --t-description "new-project's description" --t-renderer gl_compatibility
+```
+
 `--help`, `-h`, and `-?` all show a contextual help menu which you can also use
 to find shorthand notations for most of these commands. Color can also be
 disabled with the [NO_COLOR=1 environment variable](https://no-color.org/).
