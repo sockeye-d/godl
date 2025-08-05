@@ -8,10 +8,11 @@ namespace cli::version {
 int list(const Parser &)
 {
     QList<QStringList> columns;
-    columns.append({"repository", "tag", "asset"});
+    columns.append({"repository", "tag", "asset", "path"});
     const VersionRegistry *vr = VersionRegistry::instance();
     for (const auto &versions = vr->versions(); const auto &version : versions) {
-        columns.append({version->repo(), version->tag(), version->assetName()});
+        columns.append(
+            {version->repo(), version->tag(), version->assetName(), version->absolutePath()});
     }
     qStdOut() << asColumns(columns, " ");
 

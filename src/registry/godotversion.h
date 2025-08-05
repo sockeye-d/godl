@@ -13,6 +13,9 @@ class GodotVersion : public QObject
     friend class VersionRegistry;
     Q_OBJECT
     QML_ELEMENT
+
+    QString m_groupName = "";
+
 private:
     Q_PROPERTY(bool isMono READ isMono NOTIFY isMonoChanged FINAL)
     bool m_isMono = false;

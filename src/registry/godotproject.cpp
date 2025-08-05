@@ -157,16 +157,38 @@ GodotProject::OpenError GodotProject::open() const
     return GodotProject::NoError;
 }
 
-GodotProject::OpenError GodotProject::openQuiet(const QString &extraArgs, bool noDefaultArgs) const
+std::variant<GodotProject::OpenError, QString> GodotProject::getResolvedCmd(
+    const QString &extraArgs, bool noDefaultArgs) const
 {
     if (!godotVersion()) {
-        return GodotProject::NoEditorBound;
+        return NoEditorBound;
     }
 
     auto v = VersionRegistry::instance()->findVersion(godotVersion());
 
     if (!v) {
-        return GodotProject::NoEditorFound;
+        return NoEditorFound;
+    }
+
+    QString cmd = ((noDefaultArgs ? "" : v->cmd()) + " " + extraArgs)
+                      .replace("{executable}", v->absolutePath())
+                      .replace("{projectPath}", projectPath());
+
+    return cmd;
+}
+
+std::pair<GodotProject::OpenError, QProcess *> GodotProject::openForCli(const QString &extraArgs,
+                                                                        bool noDefaultArgs,
+                                                                        bool loud) const
+{
+    if (!godotVersion()) {
+        return {NoEditorBound, nullptr};
+    }
+
+    auto v = VersionRegistry::instance()->findVersion(godotVersion());
+
+    if (!v) {
+        return {NoEditorFound, nullptr};
     }
 
     QString cmd = ((noDefaultArgs ? "" : v->cmd()) + " " + extraArgs)
@@ -176,16 +198,21 @@ GodotProject::OpenError GodotProject::openQuiet(const QString &extraArgs, bool n
     QStringList args = QProcess::splitCommand(cmd);
     QString exe = noDefaultArgs ? v->absolutePath() : args.first();
     args.removeFirst();
-    QProcess proc;
-    proc.setProgram(exe);
-    proc.setArguments(args);
-    proc.setStandardOutputFile(QProcess::nullDevice());
-    proc.setStandardErrorFile(QProcess::nullDevice());
-    if (!proc.startDetached()) {
-        return GodotProject::FailedToStartEditor;
+    QProcess *proc = new QProcess();
+    proc->setProgram(exe);
+    proc->setArguments(args);
+    if (loud) {
+        proc->setProcessChannelMode(QProcess::ForwardedChannels);
+        proc->start();
+    } else {
+        proc->setStandardOutputFile(QProcess::nullDevice());
+        proc->setStandardErrorFile(QProcess::nullDevice());
+        if (!proc->startDetached()) {
+            return {FailedToStartEditor, proc};
+        }
     }
 
-    return GodotProject::NoError;
+    return {NoError, proc};
 }
 
 void GodotProject::setFavorite(bool favorite)

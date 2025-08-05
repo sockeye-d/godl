@@ -40,6 +40,7 @@ public:
                                              const QUrl &asset,
                                              const QString &repo);
     Q_INVOKABLE void cancel(const QUuid &id) { Q_EMIT cancelRequested(id); }
+    Q_INVOKABLE void remove(const QUuid &id);
 };
 
 #endif // DOWNLOADMANAGER_H

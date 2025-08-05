@@ -86,7 +86,10 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
                 if (!QFile::copy(sourceFilePath, path)) {
                     print_debug() << "failed to copy executable";
                 }
-                promise.addResult(destName / dl.fileName());
+                promise.addResult(
+                    removePrefix(path,
+                                 normalizeDirectoryPath(
+                                     VersionRegistry::instance()->locationDirectory())));
 
                 if (!Config::cacheVersions())
                     QFile(sourceFilePath).remove();
@@ -115,7 +118,6 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
         if (!archive->directory()->copyTo(dest)) {
             info->setStage(DownloadInfo::UnzipError);
         } else {
-            QThread::sleep(200ms);
             if (archive->directory()->entry(archive->directory()->entries().first())->isDirectory()
                 && archive->directory()->entries().size() == 1) {
                 dest = dest / archive->directory()->entries().first();
@@ -277,4 +279,23 @@ const DownloadInfo *DownloadManager::download(const QString &assetName,
         Qt::QueuedConnection);
 
     return info;
+}
+
+void DownloadManager::remove(const QUuid &id)
+{
+    const DownloadInfo *foundInfo = nullptr;
+    for (const DownloadInfo *info : std::as_const(model()->m_dlInfos)) {
+        if (info->id() == id) {
+            foundInfo = info;
+            break;
+        }
+    }
+
+    if (foundInfo == nullptr) {
+        print_debug() << "Failed to find download info\n";
+        return;
+    }
+
+    model()->remove(foundInfo);
+    delete foundInfo;
 }

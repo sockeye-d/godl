@@ -1,4 +1,5 @@
 find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
 qt_add_executable(godl)
 
@@ -75,6 +76,8 @@ qt_add_qml_module(godl
     SOURCES cli/cliutil.h cli/cliutil.cpp
     SOURCES cli/createcommand.h cli/createcommand.cpp
     SOURCES templatedata.h templatedata.cpp
+    SOURCES versioninfo.h versioninfo.cpp
+    SOURCES util/singleton.h util/singleton.cpp
 )
 
 file(GLOB_RECURSE qml_modules CONFIGURE_DEPENDS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ui/*.qml)
@@ -100,7 +103,6 @@ target_link_libraries(godl
     KF6::IconThemes
     KirigamiAddonsStatefulApp
 )
-target_link_libraries(godl PRIVATE Qt6::Core)
 
 if (WIN32)
     set(ADDITIONAL_DLLS

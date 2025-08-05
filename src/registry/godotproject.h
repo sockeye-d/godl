@@ -3,6 +3,7 @@
 
 #include <QDateTime>
 #include <QObject>
+#include <QProcess>
 #include "boundgodotversion.h"
 #include "serializable.h"
 #include <KConfigGroup>
@@ -232,7 +233,11 @@ public:
     static GodotProject *load(const QString &path);
     Q_INVOKABLE void save();
     Q_INVOKABLE OpenError open() const;
-    OpenError openQuiet(const QString &args, bool noDefaultArgs) const;
+    std::variant<OpenError, QString> getResolvedCmd(const QString &extraArgs,
+                                                    bool noDefaultArgs) const;
+    std::pair<OpenError, QProcess *> openForCli(const QString &args,
+                                                bool noDefaultArgs,
+                                                bool loud) const;
 };
 
 #endif // GODOTPROJECT_H

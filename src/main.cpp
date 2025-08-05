@@ -519,6 +519,16 @@ int runCli(int argc, char *argv[])
                            "no-default-args",
                            {"no-args", "n"},
                            "Don't pass the executable-specified arguments (e.g. --editor)"));
+        parser.addOption(
+            Parser::Option(Switch,
+                           "loud",
+                           {"loud", "l"},
+                           "Show the output from Godot and block until execution stops"));
+        parser.addOption(Parser::Option(
+            Switch,
+            "dry-run",
+            {"dry-run"},
+            "Don't actually edit the project, just show what command would have been used"));
         terminalParse();
         return cli::edit::edit(parser);
     }

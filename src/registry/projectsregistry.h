@@ -6,10 +6,11 @@
 #include <QtQml/qqmlregistration.h>
 #include "model/internalprojectsregistrymodel.h"
 #include "model/projectsregistrymodel.h"
+#include "singleton.h"
 #include <KConfig>
 #include <qtmetamacros.h>
 
-class ProjectsRegistry : public QObject
+class ProjectsRegistry : public QObject, public Singleton<ProjectsRegistry>
 {
 public:
     enum ImportError {
@@ -51,12 +52,6 @@ private:
 
 public:
     ProjectsRegistry(QObject *parent = nullptr);
-
-    static ProjectsRegistry *instance()
-    {
-        static auto registry = new ProjectsRegistry;
-        return registry;
-    }
 
     ProjectsRegistryModel *model() { return m_model; }
 

@@ -10,3 +10,8 @@ QFileInfoList getEntries(const QString &path, QDir::Filters filters)
         results.append(it.nextFileInfo());
     return results;
 }
+
+QString getPathRoot(const QString &path)
+{
+    return path.split("/").constFirst();
+}

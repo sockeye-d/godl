@@ -10,7 +10,7 @@ class CircularBuffer
 private:
     qsizetype m_realSize = 0;
     qsizetype m_index = 0;
-    T *const m_data = new T[capacity];
+    T m_data[capacity];
 
 public:
     class const_iterator
@@ -43,13 +43,13 @@ public:
         using iterator_category = std::forward_iterator_tag;
     };
 
-    CircularBuffer() {}
-    ~CircularBuffer() { delete[] m_data; }
+    CircularBuffer() = default;
+    ~CircularBuffer() = default;
 
     void append(const T &value)
     {
-        m_data[m_index++] = value;
-        m_index %= capacity;
+        m_index = (m_index + 1) % capacity;
+        m_data[m_index] = value;
         if (m_realSize < capacity) {
             m_realSize++;
         }

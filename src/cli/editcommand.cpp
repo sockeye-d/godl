@@ -32,11 +32,37 @@ int edit(const Parser &parser)
         return 1;
     }
 
-    auto openError = proj->openQuiet(parser.op("extra-args").param("args"),
-                                     parser.set("no-default-args"));
-    switch (openError) {
+    if (parser.set("dry-run")) {
+        auto cmd = proj->getResolvedCmd(parser.op("extra-args").param("args"),
+                                        parser.set("no-default-args"));
+        if (GodotProject::OpenError *openError = std::get_if<GodotProject::OpenError>(&cmd)) {
+            switch (*openError) {
+            case GodotProject::NoEditorBound:
+                qStdOut() << error() << "no editor bound, bind one using 'edit bind'";
+                break;
+            case GodotProject::NoEditorFound:
+                qStdOut() << error() << "no editor found, install "
+                          << proj->godotVersion()->toString();
+                break;
+            case GodotProject::NoError:
+            case GodotProject::FailedToStartEditor:
+                break;
+            }
+            return 1;
+        }
+        qStdOut() << std::get<QString>(cmd) << flushnl();
+        return 0;
+    }
+
+    auto openError = proj->openForCli(parser.op("extra-args").param("args"),
+                                      parser.set("no-default-args"),
+                                      parser.set("loud"));
+    switch (openError.first) {
     case GodotProject::NoError:
-        qStdOut() << positive() << "opened project " << proj->path();
+        qStdOut() << positive() << "opened project " << proj->path() << flushnl();
+        if (parser.set("loud")) {
+            openError.second->waitForFinished(-1);
+        }
         break;
     case GodotProject::NoEditorBound:
         qStdOut() << error() << "no editor bound, bind one using 'edit bind'";
@@ -49,6 +75,7 @@ int edit(const Parser &parser)
         break;
     }
 
+    delete openError.second;
     delete proj;
     return 0;
 }

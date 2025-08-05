@@ -26,6 +26,9 @@ public:
     void remove(T data)
     {
         const auto index = m_data.indexOf(data);
+        if (index == -1) {
+            return;
+        }
         beginRemoveRows(QModelIndex(), index, index);
         m_data.remove(index);
         endRemoveRows();

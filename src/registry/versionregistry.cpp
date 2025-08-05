@@ -1,4 +1,5 @@
 #include "versionregistry.h"
+#include "fileutil.h"
 
 #include <QDir>
 #include <KSharedConfig>
@@ -26,7 +27,7 @@ void VersionRegistry::removeVersion(GodotVersion *version)
     model()->remove(version);
     m_config->deleteGroup(version->assetName());
     m_config->sync();
-    auto path = QFileInfo(version->absolutePath()).path();
+    auto path = Config::godotLocation() / getPathRoot(version->path());
     print_debug() << "removing" << path;
     QDir(path).removeRecursively();
     print_debug() << "done removing" << path;
@@ -142,12 +143,14 @@ QStringList VersionRegistry::detectLeakedVersions() const
     QStringList executables;
     QStringList leakedExecutables;
     for (const QString &group : groups) {
-        executables << QFileInfo(config()->group(group).readEntry("path")).path();
+        executables << getPathRoot(config()->group(group).readEntry("path"));
     }
     for (const QString &version : downloadedVersions) {
-        if (!executables.contains(version)) {
-            leakedExecutables << Config::godotLocation() / version;
+        if (executables.contains(version)) {
+            continue;
         }
+
+        leakedExecutables << Config::godotLocation() / version;
     }
 
     return leakedExecutables;

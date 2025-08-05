@@ -12,6 +12,7 @@ class DownloadManagerModel : public QAbstractListModel
 {
     Q_OBJECT
 
+    friend class DownloadManager;
     QList<const DownloadInfo *> m_dlInfos;
 
 public:

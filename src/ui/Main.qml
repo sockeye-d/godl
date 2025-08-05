@@ -72,6 +72,15 @@ StatefulApp.StatefulWindow {
         Layout.fillWidth: true
 
         Item {
+            width: Kirigami.Units.largeSpacing
+        }
+
+        Label {
+            color: palette.placeholderText
+            text: "godl v" + "1.1.1"
+        }
+
+        Item {
             Layout.fillWidth: true
         }
 
@@ -93,7 +102,6 @@ StatefulApp.StatefulWindow {
 
                 property bool visible2
 
-                closePolicy: Popup.NoAutoClose
                 // this is so cursed... but it works
                 height: visible2 ? notificationCardsScroll.height + padding * 2.0 : 0
                 rightPadding: 0
@@ -136,6 +144,13 @@ StatefulApp.StatefulWindow {
                                 id: card
 
                                 required property string assetName
+                                property var backgroundColor: if (error !== "") {
+                                    return Kirigami.Theme.negativeBackgroundColor;
+                                } else if (card.stage === DownloadInfo.Finished) {
+                                    return Kirigami.Theme.positiveBackgroundColor;
+                                } else {
+                                    return null;
+                                }
                                 required property real downloadSpeed
                                 required property string error
                                 required property var id
@@ -146,26 +161,33 @@ StatefulApp.StatefulWindow {
 
                                 actions: [
                                     Kirigami.Action {
-                                        enabled: card.stage !== DownloadInfo.Unzipping
-                                        icon.name: "dialog-cancel"
+                                        enabled: card.stage === DownloadInfo.Downloading
+                                        icon.name: "process-stop"
+                                        visible: !closeAction.visible
 
                                         onTriggered: dl.cancel(card.id)
+                                    },
+                                    Kirigami.Action {
+                                        id: closeAction
+
+                                        icon.name: "dialog-close"
+                                        visible: card.stage === DownloadInfo.Finished || card.error !== ""
+
+                                        onTriggered: dl.remove(card.id)
                                     }
                                 ]
                                 contentItem: ColumnLayout {
                                     width: notificationCards.width
 
-                                    Kirigami.InlineMessage {
+                                    Label {
                                         Layout.fillWidth: true
                                         text: card.error
-                                        type: Kirigami.MessageType.Error
-                                        visible: card.error != ""
+                                        visible: card.error !== ""
                                     }
 
-                                    Kirigami.InlineMessage {
+                                    Label {
                                         Layout.fillWidth: true
                                         text: i18n("Installation complete")
-                                        type: Kirigami.MessageType.Positive
                                         visible: card.stage === DownloadInfo.Finished
                                     }
 
@@ -196,6 +218,9 @@ StatefulApp.StatefulWindow {
                                     level: 2
                                     text: card.assetName
                                 }
+
+                                onBackgroundColorChanged: if (backgroundColor !== null)
+                                    background.color = backgroundColor
                             }
                         }
                     }
