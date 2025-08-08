@@ -56,6 +56,7 @@ DownloadInfo *DownloadManager::createDlInfo(const QString &assetName,
 
 void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString destFilePath)
 {
+    const QString configGroupName = QFileInfo(destFilePath).fileName();
     // TODO: clean up this spaghetti
     print_debug() << "Opening archive";
     info->setStage(DownloadInfo::Unzipping);
@@ -146,7 +147,7 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
     connect(watcher,
             &QFutureWatcher<QString>::finished,
             this,
-            [info, watcher, future, sourceFilePath]() {
+            [info, watcher, future, sourceFilePath, configGroupName]() {
                 if (info->stage() != DownloadInfo::UnzipError) {
                     if (future.results().isEmpty()) {
                         info->setStage(DownloadInfo::UnknownError);
@@ -154,7 +155,8 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
                     } else {
                         bool isMono = QFileInfo(sourceFilePath).completeBaseName().contains("mono");
                         VersionRegistry::instance()->registerVersion(
-                            new GodotVersion(info->tagName(),
+                            new GodotVersion(configGroupName,
+                                             info->tagName(),
                                              info->assetName(),
                                              info->sourceUrl().toString(),
                                              info->repo(),

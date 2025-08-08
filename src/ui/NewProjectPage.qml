@@ -29,7 +29,7 @@ Kirigami.ScrollablePage {
         setupReplacements();
         ProjectTemplates.createProject(templateSelector.currentValue, projectLocation.currentText, replacements);
         ProjectsRegistry.import(projectLocation.currentText);
-        ProjectsRegistry.model.filter = formName.text;
+        ProjectsRegistry.model.filter = `exact:${formName.text}`;
         applicationWindow().pageStack.layers.pop();
     }
 

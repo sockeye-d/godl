@@ -7,8 +7,8 @@ class Singleton
 public:
     static T *instance()
     {
-        static T inst;
-        return &inst;
+        static T *inst = new T;
+        return inst;
     }
 };
 

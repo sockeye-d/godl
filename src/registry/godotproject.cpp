@@ -131,16 +131,24 @@ void GodotProject::save()
     }
 }
 
-GodotProject::OpenError GodotProject::open() const
+void GodotProject::clearError()
 {
+    setLastOpenError(static_cast<OpenError>(-1));
+}
+
+GodotProject::OpenError GodotProject::open()
+{
+    using namespace std::chrono_literals;
     if (!godotVersion()) {
-        return GodotProject::NoEditorBound;
+        setLastOpenError(NoEditorBound);
+        return NoEditorBound;
     }
 
     auto v = VersionRegistry::instance()->findVersion(godotVersion());
 
     if (!v) {
-        return GodotProject::NoEditorFound;
+        setLastOpenError(NoEditorFound);
+        return NoEditorFound;
     }
 
     QString cmd = v->cmd()
@@ -151,10 +159,15 @@ GodotProject::OpenError GodotProject::open() const
     QString exe = args.first();
     args.removeFirst();
     if (!QProcess::startDetached(exe, args)) {
-        return GodotProject::FailedToStartEditor;
+        setLastOpenError(FailedToStartEditor);
+        return FailedToStartEditor;
     }
 
-    return GodotProject::NoError;
+    setLastEditedTime(QDateTime::currentDateTime());
+    ProjectsRegistry::instance()->model()->resort();
+
+    setLastOpenError(NoError);
+    return NoError;
 }
 
 std::variant<GodotProject::OpenError, QString> GodotProject::getResolvedCmd(

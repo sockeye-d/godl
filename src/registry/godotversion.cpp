@@ -1,13 +1,13 @@
 #include "godotversion.h"
 #include "boundgodotversion.h"
-#include "versionregistry.h"
 
 #include <QDesktopServices>
 #include <QFileInfo>
 #include <QProcess>
 #include <KConfigGroup>
 
-GodotVersion::GodotVersion(QString tag,
+GodotVersion::GodotVersion(QString configGroup,
+                           QString tag,
                            QString assetName,
                            QString sourceUrl,
                            QString repo,
@@ -15,6 +15,7 @@ GodotVersion::GodotVersion(QString tag,
                            bool isMono,
                            QObject *parent)
     : QObject{parent}
+    , m_configGroupName{configGroup}
     , m_isMono{isMono}
     , m_assetName{assetName}
     , m_sourceUrl{sourceUrl}
@@ -27,7 +28,7 @@ GodotVersion::GodotVersion(QString tag,
 
 void GodotVersion::writeTo(KSharedConfig::Ptr config) const
 {
-    auto group = config->group(assetName());
+    auto group = config->group(m_configGroupName);
     group.writeEntry("tag", tag());
     group.writeEntry("path", path());
     group.writeEntry("assetName", assetName());
@@ -40,7 +41,8 @@ void GodotVersion::writeTo(KSharedConfig::Ptr config) const
 
 bool operator==(const GodotVersion &left, const GodotVersion &right)
 {
-    return left.isMono() == right.isMono() && left.assetName() == right.assetName();
+    return left.isMono() == right.isMono() && left.assetName() == right.assetName()
+           && left.tag() == right.tag() && left.repo() == right.repo();
 }
 
 QDebug operator<<(QDebug dbg, const GodotVersion &godotVersion)

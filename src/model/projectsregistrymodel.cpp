@@ -78,6 +78,10 @@ bool ProjectsRegistryModel::filterAcceptsRow(int source_row, const QModelIndex &
         }
         return false;
     }
+    if (filter().startsWith("exact:")) {
+        auto exactFilter = filter().sliced(6);
+        return item->name() == exactFilter;
+    }
     if (filterCaseInsensitive()) {
         return item->name().toLower().contains(filter().toLower())
                || item->description().toLower().contains(filter().toLower());
@@ -122,8 +126,14 @@ const GodotProject *ProjectsRegistryModel::project(int index) const
 
 void ProjectsRegistryModel::resort()
 {
+    using namespace std::chrono_literals;
+    resortInterval(0ms);
+}
+
+void ProjectsRegistryModel::resortInterval(std::chrono::milliseconds interval)
+{
     auto timer = new QTimer();
-    timer->setInterval(0);
+    timer->setInterval(interval);
     connect(timer, &QTimer::timeout, this, [this, timer]() {
         sort(0, !ascending() ? Qt::AscendingOrder : Qt::DescendingOrder);
         sort(0, ascending() ? Qt::AscendingOrder : Qt::DescendingOrder);

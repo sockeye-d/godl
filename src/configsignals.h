@@ -3,9 +3,10 @@
 
 #include <QMetaObject>
 #include <QMetaProperty>
+#include "singleton.h"
 #include <config.h>
 
-class ConfigSignals : public QObject
+class ConfigSignals : public QObject, public Singleton<ConfigSignals>
 {
     Q_OBJECT
     Config *const m_config;
@@ -32,7 +33,7 @@ public:
         setIsSaveNeeded(false);
     }
 
-    explicit ConfigSignals(Config *config)
+    explicit ConfigSignals(Config *config = Config::self())
         : m_config(config)
     {
         auto meta = config->metaObject();
@@ -50,13 +51,6 @@ public:
     bool isSaveNeeded() const { return m_isSaveNeeded; }
     Q_SIGNAL void configChanged();
     Q_SIGNAL void isSaveNeededChanged();
-
-public:
-    static ConfigSignals *instance()
-    {
-        static auto instance = new ConfigSignals(Config::self());
-        return instance;
-    }
 };
 
 #endif // CONFIGSIGNALS_H

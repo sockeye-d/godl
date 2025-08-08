@@ -2,7 +2,6 @@
 #define PROJECTSREGISTRYMODEL_H
 
 #include "internalprojectsregistrymodel.h"
-#include "util.h"
 
 // I'm going to <omitted> lose it
 class ProjectsRegistry;
@@ -15,7 +14,6 @@ class ProjectsRegistryModel : public QSortFilterProxyModel
     Q_OBJECT
 private:
     const GodotProject *project(int index) const;
-    void resort();
 
 public:
     enum SortBy {
@@ -100,6 +98,9 @@ public:
 
 public:
     explicit ProjectsRegistryModel(InternalProjectsRegistryModel *model, QObject *parent = nullptr);
+
+    void resort();
+    void resortInterval(std::chrono::milliseconds interval);
 
     // QSortFilterProxyModel interface
 protected:

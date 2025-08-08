@@ -10,6 +10,7 @@ void VersionRegistry::add(GodotVersion *version)
     connect(version, &GodotVersion::cmdChanged, this, [version, this]() {
         version->writeTo(config());
     });
+    m_versions[version->m_configGroupName] = version;
     model()->append(version);
     Q_EMIT downloadedChanged();
     Q_EMIT hasVersionChanged();
@@ -25,7 +26,7 @@ void VersionRegistry::removeVersion(GodotVersion *version)
 {
     print_debug() << "attempted to remove" << *version;
     model()->remove(version);
-    m_config->deleteGroup(version->assetName());
+    m_config->deleteGroup(version->m_configGroupName);
     m_config->sync();
     auto path = Config::godotLocation() / getPathRoot(version->path());
     print_debug() << "removing" << path;
@@ -33,29 +34,30 @@ void VersionRegistry::removeVersion(GodotVersion *version)
     print_debug() << "done removing" << path;
     Q_EMIT downloadedChanged();
     Q_EMIT hasVersionChanged();
+    m_versions.remove(version->m_configGroupName);
     version->deleteLater();
 }
 
-QMap<QString, GodotVersion *> VersionRegistry::versions() const
+const QMap<QString, GodotVersion *> &VersionRegistry::versions() const
 {
-    QMap<QString, GodotVersion *> map;
-    for (const QString &assetName : assets()) {
-        map[assetName] = version(assetName);
-    }
-    return map;
+    return m_versions;
 }
 
-GodotVersion *VersionRegistry::version(QString assetName) const
+GodotVersion *VersionRegistry::version(QString uniqueName) const
 {
-    if (assetName == "") {
+    if (versions().contains(uniqueName)) {
+        return versions().value(uniqueName);
+    }
+    if (uniqueName == "") {
         return nullptr;
     }
-    if (!m_config->hasGroup(assetName)) {
+    if (!m_config->hasGroup(uniqueName)) {
         return nullptr;
     }
-    const KConfigGroup &group = m_config->group(assetName);
+    const KConfigGroup &group = m_config->group(uniqueName);
     const auto version = new GodotVersion();
-    version->setAssetName(assetName);
+    version->m_configGroupName = uniqueName;
+    version->setAssetName(group.readEntry("assetName"));
     version->setTag(group.readEntry("tag"));
     version->setPath(group.readEntry("path"));
     version->setSourceUrl(group.readEntry("sourceUrl"));
@@ -102,6 +104,21 @@ bool VersionRegistry::downloaded(const QString &tag, const QString &repo) const
     return false;
 }
 
+bool VersionRegistry::downloadedAsset(const QString &tag,
+                                      const QString &repo,
+                                      const QString &assetName) const
+{
+    const QStringList groups = m_config->groupList();
+    for (const QString &groupName : groups) {
+        auto g = m_config->group(groupName);
+        if (g.readEntry("tag") == tag && g.readEntry("repo") == repo
+            && g.readEntry("assetName") == assetName) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool VersionRegistry::hasVersion(const BoundGodotVersion *version) const
 {
     const QStringList groups = m_config->groupList();
@@ -116,7 +133,7 @@ bool VersionRegistry::hasVersion(const BoundGodotVersion *version) const
     return false;
 }
 
-QString VersionRegistry::findAssetName(const BoundGodotVersion *version) const
+QString VersionRegistry::findUniqueName(const BoundGodotVersion *version) const
 {
     const QStringList groups = m_config->groupList();
     for (const QString &groupName : groups) {
@@ -132,7 +149,7 @@ QString VersionRegistry::findAssetName(const BoundGodotVersion *version) const
 
 const GodotVersion *VersionRegistry::findVersion(const BoundGodotVersion *v) const
 {
-    return version(findAssetName(v));
+    return version(findUniqueName(v));
 }
 
 QStringList VersionRegistry::detectLeakedVersions() const
@@ -170,4 +187,27 @@ QString VersionRegistry::resolveSourceUrl(QString source) const
         return "https://api.github.com/repos" + source;
     else
         return source;
+}
+
+void VersionRegistry::refreshConfigFile()
+{
+    m_config = KSharedConfig::openConfig(location(), KSharedConfig::SimpleConfig);
+    for (GodotVersion *version : std::as_const(m_versions)) {
+        version->deleteLater();
+    }
+    m_versions.clear();
+    model()->clear();
+    for (const auto &groupName : m_config->groupList()) {
+        add(version(groupName));
+    }
+}
+
+VersionRegistry::VersionRegistry(QObject *parent)
+    : QObject(parent)
+{
+    refreshConfigFile();
+    connect(Config::self(),
+            &Config::godotLocationChanged,
+            this,
+            &VersionRegistry::refreshConfigFile);
 }

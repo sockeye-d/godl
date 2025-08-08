@@ -5,29 +5,22 @@
 void GodlApp::setupActions()
 {
     AbstractKirigamiApplication::setupActions();
-
     auto nextTab = new QAction();
     nextTab->setText("Next page");
-    nextTab->setObjectName("godl-next-page");
-    nextTab->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Tab));
-    mainCollection()->addAction(nextTab->objectName(), nextTab);
+    mainCollection()->addAction("godl_next_page", nextTab);
+    mainCollection()->setDefaultShortcut(nextTab, QKeySequence(Qt::CTRL | Qt::Key_Tab));
 
     auto prevTab = new QAction();
     prevTab->setText("Previous page");
-    prevTab->setObjectName("godl-prev-page");
-    prevTab->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Tab));
-    mainCollection()->addAction(prevTab->objectName(), prevTab);
+    mainCollection()->addAction("godl_prev_page", prevTab);
+    mainCollection()->setDefaultShortcut(prevTab, QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Tab));
 
-    // mainCollection()->addActions({nextTab, prevTab});
-    // mainCollection()->setDefaultShortcut(nextTab, QKeySequence(Qt::CTRL | Qt::Key_Tab));
-    // mainCollection()->setDefaultShortcut(prevTab, QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Tab));
+    connect(nextTab, &QAction::triggered, this, [this](auto) { Q_EMIT nextTabTriggered(); });
+    connect(prevTab, &QAction::triggered, this, [this](auto) { Q_EMIT prevTabTriggered(); });
+}
 
-    // auto actionName = QLatin1String("add_notebook");
-    // if (KAuthorized::authorizeAction(actionName)) {
-    //     auto action = mainCollection()->addAction(actionName, this, []() { debug() << "hi"; });
-    //     action->setText("New Notebook");
-    //     action->setIcon(QIcon::fromTheme(QStringLiteral("list-add-symbolic")));
-    //     mainCollection()->addAction(action->objectName(), action);
-    //     mainCollection()->setDefaultShortcut(action, QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_N));
-    // }
+GodlApp::GodlApp(QObject *parent)
+    : AbstractKirigamiApplication(parent)
+{
+    GodlApp::setupActions();
 }

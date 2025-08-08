@@ -141,7 +141,7 @@ ProjectsRegistry::ProjectsRegistry(QObject *parent)
 {
     const QStringList paths = config().groupList();
     for (const QString &path : paths) {
-        auto proj = load(path);
+        auto proj = load(path, false);
         if (!proj) {
             m_loadErrors.append(path);
             print_debug() << "Couldn't find project at" << path;
@@ -149,6 +149,9 @@ ProjectsRegistry::ProjectsRegistry(QObject *parent)
         }
     }
     config().sync();
+
+    m_model->invalidate();
+    m_model->resort();
 }
 
 GodotProject *ProjectsRegistry::loadCli(const QString &filepath)

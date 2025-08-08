@@ -12,6 +12,7 @@ FormCard.FormCard {
 
     property list<string> configValue
     property list<string> defaultConfigValue
+    property list<Component> fieldActions: []
     property string help
     property alias text: button.text
 
@@ -19,16 +20,12 @@ FormCard.FormCard {
     signal configRemoved(int index)
     signal configSet(list<string> newValue)
 
-    QtObject {
-        id: internal
-
-        function refreshFilters() {
-            repeater.model = [];
-            repeater.model = root.configValue.slice();
-        }
-
-        Component.onCompleted: refreshFilters()
+    function refreshItems() {
+        repeater.model = [];
+        repeater.model = root.configValue.slice();
     }
+
+    Component.onCompleted: refreshItems()
 
     RowLayout {
         FormCard.FormButtonDelegate {
@@ -40,7 +37,7 @@ FormCard.FormCard {
 
             onClicked: {
                 configValue.push("");
-                internal.refreshFilters();
+                root.refreshItems();
             }
             onHoveredChanged: if (root.help !== "")
                 tt.visible = hovered
@@ -61,7 +58,7 @@ FormCard.FormCard {
 
             onClicked: {
                 root.configSet(defaultConfigValue);
-                internal.refreshFilters();
+                root.refreshItems();
             }
         }
     }
@@ -82,20 +79,30 @@ FormCard.FormCard {
                 height: childrenRect.height
 
                 Kirigami.ActionTextField {
+                    id: textField
+
+                    property var defaultAction: Kirigami.Action {
+                        icon.name: "list-remove"
+
+                        onTriggered: {
+                            root.configRemoved(item.index);
+                            root.refreshItems();
+                        }
+                    }
+
+                    rightActions: {
+                        let actions = [defaultAction];
+                        for (let action of root.fieldActions) {
+                            actions.push(action.createObject(null, {
+                                index: item.index,
+                                data: item.modelData
+                            }));
+                        }
+                        return actions;
+                    }
                     text: item.modelData
                     width: item.width - FormCard.FormCardUnits.horizontalPadding * 2
                     x: FormCard.FormCardUnits.horizontalPadding
-
-                    rightActions: [
-                        Kirigami.Action {
-                            icon.name: "list-remove"
-
-                            onTriggered: {
-                                root.configRemoved(item.index);
-                                internal.refreshFilters();
-                            }
-                        }
-                    ]
 
                     onTextChanged: root.configChanged(index, text)
                 }

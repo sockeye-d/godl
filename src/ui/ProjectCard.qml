@@ -25,8 +25,8 @@ Kirigami.Card {
 
             checkable: true
             checked: root.modelData.favorite
-            icon.color: checked ? "gold" : "white"
-            icon.name: "favorite"
+            icon.color: checked ? palette.accent : palette.text
+            icon.name: checked ? "favorite-favorited" : "favorite"
 
             onCheckedChanged: root.modelData.favorite = favoriteAction.checked
         },
@@ -43,17 +43,18 @@ Kirigami.Card {
             onTriggered: editDialog.open()
         },
         Kirigami.Action {
+            icon.name: "unlock"
+            text: i18n("Bind editor")
+
+            onTriggered: bindDialog.open()
+        },
+        Kirigami.Action {
+            displayHint: Kirigami.DisplayHint.AlwaysHide
             icon.name: "document-open-folder"
             text: i18n("Show in folder")
             tooltip: root.modelData.path
 
             onTriggered: root.modelData.showInFolder()
-        },
-        Kirigami.Action {
-            icon.name: "unlock"
-            text: i18n("Bind editor")
-
-            onTriggered: bindDialog.open()
         },
         Kirigami.Action {
             displayHint: Kirigami.DisplayHint.AlwaysHide
@@ -94,6 +95,7 @@ Kirigami.Card {
                         Layout.fillWidth: true
                         color: hasDescription ? palette.windowText : palette.placeholderText
                         elide: Text.ElideRight
+                        maximumLineCount: 1
                         text: hasDescription ? root.modelData.description : i18n("<no description>")
                     }
 
@@ -141,21 +143,15 @@ Kirigami.Card {
                     Layout.alignment: Qt.AlignTop
                     Layout.fillWidth: true
                     Layout.preferredWidth: Kirigami.Units.gridUnit * 10
-                    text: ({
-                            0: null,
-                            1: i18n("Opened project"),
-                            2: i18n("No editor bound"),
-                            3: i18n("No editor found"),
-                            4: i18n("Failed to start editor")
-                        }[root.error + 1])
-                    type: root.error === 0 ? Kirigami.MessageType.Positive : Kirigami.MessageType.Error
-                    visible: root.error !== -1
+                    text: (["huh", i18n("Opened project"), i18n("No editor bound"), i18n("No editor found"), i18n("Failed to start editor")][root.modelData.lastOpenError + 1])
+                    type: root.modelData.lastOpenError === 0 ? Kirigami.MessageType.Positive : Kirigami.MessageType.Error
+                    visible: root.modelData.lastOpenError !== -1
 
                     actions: Kirigami.Action {
                         displayComponent: Controls.ToolButton {
                             icon.name: "dialog-close"
 
-                            onClicked: root.error = -1
+                            onClicked: root.modelData.clearError()
                         }
                     }
                 }
@@ -310,6 +306,10 @@ Kirigami.Card {
                 hoverEnabled: true
             }
         }
+    }
+
+    Component.onCompleted: {
+        console.log(root.modelData.lastOpenError);
     }
 
     Kirigami.Dialog {

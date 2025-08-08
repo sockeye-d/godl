@@ -56,8 +56,35 @@ ecm_find_qmlmodule(org.kde.desktop REQUIRED)
 
 message(NOTICE "Build type is " ${CMAKE_BUILD_TYPE})
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    message(NOTICE "Debugging is on")
     add_definitions(-DDEBUG=ON)
+endif()
+
+execute_process(
+    COMMAND git rev-parse --short HEAD
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_COMMIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    RESULT_VARIABLE GIT_COMMIT_HASH_RESULT
+)
+
+if(GIT_COMMIT_HASH_RESULT EQUAL 0)
+    add_definitions(-DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}")
+else()
+    add_definitions(-DGIT_COMMIT_HASH="unknown")
+endif()
+
+execute_process(
+    COMMAND git describe --tags --abbrev=1
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_TAG
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    RESULT_VARIABLE GIT_TAG_RESULT
+)
+
+if(GIT_TAG_RESULT EQUAL 0)
+    add_definitions(-DGIT_TAG="${GIT_TAG}")
+else()
+    add_definitions(-DGIT_TAG="unknown")
 endif()
 
 add_subdirectory(src)

@@ -14,7 +14,7 @@ class GodotVersion : public QObject
     Q_OBJECT
     QML_ELEMENT
 
-    QString m_groupName = "";
+    QString m_configGroupName = "";
 
 private:
     Q_PROPERTY(bool isMono READ isMono NOTIFY isMonoChanged FINAL)
@@ -146,9 +146,10 @@ public:
 
 public:
     explicit GodotVersion(QObject *parent = nullptr)
-        : GodotVersion("", "", "", "", "", false, parent)
+        : GodotVersion("", "", "", "", "", "", false, parent)
     {}
-    explicit GodotVersion(QString tag,
+    explicit GodotVersion(QString configGroup,
+                          QString tag,
                           QString assetName,
                           QString sourceUrl,
                           QString repo,

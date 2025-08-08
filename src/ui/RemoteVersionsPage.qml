@@ -43,6 +43,7 @@ Kirigami.Page {
         Kirigami.Action {
             enabled: !request.running
             icon.name: "view-refresh"
+            shortcut: StandardKey.Refresh
             tooltip: i18n("Refresh")
 
             onTriggered: root.refresh()
@@ -255,6 +256,7 @@ Kirigami.Page {
             id: dlDialogModel
 
             property list<int> highlightedIndices: []
+            property int refresh
 
             function dotnetFilter(el) {
                 return !monoOnlyFilterChip.checked || el.name.indexOf("mono") !== -1;
@@ -272,19 +274,39 @@ Kirigami.Page {
                 return !currentPlatformOnlyFilterChip.checked || filterAsset(el);
             }
 
+            function refreshHighlightedIndices() {
+                highlightedIndices = [];
+                let i = 0;
+                for (let element of model) {
+                    if (filterAsset(element)) {
+                        highlightedIndices.push(i);
+                    }
+                    i++;
+                }
+            }
+
             model: dlDialog.assets.filter(platformFilter).filter(nameFilter).filter(dotnetFilter)
 
             delegate: Kirigami.Card {
+                id: assetCard
+
                 required property string browser_download_url
                 required property int index
+                readonly property bool isDownloaded: {
+                    update;
+                    return VersionRegistry.downloadedAsset(dlDialog.tagName, root.rawRepo, assetCard.name);
+                }
+                required property var modelData
                 required property string name
                 required property int size
+                property int update: 0
                 required property string url
 
                 banner.title: name
 
                 actions: [
                     Kirigami.Action {
+                        enabled: !assetCard.isDownloaded
                         icon.name: "download"
                         text: i18n("Download")
 
@@ -301,23 +323,36 @@ Kirigami.Page {
                 Rectangle {
                     anchors.fill: parent
                     border.color: Kirigami.Theme.highlightColor
+                    border.width: 1
+                    color: "transparent"
+                    radius: parent.background.radius
+                    visible: {
+                        dlDialogModel.refresh;
+                        return !assetHighlight.visible && dlDialogModel.filterAsset(assetCard.modelData);
+                    }
+                }
+
+                Rectangle {
+                    id: assetHighlight
+
+                    anchors.fill: parent
+                    border.color: Kirigami.Theme.positiveTextColor
                     border.width: 2
                     color: "transparent"
                     radius: parent.background.radius
-                    visible: dlDialogModel.highlightedIndices.includes(parent.index)
+                    visible: assetCard.isDownloaded
+                }
+
+                Connections {
+                    function onHasVersionChanged() {
+                        assetCard.update++;
+                    }
+
+                    target: VersionRegistry
                 }
             }
 
-            onModelChanged: {
-                highlightedIndices = [];
-                let i = 0;
-                for (let element of model) {
-                    if (filterAsset(element)) {
-                        highlightedIndices.push(i);
-                    }
-                    i++;
-                }
-            }
+            onModelChanged: refresh++
         }
     }
 
@@ -400,18 +435,21 @@ Kirigami.Page {
                     Rectangle {
                         id: highlight
 
-                        property bool update: false
+                        property int update: 0
 
                         anchors.fill: parent
                         border.color: Kirigami.Theme.positiveTextColor
                         border.width: 1
                         color: "transparent"
                         radius: parent.background.radius
-                        visible: VersionRegistry.downloaded(card.tag_name, root.rawRepo) || (update && !update)
+                        visible: {
+                            update;
+                            return VersionRegistry.downloaded(card.tag_name, root.rawRepo);
+                        }
 
                         Connections {
-                            function onDownloadedChanged() {
-                                highlight.update = !highlight.update;
+                            function onHasVersionChanged() {
+                                highlight.update++;
                             }
 
                             target: VersionRegistry

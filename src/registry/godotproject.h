@@ -18,7 +18,7 @@ class GodotProject : public QObject, Serializable
     Q_OBJECT
 
 public:
-    enum OpenError {
+    enum OpenError : int {
         NoError,
         NoEditorBound,
         NoEditorFound,
@@ -217,6 +217,23 @@ public:
 
     Q_SIGNAL void directoryChanged();
 
+private:
+    Q_PROPERTY(OpenError lastOpenError READ lastOpenError NOTIFY lastOpenErrorChanged FINAL)
+    OpenError m_lastOpenError = static_cast<OpenError>(-1);
+
+    void setLastOpenError(OpenError lastOpenError)
+    {
+        if (m_lastOpenError == lastOpenError)
+            return;
+        m_lastOpenError = lastOpenError;
+        Q_EMIT lastOpenErrorChanged();
+    }
+
+public:
+    OpenError lastOpenError() const { return m_lastOpenError; }
+
+    Q_SIGNAL void lastOpenErrorChanged();
+
 public:
     explicit GodotProject(QObject *parent = nullptr);
 
@@ -232,7 +249,8 @@ public:
     static inline const QString projectFilename = "godlproject";
     static GodotProject *load(const QString &path);
     Q_INVOKABLE void save();
-    Q_INVOKABLE OpenError open() const;
+    Q_INVOKABLE OpenError open();
+    Q_INVOKABLE void clearError();
     std::variant<OpenError, QString> getResolvedCmd(const QString &extraArgs,
                                                     bool noDefaultArgs) const;
     std::pair<OpenError, QProcess *> openForCli(const QString &args,

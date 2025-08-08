@@ -16,7 +16,6 @@ GodlConfigPage {
         ConfigStringListFormCard {
             configValue: Configuration.downloadFilter
             defaultConfigValue: Configuration.defaultDownloadFilterValue
-            // @disable-check M16
             help: i18n("Substrings to look for in remote asset names to highlight the one you most likely want. The defaults are probably okay, but if you find that some assets don't show up, add them to this list.")
             text: i18n("Add new filter")
 
@@ -29,11 +28,31 @@ GodlConfigPage {
         }
 
         ConfigStringListFormCard {
+            id: sourcesConfig
+
             configValue: Configuration.sources
             defaultConfigValue: Configuration.defaultSourcesValue
-            // @disable-check M16
-            help: i18n("Release API sources. If the source starts with a `/`, it'll be considered to be a GitHub repository, otherwise it'll be assumed to be an external source with a matching API to that of GitHub's")
+            help: i18n("Release API sources. If the source starts with a '/', it'll be considered to be a GitHub repository, otherwise it'll be assumed to be an external source with a matching API to that of GitHub's")
             text: i18n("Add new source")
+
+            fieldActions: [
+                Component {
+                    Kirigami.Action {
+                        required property string data
+                        required property int index
+
+                        icon.name: index === 0 ? "favorite-favorited" : "favorite"
+
+                        onTriggered: {
+                            let list = Configuration.sources;
+                            list.splice(list.indexOf(data), 1);
+                            list.unshift(data);
+                            Configuration.sources = list;
+                            sourcesConfig.refreshItems();
+                        }
+                    }
+                }
+            ]
 
             onConfigChanged: (i, v) => Configuration.sources[i] = v
             onConfigRemoved: i => Configuration.sources.splice(i, 1)

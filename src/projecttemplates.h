@@ -3,10 +3,11 @@
 
 #include <QMap>
 #include <QObject>
+#include "singleton.h"
 #include "template.h"
 #include <qqmlintegration.h>
 
-class ProjectTemplates : public QObject
+class ProjectTemplates : public QObject, public Singleton<ProjectTemplates>
 {
     Q_OBJECT
     Q_PROPERTY(QStringList templates READ templateNames NOTIFY templatesChanged FINAL)
@@ -32,12 +33,6 @@ public:
     Q_SIGNAL void templatesChanged();
 
 public:
-    static ProjectTemplates *instance()
-    {
-        static auto *instance = new ProjectTemplates();
-        return instance;
-    }
-
     explicit ProjectTemplates(QObject *parent = nullptr);
     Q_INVOKABLE void rescan();
     void extractDefault();

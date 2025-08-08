@@ -67,6 +67,11 @@ StatefulApp.StatefulWindow {
                 configViewItem.visible = true;
             }
         }
+
+        onNextTabTriggered: if (mainPage.activePageIndex !== 2)
+            mainPage.activePageIndex++
+        onPrevTabTriggered: if (mainPage.activePageIndex !== 0)
+            mainPage.activePageIndex--
     }
     footer: RowLayout {
         Layout.fillWidth: true
@@ -77,7 +82,7 @@ StatefulApp.StatefulWindow {
 
         Label {
             color: palette.placeholderText
-            text: "godl v" + "1.1.1"
+            text: `${VersionInfo.tag} (${VersionInfo.commitHash})`
         }
 
         Item {
@@ -246,6 +251,14 @@ StatefulApp.StatefulWindow {
             },
             Kirigami.Action {
                 fromQAction: root.application.action("options_configure")
+            },
+            Kirigami.Action {
+                fromQAction: root.application.action("godl_next_page")
+                visible: false
+            },
+            Kirigami.Action {
+                fromQAction: root.application.action("godl_prev_page")
+                visible: false
             }
         ]
     }
@@ -290,6 +303,7 @@ StatefulApp.StatefulWindow {
         ]
 
         actions: swipeView.children[swipeView.currentIndex].actions.concat(baseActions)
+        bottomPadding: 0
 
         ActionGroup {
             id: actionGroup
@@ -327,9 +341,9 @@ StatefulApp.StatefulWindow {
         }
     }
 
-    Component.onCompleted: {
-        deferredComponent.createObject(root);
-    }
+    Component.onCompleted:
+    // deferredComponent.createObject(root);
+    {}
 
     Kirigami.ApplicationWindow {
         id: aboutPage
@@ -368,25 +382,5 @@ StatefulApp.StatefulWindow {
         id: dl
 
         onDownloadStarted: notificationPopup.open()
-    }
-
-    Component {
-        id: deferredComponent
-
-        Item {
-            Action {
-                shortcut: root.application.action("godl-next-page").shortcut
-
-                onTriggered: if (mainPage.activePageIndex !== 2)
-                    mainPage.activePageIndex++
-            }
-
-            Action {
-                shortcut: root.application.action("godl-prev-page").shortcut
-
-                onTriggered: if (mainPage.activePageIndex !== 0)
-                    mainPage.activePageIndex--
-            }
-        }
     }
 }
