@@ -62,9 +62,23 @@ public:
     Q_SIGNAL void downloadedChanged();
     Q_SIGNAL void hasVersionChanged();
 
+    Q_INVOKABLE QString detectRepository(const QString &path) const;
+    Q_INVOKABLE QString detectTag(const QString &path) const;
+    Q_INVOKABLE QString detectAsset(const QString &path) const;
+    Q_INVOKABLE bool detectMono(const QString &path) const;
+
     Q_INVOKABLE QStringList detectLeakedVersions() const;
     Q_INVOKABLE void deleteLeakedVersions(QStringList versions) const;
     Q_INVOKABLE QString resolveSourceUrl(QString source) const;
+
+    Q_INVOKABLE void registerLocalVersion(const QString &path,
+                                          const QString &repo,
+                                          const QString &tag,
+                                          const QString &asset,
+                                          bool isMono);
+
+    QString sanitizeAssetName(const QString &assetName, const QString &withWhat = "-") const;
+    QString getUniqueName(const QString &assetName) const;
 };
 
 #endif // VERSIONREGISTRY_H

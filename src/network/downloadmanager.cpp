@@ -20,19 +20,11 @@
 #include <KZip>
 #include <config.h>
 
-namespace {
-QString sanitize(QString input, const QString &withWhat = "_")
-{
-    static QRegularExpression re{"[<!>:\"\\/\\|?*]", QRegularExpression::MultilineOption};
-    return input.replace(re, withWhat);
-}
-
-QString getDownloadLocation(const DownloadInfo &info)
+QString DownloadManager::getDownloadLocation(const DownloadInfo &info) const
 {
     return Config::godotLocation() / QUuid::createUuid().toString(QUuid::WithoutBraces) % "-"
-           % sanitize(info.assetName());
+           % VersionRegistry::instance()->sanitizeAssetName(info.assetName());
 }
-} // namespace
 
 DownloadInfo *DownloadManager::createDlInfo(const QString &assetName,
                                             const QString &tagName,

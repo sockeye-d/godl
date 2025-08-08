@@ -308,17 +308,13 @@ Kirigami.Card {
         }
     }
 
-    Component.onCompleted: {
-        console.log(root.modelData.lastOpenError);
-    }
-
     Kirigami.Dialog {
         id: removeDialog
 
         flatFooterButtons: true
         standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
         title: i18n("Are you sure?")
-        width: Math.max(implicitFooterWidth, implicitHeaderWidth)
+        width: Kirigami.Units.gridUnit * 20
 
         contentItem: RowLayout {
             spacing: 0
@@ -328,23 +324,38 @@ Kirigami.Card {
                 width: Kirigami.Units.largeSpacing
             }
 
-            Controls.Label {
+            ColumnLayout {
                 Layout.fillWidth: true
-                text: moveToTrash.checked ? i18n("This will move the project to the trash and remove it from the list. **Note**: it may fail to move the project to the trash in some cases.") : i18n("This will remove it from the list, but you can add the project back later")
-                textFormat: Text.MarkdownText
-                wrapMode: Text.Wrap
+
+                Controls.Label {
+                    Layout.fillWidth: true
+                    text: moveToTrash.checked ? i18n("This will move the project to the trash and remove it from the list.") : i18n("This will remove it from the list, but you can add the project back later")
+                    wrapMode: Text.Wrap
+                }
+
+                Controls.CheckBox {
+                    id: moveToTrash
+
+                    checked: false
+                    icon.name: "delete"
+                    text: i18n("Move to trash")
+                }
+            }
+
+            Item {
+                width: Kirigami.Units.largeSpacing
             }
         }
-        customFooterActions: [
-            Kirigami.Action {
-                id: moveToTrash
 
-                checkable: true
-                checked: false
-                icon.name: "delete"
-                text: "Move to trash"
-            }
-        ]
+        // customFooterActions: [
+        //     Kirigami.Action {
+
+        //         checkable: true
+        //         checked: false
+        //         icon.name: "delete"
+        //         text: "Move to trash"
+        //     }
+        // ]
 
         onAccepted: {
             ProjectsRegistry.remove(root.modelData, moveToTrash.checked);

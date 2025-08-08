@@ -24,10 +24,14 @@ A version manager for Godot, written in QML/C++ with the Qt Quick libraries.
 ...your versions:
 
 ![remote versions](assets/remote-versions.png)
+
 ![remote versions](assets/remote-versions-download.png)
 
 ...including first-class support for forks:
 ![forks](assets/forks.png)
+
+...even custom builds from a file
+![add local version from file](assets/add-local-version.png)
 
 ...your local versions:
 
@@ -62,6 +66,7 @@ on a non-Plasma desktop, so this is just what I got from ldd)
 - breeze-icons
 - kirigami
 - qqc2-desktop-style
+- kconfigwidgets
 
 Then, you should be able to download, extract, and run the executable.
 
@@ -297,6 +302,7 @@ You'll need to install
 - kirigami
 - qtcreator
 - qqc2-desktop-style
+- kconfigwidgets
 
 (I think)
 
@@ -325,4 +331,4 @@ and put it in `~/.local/share/applications/`,
 and also copy [godl.svg](src/godl.svg) to
 `/usr/share/icons/hicolor/scalable/apps/godl.svg` or similar.
 
-*No dariacore was harmed in the making of this software*
+*"No" dariacore was harmed in the making of this software*

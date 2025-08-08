@@ -33,6 +33,7 @@ QStringList sysInfo();
 std::unique_ptr<KArchive> openArchive(const QString &filePath);
 
 QString removePrefix(const QString &string, const QString &prefix);
+QString removeSuffix(const QString &string, const QString &suffix);
 
 QString normalizeDirectoryPath(const QString &dirpath);
 

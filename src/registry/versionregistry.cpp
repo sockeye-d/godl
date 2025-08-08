@@ -1,9 +1,10 @@
 #include "versionregistry.h"
 #include "fileutil.h"
 
-#include <QDir>
 #include <KSharedConfig>
 #include <qtmetamacros.h>
+#include <QDir>
+#include <QRegularExpression>
 
 void VersionRegistry::add(GodotVersion *version)
 {
@@ -28,10 +29,14 @@ void VersionRegistry::removeVersion(GodotVersion *version)
     model()->remove(version);
     m_config->deleteGroup(version->m_configGroupName);
     m_config->sync();
-    auto path = Config::godotLocation() / getPathRoot(version->path());
-    print_debug() << "removing" << path;
-    QDir(path).removeRecursively();
-    print_debug() << "done removing" << path;
+    if (version->absolutePath().startsWith(Config::godotLocation())) {
+        auto path = Config::godotLocation() / getPathRoot(version->path());
+        print_debug() << "removing" << path;
+        QDir(path).removeRecursively();
+        print_debug() << "done removing" << path;
+    } else {
+        print_debug() << "not deleting";
+    }
     Q_EMIT downloadedChanged();
     Q_EMIT hasVersionChanged();
     m_versions.remove(version->m_configGroupName);
@@ -152,6 +157,65 @@ const GodotVersion *VersionRegistry::findVersion(const BoundGodotVersion *v) con
     return version(findUniqueName(v));
 }
 
+QString execute(const QString &executable, const QString &cwd, const QStringList &args)
+{
+    QProcess proc;
+    proc.setWorkingDirectory(cwd);
+    proc.start(executable, args);
+    proc.waitForFinished(-1);
+    return proc.readAllStandardOutput();
+}
+
+QString VersionRegistry::detectRepository(const QString &path) const
+{
+    const static QRegularExpression lineSplitter = QRegularExpression("[\r\n]");
+    const QString git = QStandardPaths::findExecutable("git");
+    if (git.isEmpty()) {
+        print_debug() << "Git executable not found";
+        return "";
+    }
+
+    const QString dir = QFileInfo(path).path();
+    const QString remoteName
+        = execute(git, dir, {"remote", "show"}).split(lineSplitter, Qt::SkipEmptyParts).constFirst();
+    QString pushUrl = removePrefix(execute(git,
+                                           dir,
+                                           {"config", "--local", "remote." + remoteName + ".url"})
+                                       .trimmed(),
+                                   "https://");
+
+    if (!pushUrl.startsWith("github.com")) {
+        return "";
+    }
+
+    pushUrl = removePrefix(pushUrl, "github.com");
+    pushUrl = removeSuffix(pushUrl, ".git");
+
+    return pushUrl;
+}
+
+QString VersionRegistry::detectTag(const QString &path) const
+{
+    const QString git = QStandardPaths::findExecutable("git");
+    if (git.isEmpty()) {
+        print_debug() << "Git executable not found";
+        return "";
+    }
+    const QString dir = QFileInfo(path).path();
+
+    return execute(git, dir, {"describe", "--tags", "--abbrev=1"}).trimmed();
+}
+
+QString VersionRegistry::detectAsset(const QString &path) const
+{
+    return removeSuffix(QFileInfo(path).fileName(), "exe");
+}
+
+bool VersionRegistry::detectMono(const QString &path) const
+{
+    return QFileInfo(path).fileName().contains("mono");
+}
+
 QStringList VersionRegistry::detectLeakedVersions() const
 {
     const QStringList downloadedVersions = QDir(Config::godotLocation())
@@ -189,6 +253,22 @@ QString VersionRegistry::resolveSourceUrl(QString source) const
         return source;
 }
 
+void VersionRegistry::registerLocalVersion(
+    const QString &path, const QString &repo, const QString &tag, const QString &asset, bool isMono)
+{
+    const QString uniqueName = getUniqueName(asset);
+    const auto version = new GodotVersion();
+    version->m_configGroupName = uniqueName;
+    version->setAssetName(asset);
+    version->setTag(tag);
+    version->setPath(path);
+    version->setSourceUrl("");
+    version->setRepo(repo);
+    version->setIsMono(isMono);
+    version->setCmd(Config::defaultCommand());
+    registerVersion(version);
+}
+
 void VersionRegistry::refreshConfigFile()
 {
     m_config = KSharedConfig::openConfig(location(), KSharedConfig::SimpleConfig);
@@ -210,4 +290,15 @@ VersionRegistry::VersionRegistry(QObject *parent)
             &Config::godotLocationChanged,
             this,
             &VersionRegistry::refreshConfigFile);
+}
+
+QString VersionRegistry::sanitizeAssetName(const QString &assetName, const QString &withWhat) const
+{
+    static QRegularExpression re{"[<!>:\"\\/\\|?*]", QRegularExpression::MultilineOption};
+    return QString(assetName).replace(re, withWhat);
+}
+
+QString VersionRegistry::getUniqueName(const QString &assetName) const
+{
+    return QUuid::createUuid().toString(QUuid::WithoutBraces) % "-" % sanitizeAssetName(assetName);
 }

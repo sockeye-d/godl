@@ -134,6 +134,7 @@ Kirigami.Page {
             Controls.ScrollBar.horizontal.policy: Controls.ScrollBar.AlwaysOff
             Layout.fillHeight: true
             Layout.fillWidth: true
+            visible: !ProjectsRegistry.scanning
 
             GridView {
                 id: projectsView

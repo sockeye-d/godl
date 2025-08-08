@@ -103,6 +103,15 @@ QString removePrefix(const QString &string, const QString &prefix)
     return string.sliced(prefix.length());
 }
 
+QString removeSuffix(const QString &string, const QString &suffix)
+{
+    if (!string.endsWith(suffix)) {
+        return string;
+    }
+
+    return string.sliced(0, string.length() - suffix.length());
+}
+
 /**
  * @brief Ensures the path has a '/' at the end. If it has one, nothing is
  * changed, but if it doesn't, a slash is appended. This doesn't handle any sort

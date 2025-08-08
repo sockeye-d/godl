@@ -88,7 +88,7 @@ public:
 private:
     Q_PROPERTY(QString absolutePath READ absolutePath NOTIFY absolutePathChanged FINAL)
 public:
-    QString absolutePath() const { return Config::godotLocation() / path(); }
+    QString absolutePath() const { return QDir(Config::godotLocation()).filePath(path()); }
 
     Q_SIGNAL void absolutePathChanged();
 

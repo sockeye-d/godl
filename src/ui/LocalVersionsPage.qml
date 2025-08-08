@@ -7,10 +7,18 @@ import org.kde.kirigamiaddons.formcard as FormCard
 import org.fishy.godl
 
 Kirigami.Page {
+    id: root
+
     padding: 0
     title: i18n("Local versions")
 
     actions: [
+        Kirigami.Action {
+            icon.name: "drive"
+            text: i18n("Add version from file")
+
+            onTriggered: addVersionFromFileDialog.createObject(root).open()
+        },
         Kirigami.Action {
             icon.name: "edit-clear-all"
             text: i18n("Clean leaked binaries")
@@ -74,6 +82,87 @@ Kirigami.Page {
         }
         onAccepted: if (leaks.length > 0)
             VersionRegistry.deleteLeakedVersions(leaks.filter(x => x.confirm).map(x => x.path))
+    }
+
+    Component {
+        id: addVersionFromFileDialog
+
+        Kirigami.Dialog {
+            padding: Kirigami.Units.largeSpacing
+            standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
+            title: i18n("Add version")
+            width: Kirigami.Units.gridUnit * 30
+
+            onAccepted: VersionRegistry.registerLocalVersion(versionPathField.text, repositoryField.text, tagField.text, assetField.text, isMonoField.checked)
+
+            Kirigami.FormLayout {
+                Layout.fillWidth: true
+
+                Kirigami.ActionTextField {
+                    id: versionPathField
+
+                    Kirigami.FormData.label: i18n("Location")
+                    Layout.fillWidth: true
+
+                    rightActions: Kirigami.Action {
+                        icon.source: "document-open"
+
+                        onTriggered: fileDialog.open()
+                    }
+
+                    BetterFileDialog {
+                        id: fileDialog
+
+                        onAccepted: path => versionPathField.text = path
+                    }
+                }
+
+                Controls.Button {
+                    Kirigami.FormData.isSection: true
+                    Layout.fillWidth: true
+                    icon.source: "autocorrection"
+                    text: i18n("Autodetect")
+
+                    onClicked: {
+                        let path = versionPathField.text;
+                        repositoryField.text = VersionRegistry.detectRepository(path);
+                        tagField.text = VersionRegistry.detectTag(path);
+                        assetField.text = VersionRegistry.detectAsset(path);
+                        isMonoField.checked = VersionRegistry.detectMono(path);
+                    }
+                }
+
+                Controls.TextField {
+                    id: repositoryField
+
+                    Kirigami.FormData.label: i18n("Repository")
+                    Layout.fillWidth: true
+                    text: "/local/local"
+                }
+
+                Controls.TextField {
+                    id: tagField
+
+                    Kirigami.FormData.label: i18n("Tag")
+                    Layout.fillWidth: true
+                    text: "x.x-x"
+                }
+
+                Controls.TextField {
+                    id: assetField
+
+                    Kirigami.FormData.label: i18n("Asset")
+                    Layout.fillWidth: true
+                    text: "godot"
+                }
+
+                Controls.CheckBox {
+                    id: isMonoField
+
+                    Kirigami.FormData.label: i18n("Mono (C#)")
+                }
+            }
+        }
     }
 
     Controls.ScrollView {

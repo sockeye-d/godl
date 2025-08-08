@@ -45,7 +45,7 @@ void ProjectsRegistry::scan(const QString &directory, QStringList *out, bool dry
 {
     setScanning(true);
 
-    auto future = QtConcurrent::run([directory](QPromise<QStringList> &promise) {
+    QFuture<QStringList> future = QtConcurrent::run([directory](QPromise<QStringList> &promise) {
         promise.start();
         promise.addResult(scanInternal(directory));
         promise.finish();
@@ -56,15 +56,14 @@ void ProjectsRegistry::scan(const QString &directory, QStringList *out, bool dry
             &QFutureWatcher<QString>::finished,
             this,
             [this, watcher, future, out, dryRun]() {
-                const auto results = future.result();
+                const QStringList &results = future.result();
                 if (out) {
                     *out = results;
                 }
                 if (!dryRun) {
                     for (const QString &result : results) {
-                        import(result, false);
+                        import(result, result == results.constLast());
                     }
-                    m_model->invalidate();
                 }
                 watcher->deleteLater();
                 setScanning(false);
@@ -88,9 +87,10 @@ ProjectsRegistry::ImportError ProjectsRegistry::import(const QString &filepath, 
     if (!project) {
         return CantLoad;
     }
-    config().group(project->path());
     config().group(project->path()).writeEntry("favorite", false);
-    config().sync();
+    if (invalidate) {
+        config().sync();
+    }
 
     return LoadedSucessfully;
 }

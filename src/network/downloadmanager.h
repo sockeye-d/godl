@@ -24,6 +24,9 @@ class DownloadManager : public QObject
                                const QUrl &asset,
                                const QString &repo);
 
+private:
+    QString getDownloadLocation(const DownloadInfo &info) const;
+
 public:
     explicit DownloadManager(QObject *parent = nullptr)
         : QObject(parent)
