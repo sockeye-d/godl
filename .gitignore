@@ -36,3 +36,6 @@ local.properties
 build/
 CMakeLists.txt.user*
 deploy/
+
+.flatpak-builder/
+flatpak-build/

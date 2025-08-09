@@ -1,0 +1,39 @@
+id: org.fishy.godl
+runtime: org.kde.Platform
+runtime-version: '6.9'
+sdk: org.kde.Sdk
+command: godl
+finish_args:
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+  - --share=network
+  - --filesystem=host
+modules:
+  - name: kirigami-addons
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=MinSizeRel
+      - -DBUILD_TESTING=OFF
+    sources:
+      - type: archive
+        url: https://download.kde.org/stable/kirigami-addons/kirigami-addons-1.9.0.tar.xz
+        sha256: 21314a91f26b1c962def3fd7ff2e762d3358b075f63f4d7e0144fb2c63b7ebc7
+  - name: godl
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 godl /app/bin/godl
+      - install -Dm644 org.fishy.godl.desktop /app/share/applications/org.fishy.godl.desktop
+      - install -Dm644 godl.svg /app/share/icons/hicolor/scalable/apps/org.fishy.godl.svg
+    sources:
+      - type: archive
+        url: https://github.com/sockeye-d/godl/releases/download/v1.2/godl-v1.2-stable-linux.zip
+        sha256: af92be225463894d59bf51784b7058dda3616820f39f29d32e9764b4baa65d86
+        dest-filename: godl.zip
+      - type: file
+        url: https://raw.githubusercontent.com/sockeye-d/godl/refs/heads/master/org.fishy.godl.desktop
+        sha256: 822237c5df7ab41cd87b511c2cfddc7c8b525d2b4ad0675235ea4cf501720902
+      - type: file
+        url: https://raw.githubusercontent.com/sockeye-d/godl/refs/heads/master/src/godl.svg
+        sha256: d401c4f8efd8b212904745c07083224c78cc026db17c757f2cc9f42ba7ac190b
