@@ -33,7 +33,7 @@ modules:
         dest-filename: godl.zip
       - type: file
         url: https://raw.githubusercontent.com/sockeye-d/godl/refs/heads/master/org.fishy.godl.desktop
-        sha256: 822237c5df7ab41cd87b511c2cfddc7c8b525d2b4ad0675235ea4cf501720902
+        sha256: 71c46f221c3fd3a06e834bfd0356bf30b7eca173da7f2559f6db0245031d2c27
       - type: file
         url: https://raw.githubusercontent.com/sockeye-d/godl/refs/heads/master/src/godl.svg
         sha256: d401c4f8efd8b212904745c07083224c78cc026db17c757f2cc9f42ba7ac190b
