@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 
     KLocalizedString::setApplicationDomain("godl");
     cli::run::setAppMetadata();
-    QApplication::setDesktopFileName(QStringLiteral("org.fishy.godl"));
+    QApplication::setDesktopFileName(QStringLiteral("io.github.sockeye_d.godl"));
     QIcon::setFallbackSearchPaths(QIcon::fallbackSearchPaths() << ":/");
 
 #ifdef Q_OS_LINUX

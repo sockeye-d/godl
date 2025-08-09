@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=godl
 Exec=godl
-Icon=org.fishy.godl
+Icon=io.github.sockeye_d.godl
 Type=Application
 Terminal=false
 Categories=Utility

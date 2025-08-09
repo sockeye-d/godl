@@ -24,15 +24,15 @@ modules:
     buildsystem: simple
     build-commands:
       - install -Dm755 godl /app/bin/godl
-      - install -Dm644 org.fishy.godl.desktop /app/share/applications/org.fishy.godl.desktop
-      - install -Dm644 godl.svg /app/share/icons/hicolor/scalable/apps/org.fishy.godl.svg
+      - install -Dm644 io.github.sockeye_d.godl.desktop /app/share/applications/io.github.sockeye_d.godl.desktop
+      - install -Dm644 godl.svg /app/share/icons/hicolor/scalable/apps/io.github.sockeye_d.godl.svg
     sources:
       - type: archive
         url: https://github.com/sockeye-d/godl/releases/download/v1.2/godl-v1.2-stable-linux.zip
         sha256: af92be225463894d59bf51784b7058dda3616820f39f29d32e9764b4baa65d86
         dest-filename: godl.zip
       - type: file
-        url: https://raw.githubusercontent.com/sockeye-d/godl/refs/heads/master/org.fishy.godl.desktop
+        url: https://raw.githubusercontent.com/sockeye-d/godl/refs/heads/master/io.github.sockeye-d.godl
         sha256: 71c46f221c3fd3a06e834bfd0356bf30b7eca173da7f2559f6db0245031d2c27
       - type: file
         url: https://raw.githubusercontent.com/sockeye-d/godl/refs/heads/master/src/godl.svg

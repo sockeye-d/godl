@@ -5,7 +5,7 @@ def main [] {
         exit 1
     }
 
-    let manifest = "./org.fishy.godl.yml" | path expand
+    let manifest = "./io.github.sockeye-d.godl.yml" | path expand
     cd /tmp
     sudo flatpak-builder --install flatpak-build/ $manifest --force-clean
 }
