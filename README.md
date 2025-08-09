@@ -58,6 +58,18 @@ and then copy it to `C:\ProgramData\Microsoft\Windows\Start Menu\Programs`
 
 ### Linux
 
+#### Flatpak
+
+The easy way: Clone the repository, then run `nu deploy_linux_flatpak.nu`.
+
+The (very slightly) harder way: Download
+[the flatpak manifest](io.github.sockeye_d.godl.yml), copy its absolute path, cd
+into `/tmp`, then run
+`sudo flatpak-builder --install flatpak-build/ <manifest absolute path> --force-clean`
+(you'll need to install flatpak-builder)
+
+#### Non-flatpak (basically Arch only)
+
 You'll need to install these dependencies (at least — I haven't tried running it
 on a non-Plasma desktop, so this is just what I got from ldd)
 
