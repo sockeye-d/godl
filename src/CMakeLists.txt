@@ -212,6 +212,16 @@ target_include_directories(godl
 
 if (LINUX)
     include(GNUInstallDirs)
-    install(FILES io.github.sockeye_d.godl.desktop       DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications/io.github.sockeye_d.godl.desktop)
-    install(FILES io.github.sockeye_d.godl.metainfo.xml  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/metainfo/io.github.sockeye_d.godl.metainfo.xml)
+    install(PROGRAMS ${CMAKE_BINARY_DIR}/deploy/godl TYPE BIN)
+    install(FILES icon-raster/16.png  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/16x16/apps/io.github.sockeye_d.godl.png)
+    install(FILES icon-raster/32.png  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/32x32/apps/io.github.sockeye_d.godl.png)
+    install(FILES icon-raster/48.png  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/48x48/apps/io.github.sockeye_d.godl.png)
+    install(FILES icon-raster/64.png  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/64x64/apps/io.github.sockeye_d.godl.png)
+    install(FILES icon-raster/96.png  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/96x96/apps/io.github.sockeye_d.godl.png)
+    install(FILES icon-raster/128.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/128x128/apps/io.github.sockeye_d.godl.png)
+    install(FILES icon-raster/256.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/256x256/apps/io.github.sockeye_d.godl.png)
+    install(FILES icon-raster/512.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/512x512/apps/io.github.sockeye_d.godl.png)
+    install(FILES icon-raster/512.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/512x512/apps/io.github.sockeye_d.godl.png)
+    install(FILES godl.svg            DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps/io.github.sockeye_d.godl.png)
 endif()
+
