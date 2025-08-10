@@ -224,4 +224,3 @@ if (LINUX)
     install(FILES icon-raster/512.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/512x512/apps  RENAME io.github.sockeye_d.godl.png)
     install(FILES godl.svg            DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps RENAME io.github.sockeye_d.godl.png)
 endif()
-
