@@ -38,4 +38,7 @@ def main [] {
     }
     rm --trash godl@*x*.png
     print "Done"
+    $sizes | each {|size|
+        print $"- install -Dm644 ($size).png /app/share/icons/hicolor/($size)/apps/io.github.sockeye_d.godl.png"
+    }
 }

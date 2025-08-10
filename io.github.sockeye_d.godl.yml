@@ -30,12 +30,21 @@ modules:
     build-commands:
       - install -Dm755 godl /app/bin/godl
       - install -Dm644 io.github.sockeye_d.godl.desktop /app/share/applications/io.github.sockeye_d.godl.desktop
-      - install -Dm644 godl.svg /app/share/icons/hicolor/scalable/apps/io.github.sockeye_d.godl.svg
+      - install -Dm644 16.png /app/share/icons/hicolor/16x16/apps/io.github.sockeye_d.godl.png
+      - install -Dm644 32.png /app/share/icons/hicolor/32x32/apps/io.github.sockeye_d.godl.png
+      - install -Dm644 48.png /app/share/icons/hicolor/48x48/apps/io.github.sockeye_d.godl.png
+      - install -Dm644 64.png /app/share/icons/hicolor/64x64/apps/io.github.sockeye_d.godl.png
+      - install -Dm644 96.png /app/share/icons/hicolor/96x96/apps/io.github.sockeye_d.godl.png
+      - install -Dm644 128.png /app/share/icons/hicolor/128x128/apps/io.github.sockeye_d.godl.png
+      - install -Dm644 256.png /app/share/icons/hicolor/256x256/apps/io.github.sockeye_d.godl.png
     sources:
       - type: archive
         url: https://github.com/sockeye-d/godl/releases/download/v1.2.1/godl-v1.2.1-stable-linux.zip
-        sha256: af92be225463894d59bf51784b7058dda3616820f39f29d32e9764b4baa65d86
+        sha256: 527ffc3d3810cfcfc7b9ee933e6020c6f982b7dcef98b4e7e8dfbffcecb1d802
         dest-filename: godl.zip
+      - type: archive
+        url: https://raw.githubusercontent.com/sockeye-d/godl/refs/tags/v1.2.1/src/godl-icons.zip
+        sha256: b21607a656d33345a1bd42d36954a8c8df621a1472410f829139094218c69665
       - type: file
         url: https://raw.githubusercontent.com/sockeye-d/godl/refs/tags/v1.2.1/io.github.sockeye_d.godl.desktop
         sha256: 1643b5522883165d10378568bd6de782521e57318b1e4e90093ede05345dfca5
