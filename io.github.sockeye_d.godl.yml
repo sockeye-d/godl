@@ -10,6 +10,11 @@ finish_args:
   - --device=dri
   - --share=network
   - --filesystem=host
+cleanup:
+  - "/share/kdevappwizard6"
+  - "/include"
+  - "/lib/cmake"
+  - "/lib/debug"
 modules:
   - name: kirigami-addons
     buildsystem: cmake-ninja
@@ -32,8 +37,8 @@ modules:
         sha256: af92be225463894d59bf51784b7058dda3616820f39f29d32e9764b4baa65d86
         dest-filename: godl.zip
       - type: file
-        url: https://raw.githubusercontent.com/sockeye-d/godl/refs/heads/master/io.github.sockeye-d.godl
-        sha256: 71c46f221c3fd3a06e834bfd0356bf30b7eca173da7f2559f6db0245031d2c27
+        url: https://raw.githubusercontent.com/sockeye-d/godl/refs/tags/v1.2.1/io.github.sockeye_d.godl.desktop
+        sha256: 1643b5522883165d10378568bd6de782521e57318b1e4e90093ede05345dfca5
       - type: file
-        url: https://raw.githubusercontent.com/sockeye-d/godl/refs/heads/master/src/godl.svg
-        sha256: d401c4f8efd8b212904745c07083224c78cc026db17c757f2cc9f42ba7ac190b
+        url: https://raw.githubusercontent.com/sockeye-d/godl/refs/tags/v1.2.1/src/godl.svg
+        sha256: 12e40ccf1aa74e097394d57d28b5fef8b3996a3f91c8b825e5195fb445e9e4c3
