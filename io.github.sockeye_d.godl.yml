@@ -14,7 +14,6 @@ cleanup:
   - "/share/kdevappwizard6"
   - "/include"
   - "/lib/cmake"
-  - "/lib/debug"
 modules:
   - name: kirigami-addons
     buildsystem: cmake-ninja
@@ -39,19 +38,7 @@ modules:
       - install -Dm644 256.png /app/share/icons/hicolor/256x256/apps/io.github.sockeye_d.godl.png
       - install -Dm644 io.github.sockeye_d.godl.metainfo.xml /app/share/metainfo/io.github.sockeye_d.godl.metainfo.xml
     sources:
-      - type: archive
-        url: https://github.com/sockeye-d/godl/releases/download/v1.2.1/godl-v1.2.1-stable-linux.zip
-        sha256: 527ffc3d3810cfcfc7b9ee933e6020c6f982b7dcef98b4e7e8dfbffcecb1d802
-        dest-filename: godl.zip
-      - type: archive
-        url: https://raw.githubusercontent.com/sockeye-d/godl/refs/tags/v1.2.1/src/godl-icons.zip
-        sha256: b21607a656d33345a1bd42d36954a8c8df621a1472410f829139094218c69665
-      - type: file
-        url: https://raw.githubusercontent.com/sockeye-d/godl/refs/tags/v1.2.1/io.github.sockeye_d.godl.desktop
-        sha256: 1643b5522883165d10378568bd6de782521e57318b1e4e90093ede05345dfca5
-      - type: file
-        url: https://raw.githubusercontent.com/sockeye-d/godl/refs/tags/v1.2.1/src/godl.svg
-        sha256: 12e40ccf1aa74e097394d57d28b5fef8b3996a3f91c8b825e5195fb445e9e4c3
-      - type: file
-        url: https://raw.githubusercontent.com/sockeye-d/godl/refs/tags/v1.2.1/io.github.sockeye_d.godl.metainfo.xml
-        sha256: cd177be9f9a7b1e0f6588beb52f76fbe3f094b239c883ccaa64d6769985f1df7
+      - type: git
+        url: https://github.com/sockeye-d/godl.git
+        tag: v1.2.1
+        commit: 0151c29a8923b4f474aa7b08870fade2319c519a
