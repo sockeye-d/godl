@@ -37,6 +37,7 @@ modules:
       - install -Dm644 96.png /app/share/icons/hicolor/96x96/apps/io.github.sockeye_d.godl.png
       - install -Dm644 128.png /app/share/icons/hicolor/128x128/apps/io.github.sockeye_d.godl.png
       - install -Dm644 256.png /app/share/icons/hicolor/256x256/apps/io.github.sockeye_d.godl.png
+      - install -Dm644 io.github.sockeye_d.godl.metainfo.xml /app/share/metainfo/io.github.sockeye_d.godl.metainfo.xml
     sources:
       - type: archive
         url: https://github.com/sockeye-d/godl/releases/download/v1.2.1/godl-v1.2.1-stable-linux.zip
@@ -51,3 +52,6 @@ modules:
       - type: file
         url: https://raw.githubusercontent.com/sockeye-d/godl/refs/tags/v1.2.1/src/godl.svg
         sha256: 12e40ccf1aa74e097394d57d28b5fef8b3996a3f91c8b825e5195fb445e9e4c3
+      - type: file
+        url: https://raw.githubusercontent.com/sockeye-d/godl/refs/tags/v1.2.1/io.github.sockeye_d.godl.metainfo.xml
+        sha256: cd177be9f9a7b1e0f6588beb52f76fbe3f094b239c883ccaa64d6769985f1df7
