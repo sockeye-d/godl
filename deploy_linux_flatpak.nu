@@ -8,7 +8,7 @@ def main [--clean, --disable-cache] {
     cd /tmp
     if $clean {
         print "Cleaning"
-        rm -r godl-flatpak-build/
+        rm -rf godl-flatpak-build/
     }
     if $disable_cache {
         print "Disabling cache"

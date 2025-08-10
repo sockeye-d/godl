@@ -25,20 +25,27 @@ modules:
         url: https://download.kde.org/stable/kirigami-addons/kirigami-addons-1.9.0.tar.xz
         sha256: 21314a91f26b1c962def3fd7ff2e762d3358b075f63f4d7e0144fb2c63b7ebc7
   - name: godl
-    buildsystem: simple
-    build-commands:
-      - install -Dm755 godl /app/bin/godl
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=MinSizeRel
+      - -DBUILD_TESTING=OFF
+      - -DCMAKE_PREFIX_PATH=/app
+      - -DQML_IMPORT_PATH=/app/lib/qt6/qml
+    no-make-install: true
+    post-install:
+      - echo $PWD
+      - install -Dm755 ${FLATPAK_BUILDER_BUILDDIR}/deploy/godl /app/bin/godl
       - install -Dm644 io.github.sockeye_d.godl.desktop /app/share/applications/io.github.sockeye_d.godl.desktop
-      - install -Dm644 16.png /app/share/icons/hicolor/16x16/apps/io.github.sockeye_d.godl.png
-      - install -Dm644 32.png /app/share/icons/hicolor/32x32/apps/io.github.sockeye_d.godl.png
-      - install -Dm644 48.png /app/share/icons/hicolor/48x48/apps/io.github.sockeye_d.godl.png
-      - install -Dm644 64.png /app/share/icons/hicolor/64x64/apps/io.github.sockeye_d.godl.png
-      - install -Dm644 96.png /app/share/icons/hicolor/96x96/apps/io.github.sockeye_d.godl.png
-      - install -Dm644 128.png /app/share/icons/hicolor/128x128/apps/io.github.sockeye_d.godl.png
-      - install -Dm644 256.png /app/share/icons/hicolor/256x256/apps/io.github.sockeye_d.godl.png
       - install -Dm644 io.github.sockeye_d.godl.metainfo.xml /app/share/metainfo/io.github.sockeye_d.godl.metainfo.xml
+      - install -Dm644 src/icon-raster/16.png /app/share/icons/hicolor/16x16/apps/io.github.sockeye_d.godl.png
+      - install -Dm644 src/icon-raster/32.png /app/share/icons/hicolor/32x32/apps/io.github.sockeye_d.godl.png
+      - install -Dm644 src/icon-raster/48.png /app/share/icons/hicolor/48x48/apps/io.github.sockeye_d.godl.png
+      - install -Dm644 src/icon-raster/64.png /app/share/icons/hicolor/64x64/apps/io.github.sockeye_d.godl.png
+      - install -Dm644 src/icon-raster/96.png /app/share/icons/hicolor/96x96/apps/io.github.sockeye_d.godl.png
+      - install -Dm644 src/icon-raster/128.png /app/share/icons/hicolor/128x128/apps/io.github.sockeye_d.godl.png
+      - install -Dm644 src/icon-raster/256.png /app/share/icons/hicolor/256x256/apps/io.github.sockeye_d.godl.png
     sources:
       - type: git
         url: https://github.com/sockeye-d/godl.git
         tag: v1.2.1
-        commit: 0151c29a8923b4f474aa7b08870fade2319c519a
+        commit: b87e71ef61dd6991612fffeb6e306369bd7e5f9b
