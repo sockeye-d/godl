@@ -89,6 +89,4 @@ endif()
 
 add_subdirectory(src)
 
-install(PROGRAMS org.fishy.godl.desktop DESTINATION ${KDE_INSTALL_APPDIR})
-
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)
