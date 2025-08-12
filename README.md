@@ -60,13 +60,13 @@ and then copy it to `C:\ProgramData\Microsoft\Windows\Start Menu\Programs`
 
 #### Flatpak
 
-The easy way: Clone the repository, then run `nu deploy_linux_flatpak.nu`.
+```sh
+flatpak install io.github.sockeye_d.godl
+```
 
-The (very slightly) harder way: Download
-[the flatpak manifest](io.github.sockeye_d.godl.yml), copy its absolute path, cd
-into `/tmp`, then run
-`sudo flatpak-builder --install flatpak-build/ <manifest absolute path> --force-clean`
-(you'll need to install flatpak-builder)
+<p align="center">
+<a href='https://flathub.org/apps/details/io.github.sockeye_d.godl'><img width="250" alt='Download on Flathub' src='https://flathub.org/api/badge?svg&locale=en'/></a>
+</p>
 
 #### Non-flatpak (basically Arch only)
 
