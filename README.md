@@ -4,47 +4,14 @@
     <img width=128 alt="godl logo" src="https://github.com/sockeye-d/godl/blob/b98e3bd46a260c69a78c8e346d29c67909ccb2b7/src/godl.svg"/>
 </p>
 
-A version manager for Godot, written in QML/C++ with the Qt Quick libraries.
+A project and version manager for Godot
 
-![The local versions page](assets/overview.png)
+![The projects page](assets/overview.png)
 
 - Important links:
   - [CLI usage](#cli-usage)
   - [Installation instructions](#installation-instructions)
   - [Build instructions](#building-from-source)
-
-## It lets you manage...
-
-...your projects, including adding tags with a fancy interface:
-
-![managing tags](assets/tags.png)
-
-*(you can also type arbitrary tags into the combobox)*
-
-...your versions:
-
-![remote versions](assets/remote-versions.png)
-
-![remote versions](assets/remote-versions-download.png)
-
-...including first-class support for forks:
-![forks](assets/forks.png)
-
-...even custom builds from a file
-![add local version from file](assets/add-local-version.png)
-
-...your local versions:
-
-![local versions](assets/local-versions.png)
-
-...and unlike other managers, it's built in 100% native AOT-compiled C++ and
-Qt Quick, offering a fast, responsive, and native look-and-feel across all desktops.
-
-## Windows build?
-
-There is a Windows build and I think it works pretty well. However, most of my
-testing is on Linux, so please file bugs if you find them! I've got a Windows VM
-(it's how I built it for Windows after all...) so I can probably fix bugs.
 
 ## Installation instructions
 
@@ -57,8 +24,6 @@ and then copy it to `C:\ProgramData\Microsoft\Windows\Start Menu\Programs`
 (you'll need administrator rights to do this).
 
 ### Linux
-
-#### Flatpak
 
 ```sh
 flatpak install io.github.sockeye_d.godl
@@ -81,6 +46,32 @@ on a non-Plasma desktop, so this is just what I got from ldd)
 - kconfigwidgets
 
 Then, you should be able to download, extract, and run the executable.
+
+
+## It lets you manage...
+
+...your projects:
+
+![The projects page](assets/overview.png)
+
+...your versions:
+
+![remote versions](assets/remote-versions.png)
+
+![remote versions](assets/remote-versions-download.png)
+
+...including first-class support for forks:
+![forks](assets/forks.png)
+
+...even custom builds from a file
+![add local version from file](assets/add-local-version.png)
+
+...your local versions:
+
+![local versions](assets/local-versions.png)
+
+...and unlike other managers, it's built in 100% native AOT-compiled C++ and
+Qt Quick, offering a fast, responsive, and native look-and-feel across all desktops.
 
 ## CLI Usage
 
