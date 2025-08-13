@@ -6,6 +6,11 @@
 
 A project and version manager for Godot
 
+<p align=center>
+<a href="https://aur.archlinux.org/packages/godl"><img alt="AUR Version" src="https://img.shields.io/aur/version/godl?style=for-the-badge&logo=archlinux&logoColor=white"></a>
+<a href="https://flathub.org/apps/io.github.sockeye_d.godl"><img alt="Flathub Version" src="https://img.shields.io/flathub/v/io.github.sockeye_d.godl?style=for-the-badge&logo=flathub"></a>
+</p>
+
 ![The projects page](assets/overview.png)
 
 - Important links:
@@ -33,10 +38,21 @@ flatpak install io.github.sockeye_d.godl
 <a href='https://flathub.org/apps/details/io.github.sockeye_d.godl'><img width="250" alt='Download on Flathub' src='https://flathub.org/api/badge?svg&locale=en'/></a>
 </p>
 
-#### Non-flatpak (basically Arch only)
+#### Arch
 
-You'll need to install these dependencies (at least — I haven't tried running it
-on a non-Plasma desktop, so this is just what I got from ldd)
+Get it from the AUR (Arch User Repository): https://aur.archlinux.org/packages/godl,
+or use a helper like `yay`:
+
+```sh
+yay -S godl
+```
+
+#### Non-flatpak
+
+**Note: Most package repositories don't have these packages. Mint, for example,
+doesn't have KF6 packages. Your mileage may vary.**
+
+You'll need to install these dependencies:
 
 - kdeclarative
 - kirigami-addons
