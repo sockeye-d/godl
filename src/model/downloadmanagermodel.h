@@ -1,41 +1,22 @@
 #ifndef DOWNLOADMANAGERMODEL_H
 #define DOWNLOADMANAGERMODEL_H
 
+#include "abstractsimplelistmodel.h"
+#include "downloadinfo.h"
 #include <QStandardItemModel>
 #include <QUrl>
 #include <QtQml/qqmlregistration.h>
-#include "downloadinfo.h"
 
-using namespace Qt::Literals::StringLiterals;
-
-class DownloadManagerModel : public QAbstractListModel
+class DownloadManagerModel : public AbstractSimpleListModel<DownloadInfo *>
 {
     Q_OBJECT
 
     friend class DownloadManager;
-    QList<const DownloadInfo *> m_dlInfos;
 
 public:
-    enum DownloadInfoRoles {
-        ProgressRole = Qt::UserRole + 1,
-        AssetNameRole,
-        SourceUrlRole,
-        IdRole,
-        DownloadSpeedRole,
-        StageRole,
-        ErrorRole,
-    };
-
-    void append(const DownloadInfo *info);
-    void remove(const DownloadInfo *info);
-
-public:
-    QHash<int, QByteArray> roleNames() const override;
-    int rowCount(const QModelIndex &parent) const override
-    {
-        return parent.isValid() ? 0 : m_dlInfos.length();
-    }
-    QVariant data(const QModelIndex &index, int role) const override;
+    explicit DownloadManagerModel(QObject *parent = nullptr)
+        : AbstractSimpleListModel<DownloadInfo *>(parent)
+    {}
 };
 
 #endif // DOWNLOADMANAGERMODEL_H

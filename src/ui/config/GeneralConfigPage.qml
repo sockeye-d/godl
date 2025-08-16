@@ -99,7 +99,7 @@ GodlConfigPage {
         id: folderDialog
 
         fileFilters: BetterFileDialog.Hidden | BetterFileDialog.NoDotAndDotDot
-        mode: QWidgets.FileDialog.Directory
+        mode: QWidgets.QFileDialog.Directory
 
         onAccepted: path => Configuration.godotLocation = path
     }

@@ -157,6 +157,12 @@ const GodotVersion *VersionRegistry::findVersion(const BoundGodotVersion *v) con
     return version(findUniqueName(v));
 }
 
+bool VersionRegistry::canAutodetect() const
+{
+    static bool hasGit = !QStandardPaths::findExecutable("git").isEmpty();
+    return hasGit;
+}
+
 QString execute(const QString &executable, const QString &cwd, const QStringList &args)
 {
     QProcess proc;
@@ -166,8 +172,31 @@ QString execute(const QString &executable, const QString &cwd, const QStringList
     return proc.readAllStandardOutput();
 }
 
+bool VersionRegistry::canAutodetectFile(const QString &path) const
+{
+    if (path.isEmpty()) {
+        return false;
+    }
+
+    const QString git = QStandardPaths::findExecutable("git");
+    if (git.isEmpty()) {
+        print_debug() << "Git executable not found";
+        return false;
+    }
+
+    if (execute(git, QFileInfo(path).path(), {"rev-parse", "--is-inside-work-tree"}).trimmed()
+        == "true") {
+        return true;
+    }
+    return false;
+}
+
 QString VersionRegistry::detectRepository(const QString &path) const
 {
+    if (path.isEmpty()) {
+        return "";
+    }
+
     const static QRegularExpression lineSplitter = QRegularExpression("[\r\n]");
     const QString git = QStandardPaths::findExecutable("git");
     if (git.isEmpty()) {
@@ -196,6 +225,10 @@ QString VersionRegistry::detectRepository(const QString &path) const
 
 QString VersionRegistry::detectTag(const QString &path) const
 {
+    if (path.isEmpty()) {
+        return "";
+    }
+
     const QString git = QStandardPaths::findExecutable("git");
     if (git.isEmpty()) {
         print_debug() << "Git executable not found";
@@ -208,11 +241,19 @@ QString VersionRegistry::detectTag(const QString &path) const
 
 QString VersionRegistry::detectAsset(const QString &path) const
 {
+    if (path.isEmpty()) {
+        return "";
+    }
+
     return removeSuffix(QFileInfo(path).fileName(), "exe");
 }
 
 bool VersionRegistry::detectMono(const QString &path) const
 {
+    if (path.isEmpty()) {
+        return "";
+    }
+
     return QFileInfo(path).fileName().contains("mono");
 }
 

@@ -77,7 +77,7 @@ GodlConfigPage {
         id: folderDialog
 
         fileFilters: BetterFileDialog.Hidden | BetterFileDialog.NoDotAndDotDot
-        mode: QWidgets.FileDialog.Directory
+        mode: QWidgets.QFileDialog.Directory
         startDirectory: Configuration.projectLocation
 
         onAccepted: path => Configuration.projectLocation = path

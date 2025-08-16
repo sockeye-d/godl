@@ -62,6 +62,9 @@ public:
     Q_SIGNAL void downloadedChanged();
     Q_SIGNAL void hasVersionChanged();
 
+    Q_PROPERTY(bool canAutodetect READ canAutodetect CONSTANT FINAL)
+    bool canAutodetect() const;
+    Q_INVOKABLE bool canAutodetectFile(const QString &path) const;
     Q_INVOKABLE QString detectRepository(const QString &path) const;
     Q_INVOKABLE QString detectTag(const QString &path) const;
     Q_INVOKABLE QString detectAsset(const QString &path) const;

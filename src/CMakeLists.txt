@@ -79,6 +79,7 @@ qt_add_qml_module(godl
     SOURCES versioninfo.h versioninfo.cpp
     SOURCES util/singleton.h util/singleton.cpp
     SOURCES cli/run.h cli/run.cpp
+    SOURCES util/sizeconverter.h util/sizeconverter.cpp
 )
 
 file(GLOB_RECURSE qml_modules CONFIGURE_DEPENDS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ui/*.qml)

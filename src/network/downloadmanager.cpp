@@ -222,7 +222,6 @@ const DownloadInfo *DownloadManager::download(const QString &assetName,
                                     &DownloadManager::cancelRequested,
                                     this,
                                     [info, reply](QUuid id) {
-                                        print_debug() << reply->headers().toMultiMap();
                                         if (info->id() == id) {
                                             reply->abort();
                                         }
@@ -234,7 +233,7 @@ const DownloadInfo *DownloadManager::download(const QString &assetName,
 
         *bytesReceivedLast = *bytesReceivedLast + data.size();
         if (time->nsecsElapsed() > 100000000) {
-            info->setDownloadSpeed(*bytesReceivedLast / (time->nsecsElapsed() * 1e-9) / 1048576.0);
+            info->setDownloadSpeed(*bytesReceivedLast / (time->nsecsElapsed() * 1e-9));
             time->restart();
             *bytesReceivedLast = 0;
         }
@@ -277,8 +276,9 @@ const DownloadInfo *DownloadManager::download(const QString &assetName,
 
 void DownloadManager::remove(const QUuid &id)
 {
-    const DownloadInfo *foundInfo = nullptr;
-    for (const DownloadInfo *info : std::as_const(model()->m_dlInfos)) {
+    DownloadInfo *foundInfo = nullptr;
+    print_debug() << model()->m_data;
+    for (DownloadInfo *info : std::as_const(model()->m_data)) {
         if (info->id() == id) {
             foundInfo = info;
             break;
@@ -291,5 +291,5 @@ void DownloadManager::remove(const QUuid &id)
     }
 
     model()->remove(foundInfo);
-    delete foundInfo;
+    foundInfo->deleteLater();
 }

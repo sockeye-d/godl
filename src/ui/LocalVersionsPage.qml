@@ -118,10 +118,13 @@ Kirigami.Page {
                 }
 
                 Controls.Button {
+                    readonly property bool insideGit: VersionRegistry.canAutodetectFile(versionPathField.text)
+
                     Kirigami.FormData.isSection: true
                     Layout.fillWidth: true
+                    enabled: VersionRegistry.canAutodetect && insideGit
                     icon.source: "autocorrection"
-                    text: i18n("Autodetect")
+                    text: enabled ? i18n("Autodetect") : i18n(`Can't autodetect (${[...(VersionRegistry.canAutodetect ? [] : ["missing git"]), ...(insideGit ? [] : ["not inside git repo"])].join(", ")})`)
 
                     onClicked: {
                         let path = versionPathField.text;

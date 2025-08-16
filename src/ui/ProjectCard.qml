@@ -498,7 +498,7 @@ Kirigami.Card {
 
         fileFilters: BetterFileDialog.NoDotAndDotDot
         filters: ["Images (*.png *.svg *.jpg *.jpeg *.jfif)"]
-        mode: QWidgets.FileDialog.ExistingFile
+        mode: QWidgets.QFileDialog.ExistingFile
 
         onAccepted: path => {
             if (path.startsWith(root.modelData.directory)) {

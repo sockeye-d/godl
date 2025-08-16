@@ -107,23 +107,48 @@ StatefulApp.StatefulWindow {
 
                 property bool visible2
 
+                closePolicy: Popup.CloseOnEscape
+
                 // this is so cursed... but it works
-                height: visible2 ? notificationCardsScroll.height + padding * 2.0 : 0
+                // height: visible2 ? notificationCardsScroll.height + padding * 2.0 : 0
+                height: notificationCardsScroll.height + padding * 2.0
+                padding: Kirigami.Units.smallSpacing
                 rightPadding: 0
+                topPadding: 0
                 width: Math.min(Kirigami.Units.gridUnit * 20.0, Math.round(root.width / 2))
                 x: parent.width - width
                 y: -height
                 z: 10000
 
-                Behavior on height {
+                enter: Transition {
                     NumberAnimation {
                         duration: Kirigami.Units.longDuration
                         easing.type: Easing.OutExpo
+                        from: 0.0
+                        property: "height"
+                        to: notificationCardsScroll.height + notificationPopup.padding * 2.0
                     }
                 }
 
-                onAboutToHide: visible2 = false
-                onAboutToShow: visible2 = true
+                // Behavior on height {
+                //     NumberAnimation {
+                //         duration: Kirigami.Units.longDuration
+                //         easing.type: Easing.OutExpo
+                //     }
+                // }
+
+                exit: Transition {
+                    NumberAnimation {
+                        duration: Kirigami.Units.longDuration
+                        easing.type: Easing.OutExpo
+                        from: notificationCardsScroll.height + notificationPopup.padding * 2.0
+                        property: "height"
+                        to: 0.0
+                    }
+                }
+
+                // onAboutToHide: visible2 = false
+                // onAboutToShow: visible2 = true
 
                 ScrollView {
                     id: notificationCardsScroll
@@ -133,100 +158,90 @@ StatefulApp.StatefulWindow {
                     height: Kirigami.Units.gridUnit * 15
                     width: notificationPopup.availableWidth
 
-                    ColumnLayout {
-                        id: notificationCards
+                    Kirigami.CardsListView {
+                        id: repeater
 
-                        spacing: Kirigami.Units.largeSpacing * 2
-                        width: notificationCardsScroll.availableWidth - Kirigami.Units.largeSpacing
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        model: dl.model
+                        reuseItems: false
 
-                        Repeater {
-                            id: repeater
+                        delegate: Kirigami.Card {
+                            id: card
+
+                            property var backgroundColor: if (card.modelData.error !== "") {
+                                return Kirigami.Theme.negativeBackgroundColor;
+                            } else if (card.modelData.stage === DownloadInfo.Finished) {
+                                return Kirigami.Theme.positiveBackgroundColor;
+                            } else {
+                                return null;
+                            }
+                            required property DownloadInfo modelData
 
                             Layout.fillWidth: true
-                            model: dl.model
 
-                            Kirigami.Card {
-                                id: card
+                            actions: [
+                                Kirigami.Action {
+                                    enabled: card.modelData.stage === DownloadInfo.Downloading
+                                    icon.name: "process-stop"
+                                    visible: !closeAction.visible
 
-                                required property string assetName
-                                property var backgroundColor: if (error !== "") {
-                                    return Kirigami.Theme.negativeBackgroundColor;
-                                } else if (card.stage === DownloadInfo.Finished) {
-                                    return Kirigami.Theme.positiveBackgroundColor;
-                                } else {
-                                    return null;
+                                    onTriggered: dl.cancel(card.modelData.id)
+                                },
+                                Kirigami.Action {
+                                    id: closeAction
+
+                                    icon.name: "dialog-close"
+                                    visible: card.modelData.stage === DownloadInfo.Finished || card.modelData.error !== ""
+
+                                    onTriggered: dl.remove(card.modelData.id)
                                 }
-                                required property real downloadSpeed
-                                required property string error
-                                required property var id
-                                required property real progress
-                                required property int stage
-
+                            ]
+                            contentItem: ColumnLayout {
                                 Layout.fillWidth: true
 
-                                actions: [
-                                    Kirigami.Action {
-                                        enabled: card.stage === DownloadInfo.Downloading
-                                        icon.name: "process-stop"
-                                        visible: !closeAction.visible
-
-                                        onTriggered: dl.cancel(card.id)
-                                    },
-                                    Kirigami.Action {
-                                        id: closeAction
-
-                                        icon.name: "dialog-close"
-                                        visible: card.stage === DownloadInfo.Finished || card.error !== ""
-
-                                        onTriggered: dl.remove(card.id)
-                                    }
-                                ]
-                                contentItem: ColumnLayout {
-                                    width: notificationCards.width
-
-                                    Label {
-                                        Layout.fillWidth: true
-                                        text: card.error
-                                        visible: card.error !== ""
-                                    }
-
-                                    Label {
-                                        Layout.fillWidth: true
-                                        text: i18n("Installation complete")
-                                        visible: card.stage === DownloadInfo.Finished
-                                    }
-
-                                    RowLayout {
-                                        Layout.fillWidth: true
-                                        visible: card.stage !== DownloadInfo.Finished && card.error === ""
-
-                                        Label {
-                                            Layout.preferredWidth: Kirigami.Units.gridUnit * 4
-                                            elide: Text.ElideRight
-                                            text: card.stage === DownloadInfo.Downloading ? `${card.downloadSpeed.toFixed(2)} MiB/s` : i18n("Extracting")
-                                        }
-
-                                        Kirigami.Separator {
-                                            Layout.fillHeight: true
-                                        }
-
-                                        ProgressBar {
-                                            Layout.fillWidth: true
-                                            indeterminate: card.progress < 0.0
-                                            value: card.progress
-                                            width: Kirigami.Units.gridUnit * 2.0
-                                        }
-                                    }
-                                }
-                                header: Kirigami.Heading {
-                                    elide: Text.ElideRight
-                                    level: 2
-                                    text: card.assetName
+                                Label {
+                                    Layout.fillWidth: true
+                                    text: card.modelData.error
+                                    visible: card.modelData.error !== ""
                                 }
 
-                                onBackgroundColorChanged: if (backgroundColor !== null)
-                                    background.color = backgroundColor
+                                Label {
+                                    Layout.fillWidth: true
+                                    text: i18n("Installation complete")
+                                    visible: card.modelData.stage === DownloadInfo.Finished
+                                }
+
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    visible: card.modelData.stage !== DownloadInfo.Finished && card.modelData.error === ""
+
+                                    Label {
+                                        Layout.preferredWidth: Kirigami.Units.gridUnit * 6
+                                        elide: Text.ElideRight
+                                        text: card.modelData.stage === DownloadInfo.Downloading ? `${SizeConverter.formatSize(card.modelData.downloadSpeed)}/s` : i18n("Extracting")
+                                    }
+
+                                    Kirigami.Separator {
+                                        Layout.fillHeight: true
+                                    }
+
+                                    ProgressBar {
+                                        Layout.fillWidth: true
+                                        indeterminate: card.modelData.progress < 0.0
+                                        value: card.modelData.progress
+                                        width: Kirigami.Units.gridUnit * 2.0
+                                    }
+                                }
                             }
+                            header: Kirigami.Heading {
+                                elide: Text.ElideRight
+                                level: 2
+                                text: card.modelData.assetName
+                            }
+
+                            onBackgroundColorChanged: if (backgroundColor !== null)
+                                background.color = backgroundColor
                         }
                     }
                 }

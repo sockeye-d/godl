@@ -212,6 +212,7 @@ Kirigami.Page {
         }
     }
 
+    // Tag download
     Kirigami.OverlaySheet {
         id: dlDialog
 
@@ -308,7 +309,7 @@ Kirigami.Page {
                     Kirigami.Action {
                         enabled: !assetCard.isDownloaded
                         icon.name: "download"
-                        text: i18n("Download")
+                        text: i18n("Download") + " (" + SizeConverter.formatSize(assetCard.size, 1) + ")"
 
                         onTriggered: {
                             dl.download(name, dlDialog.tagName, Qt.url(browser_download_url), root.rawRepo);
@@ -369,6 +370,7 @@ Kirigami.Page {
             Layout.fillWidth: true
             padding: 0
 
+            // Tag list
             Kirigami.CardsListView {
                 id: resultList
 
@@ -414,9 +416,9 @@ Kirigami.Page {
                             text: i18n("Download")
 
                             onTriggered: {
-                                dlDialog.assets = assets;
-                                dlDialog.title = `${i18n("Assets for")} ${tag_name}`;
-                                dlDialog.tagName = tag_name;
+                                dlDialog.assets = card.assets;
+                                dlDialog.title = `${i18n("Assets for")} ${card.tag_name}`;
+                                dlDialog.tagName = card.tag_name;
                                 dlDialog.open();
                             }
                         },

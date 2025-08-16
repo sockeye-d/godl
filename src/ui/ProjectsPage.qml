@@ -227,7 +227,7 @@ Kirigami.Page {
         id: scanDialog
 
         fileFilters: BetterFileDialog.NoDotAndDotDot
-        mode: QWidgets.FileDialog.Directory
+        mode: QWidgets.QFileDialog.Directory
         startDirectory: Configuration.projectLocation
 
         onAccepted: path => ProjectsRegistry.scan(path)
@@ -238,7 +238,7 @@ Kirigami.Page {
 
         fileFilters: BetterFileDialog.NoDotAndDotDot
         filters: ["Godot project files (*.godot)", "All files (*)"]
-        mode: QWidgets.FileDialog.ExistingFile
+        mode: QWidgets.QFileDialog.ExistingFile
         startDirectory: Configuration.projectLocation
 
         onAccepted: path => ProjectsRegistry.import(path)
