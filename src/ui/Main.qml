@@ -129,14 +129,6 @@ StatefulApp.StatefulWindow {
                         to: notificationCardsScroll.height + notificationPopup.padding * 2.0
                     }
                 }
-
-                // Behavior on height {
-                //     NumberAnimation {
-                //         duration: Kirigami.Units.longDuration
-                //         easing.type: Easing.OutExpo
-                //     }
-                // }
-
                 exit: Transition {
                     NumberAnimation {
                         duration: Kirigami.Units.longDuration
@@ -146,9 +138,6 @@ StatefulApp.StatefulWindow {
                         to: 0.0
                     }
                 }
-
-                // onAboutToHide: visible2 = false
-                // onAboutToShow: visible2 = true
 
                 ScrollView {
                     id: notificationCardsScroll
@@ -355,10 +344,6 @@ StatefulApp.StatefulWindow {
             }
         }
     }
-
-    Component.onCompleted:
-    // deferredComponent.createObject(root);
-    {}
 
     Kirigami.ApplicationWindow {
         id: aboutPage
