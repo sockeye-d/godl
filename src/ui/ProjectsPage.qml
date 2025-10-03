@@ -13,6 +13,8 @@ import "."
 Kirigami.Page {
     id: root
 
+    signal findVersion(string source, string tag)
+
     padding: 0
 
     actions: [
@@ -150,11 +152,13 @@ Kirigami.Page {
                 cellWidth: Math.floor(width / Math.max(1, Math.round(root.width / (Kirigami.Units.gridUnit * 40))))
                 clip: true
                 model: ProjectsRegistry.model
-                reuseItems: true
+
+                // reuseItems: true
 
                 delegate: ProjectCard {
                     width: projectsView.cellWidth - Kirigami.Units.largeSpacing
 
+                    onFindVersion: (a, b) => root.findVersion(a, b)
                     onTagSelected: tag => ProjectsRegistry.model.filter = `tag:${tag}`
                 }
 

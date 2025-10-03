@@ -3,7 +3,6 @@
 
 #include "internalprojectsregistrymodel.h"
 
-// I'm going to <omitted> lose it
 class ProjectsRegistry;
 
 #include <QSortFilterProxyModel>
@@ -68,8 +67,7 @@ public:
             return;
         beginFilterChange();
         m_filter = filter;
-        invalidateFilter();
-        resort();
+        invalidate();
         Q_EMIT filterChanged();
     }
 
@@ -88,7 +86,7 @@ public:
         if (m_filterCaseInsensitive == filterCaseInsensitive)
             return;
         m_filterCaseInsensitive = filterCaseInsensitive;
-        invalidateFilter();
+        invalidate();
         Q_EMIT filterCaseInsensitiveChanged();
     }
 

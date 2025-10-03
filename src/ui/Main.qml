@@ -324,6 +324,11 @@ StatefulApp.StatefulWindow {
 
             ProjectsPage {
                 title: "Projects"
+
+                onFindVersion: (repo, tag) => {
+                    mainPage.activePageIndex = 2;
+                    dlPage.findVersion(repo, tag);
+                }
             }
 
             LocalVersionsPage {
@@ -337,10 +342,10 @@ StatefulApp.StatefulWindow {
 
                 Component.onCompleted: {
                     dlPage.dl = dl;
-                }
-                StackLayout.onIsCurrentItemChanged: if (!hasContent && StackLayout.isCurrentItem) {
                     refresh();
                 }
+                // StackLayout.onIsCurrentItemChanged: if (!hasContent && StackLayout.isCurrentItem) {
+                // }
             }
         }
     }

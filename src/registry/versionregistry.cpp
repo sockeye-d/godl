@@ -1,4 +1,5 @@
 #include "versionregistry.h"
+#include "cli/ansi.h"
 #include "fileutil.h"
 
 #include <KSharedConfig>

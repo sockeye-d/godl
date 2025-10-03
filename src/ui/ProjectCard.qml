@@ -15,9 +15,15 @@ Kirigami.Card {
     property int error: -1
     required property GodotProject modelData
 
+    signal findVersion(string source, string tag)
     signal tagSelected(string tag)
 
+    function goFindVersion() {
+        findVersion(modelData.godotVersion.repo, modelData.godotVersion.tagName);
+    }
+
     banner.title: modelData.name
+    showClickFeedback: true
 
     actions: [
         Kirigami.Action {
@@ -126,6 +132,7 @@ Kirigami.Card {
                         }
                         elide: Text.ElideRight
                         text: versionSet ? root.modelData.godotVersion + "" : i18n("<no version>")
+                        textFormat: Text.PlainText
 
                         Connections {
                             function onHasVersionChanged() {
@@ -133,6 +140,18 @@ Kirigami.Card {
                             }
 
                             target: VersionRegistry
+                        }
+
+                        MouseArea {
+                            acceptedButtons: Qt.LeftButton
+                            anchors.fill: parent
+                            cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                            enabled: {
+                                versionLabel.forceColor;
+                                return root.modelData.godotVersion !== null && !VersionRegistry.hasVersion(root.modelData.godotVersion);
+                            }
+
+                            onClicked: root.goFindVersion()
                         }
                     }
                 }
@@ -147,13 +166,24 @@ Kirigami.Card {
                     type: root.modelData.lastOpenError === 0 ? Kirigami.MessageType.Positive : Kirigami.MessageType.Error
                     visible: root.modelData.lastOpenError !== -1
 
-                    actions: Kirigami.Action {
-                        displayComponent: Controls.ToolButton {
-                            icon.name: "dialog-close"
+                    actions: [
+                        Kirigami.Action {
+                            visible: root.modelData.lastOpenError === 2
 
-                            onClicked: root.modelData.clearError()
+                            displayComponent: Controls.ToolButton {
+                                icon.name: "download"
+
+                                onClicked: root.goFindVersion()
+                            }
+                        },
+                        Kirigami.Action {
+                            displayComponent: Controls.ToolButton {
+                                icon.name: "dialog-close"
+
+                                onClicked: root.modelData.clearError()
+                            }
                         }
-                    }
+                    ]
                 }
             }
 
@@ -307,6 +337,8 @@ Kirigami.Card {
             }
         }
     }
+
+    onClicked: root.error = modelData.open()
 
     Kirigami.Dialog {
         id: removeDialog

@@ -18,6 +18,19 @@ Kirigami.Page {
     property bool show_rc: true
     property bool show_stable: true
 
+    signal setFilter(string filter)
+    signal setRepo(string repo)
+
+    function findVersion(repo, tag) {
+        deferredRefresh.repo = repo;
+        deferredRefresh.tag = tag;
+        if (request.running) {
+            deferredRefresh.enabled = true;
+            return;
+        }
+        deferredRefresh.onFinished();
+    }
+
     function refresh() {
         if (request.running) {
             return;
@@ -119,17 +132,51 @@ Kirigami.Page {
                 id: dlSourceComponent
 
                 Controls.ComboBox {
+                    id: repoComboBox
+
+                    editable: true
                     enabled: !request.running
                     model: Configuration.sources
 
-                    onCurrentValueChanged: {
-                        root.rawRepo = currentValue;
+                    onAccepted: {
+                        root.rawRepo = editText ?? currentText;
                         root.refresh();
+                    }
+                    onActivated: {
+                        accepted();
+                    }
+
+                    Connections {
+                        function onSetRepo(repo) {
+                            const invalidate = (editText ?? currentText) !== repo;
+                            repoComboBox.editText = repo;
+                            if (invalidate) {
+                                repoComboBox.accepted();
+                            }
+                        }
+
+                        target: root
                     }
                 }
             }
         }
     ]
+
+    Connections {
+        id: deferredRefresh
+
+        property string repo
+        property string tag
+
+        function onFinished(result) {
+            root.setFilter(tag);
+            root.setRepo(repo);
+            enabled = false;
+        }
+
+        enabled: false
+        target: request
+    }
 
     Component {
         id: filterComponent
@@ -141,6 +188,14 @@ Kirigami.Page {
 
             onTextChanged: {
                 resultList.filterText = text;
+            }
+
+            Connections {
+                function onSetFilter(f) {
+                    filter.text = f;
+                }
+
+                target: root
             }
         }
     }
@@ -170,7 +225,13 @@ Kirigami.Page {
 
                     if (r.length === requestCount) {
                         currentPage++;
-                        return [Qt.url(`https://api.github.com/repos/godotengine/godot-builds/releases?per_page=${requestCount}&page=${currentPage + 1}`)];
+                        let source = root.rawRepo;
+                        if (source[0] === "/") {
+                            source = `https://api.github.com/repos${source}`;
+                        }
+
+                        source = `${VersionRegistry.resolveSourceUrl(root.rawRepo)}/releases?per_page=${requestCount}`;
+                        return [Qt.url(`${source}&page=${currentPage + 1}`)];
                     } else {
                         return [];
                     }
