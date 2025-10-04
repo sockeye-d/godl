@@ -149,6 +149,7 @@ Kirigami.Page {
                     Connections {
                         function onSetRepo(repo) {
                             const invalidate = (editText ?? currentText) !== repo;
+                            repoComboBox.currentIndex = -1;
                             repoComboBox.editText = repo;
                             if (invalidate) {
                                 repoComboBox.accepted();
