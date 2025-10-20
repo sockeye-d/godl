@@ -3,6 +3,7 @@
 #include "cli/ansi.h"
 #include "cli/interface.h"
 #include "downloadmanager.h"
+#include "sizeconverter.h"
 #include "versionregistry.h"
 
 #include <QApplication>
@@ -13,6 +14,7 @@
 
 using namespace Qt::StringLiterals;
 using namespace std::chrono_literals;
+
 namespace cli::install {
 
 int install(const Parser &parser)
@@ -115,8 +117,8 @@ int install(const Parser &parser)
                   << progressBar(nowTime,
                                  caption,
                                  dlInfo->progress(),
-                                 u"{progress}% ⤓%1 MB/s"_s.arg(
-                                     QString::number(dlInfo->downloadSpeed(), 'f', 2)));
+                                 u"{progress}% ⤓%1 MB/s"_s.arg(SizeConverter::instance()->formatSize(
+                                     dlInfo->downloadSpeed())));
         qStdOut().flush();
         QThread::sleep(10ms);
     }

@@ -14,7 +14,7 @@ Template::Template(const QString &p_name, const QString &p_path)
     , path{p_path}
 {
     QFile f{p_path};
-    f.open(QFile::ReadOnly | QFile::Text);
+    std::ignore = f.open(QFile::ReadOnly | QFile::Text);
     meta = QString::fromUtf8(f.readAll());
 }
 

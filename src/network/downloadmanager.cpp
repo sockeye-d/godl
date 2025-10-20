@@ -1,5 +1,15 @@
 #include "downloadmanager.h"
+#include "macros.h"
+#include "network.h"
+#include "registry/versionregistry.h"
+#include "util/util.h"
+#include <KArchive>
+#include <KLocalization>
+#include <KTar>
+#include <KZip>
+#include <config.h>
 #include <QDir>
+#include <QElapsedTimer>
 #include <QFile>
 #include <QFutureWatcher>
 #include <QMimeDatabase>
@@ -10,15 +20,6 @@
 #include <QRegularExpression>
 #include <QUrl>
 #include <QtConcurrentRun>
-#include "macros.h"
-#include "network.h"
-#include "registry/versionregistry.h"
-#include "util/util.h"
-#include <KArchive>
-#include <KLocalization>
-#include <KTar>
-#include <KZip>
-#include <config.h>
 
 QString DownloadManager::getDownloadLocation(const DownloadInfo &info) const
 {
