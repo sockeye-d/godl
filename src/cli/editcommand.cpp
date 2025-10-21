@@ -194,9 +194,9 @@ int tags::list(const Parser &)
 
 int bind(const Parser &parser)
 {
-    const QString &repo = parser.op("repo").param("repo");
-    const QString &tag = parser.op("tag").param("tag");
-    const QStringList &assetFilters = parser.op("bind").param("filter-term").split(",");
+    QString repo = parser.op("repo").param("repo");
+    QString tag = parser.op("tag").param("tag");
+    QStringList assetFilters = parser.op("bind").param("filter-term").split(",");
     GodotProject *proj;
     if (loadProject(proj)) {
         return 1;
@@ -227,6 +227,7 @@ int bind(const Parser &parser)
     }
 
     proj->setGodotVersion(version->boundVersion());
+    qStdOut() << positive() << "Bound " << version->assetName() << flushnl();
 
     delete proj;
     delete version;
