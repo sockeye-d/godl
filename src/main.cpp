@@ -62,19 +62,10 @@ int main(int argc, char *argv[])
     QApplication::setDesktopFileName(QStringLiteral("io.github.sockeye_d.godl"));
     QIcon::setFallbackSearchPaths(QIcon::fallbackSearchPaths() << ":/");
 
-#ifdef Q_OS_LINUX
     QApplication::setStyle(QStringLiteral("Breeze"));
     if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
         QQuickStyle::setStyle(QStringLiteral("org.kde.desktop"));
     }
-#endif
-
-#ifdef Q_OS_WIN32
-    QApplication::setStyle(QStringLiteral("FluentWinUI3"));
-    if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
-        QQuickStyle::setStyle(QStringLiteral("FluentWinUI3"));
-    }
-#endif
 
     ProjectTemplates::instance()->extractDefault();
 
