@@ -30,7 +30,7 @@ def main [release_cycle: string = "stable", zip_dir: string = "deploy"] {
             print "Couldn't find gh CLI"
             exit 1
         }
-        gh release upload (git describe --tags --abbrev=0) $zip_name
+        gh release upload (git describe --tags --abbrev=0) $zip_name --clobber
 
         if ((input -d N "Remove zip file? [y/N] " | str downcase) == "y") {
             rm $zip_name
