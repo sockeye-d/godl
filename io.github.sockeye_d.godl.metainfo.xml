@@ -53,8 +53,32 @@
     </screenshots>
 
     <releases>
-        <release version="1.2.2" date="2025-08-19">
+        <release version="1.3" date="2025-08-19">
             <url type="details">https://github.com/sockeye-d/godl/releases/v1.3</url>
+            <description>
+                <p>Release v1.3 brings some new features and bugfixes!</p>
+                <h2>Features:</h2>
+                <ul>
+                <li>Clicking the project's card's background now opens the project, making it easier to open projects</li>
+                <li>Clicking on a not-installed version on the project page now warps you to the remote versions page and auto-fills the repository and the tag search</li>
+                <li>The remote versions page now lets you enter any text into the repository combobox, so you don't have to add them in the settings first</li>
+                <li>Switch to Breeze theme on Windows because it looks slightly less broken
+                <ul>
+                <li>Icons are broken on Windows dark mode — nobody knows how to fix this, apparently</li>
+                </ul>
+                </li>
+                <li>Remote versions page now loads in the background instead of only once you switch to it</li>
+                </ul>
+                <h2>Bugfixes:</h2>
+                <ul>
+                <li>CLI actions like binding editors don't randomly fail because of corrupted memory</li>
+                <li>CLI install action correctly shows the humanized download speed</li>
+                <li>Previously any second pages of releases were always fetched from the Godot engine repository, now it works properly. This was never a problem because no other repositories I was using to test had more than 1 page of releases</li>
+                </ul>
+            </description>
+        </release>
+        <release version="1.2.2" date="2025-08-19">
+            <url type="details">https://github.com/sockeye-d/godl/releases/v1.2.2</url>
             <description>
                 <p>Bugfix update</p>
             </description>
