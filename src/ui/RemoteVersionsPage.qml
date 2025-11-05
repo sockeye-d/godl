@@ -221,8 +221,8 @@ Kirigami.Page {
                         }
                     }
 
-                    releases.push(...r);
-                    resultList.fullReleases = releases.slice();
+                    releases = [...releases, ...r];
+                    resultList.fullReleases = releases;
 
                     if (r.length === requestCount) {
                         currentPage++;
@@ -439,14 +439,22 @@ Kirigami.Page {
                 property string filterText
                 property list<var> fullReleases
 
-                function getFilter(filter) {
-                    return e => root[`show_${filter}`] || e.tag_name.indexOf(filter) === -1;
+                function filterElement(e) {
+                    if (filterText === "" || e.tag_name.indexOf(filterText) !== -1) {
+                        return true;
+                    }
+                    return getFilter("stable", e) && getFilter("dev", e) && getFilter("alpha", e) && getFilter("beta", e) && getFilter("rc", e);
+                }
+
+                function getFilter(el, filter) {
+                    return root[`show_${filter}`] || el.tag_name.indexOf(filter) === -1;
                 }
 
                 Layout.fillWidth: true
                 clip: true
                 leftMargin: 0
-                model: fullReleases.filter(el => filterText === "" || el.tag_name.indexOf(filterText) !== -1).filter(getFilter("stable")).filter(getFilter("dev")).filter(getFilter("alpha")).filter(getFilter("beta")).filter(getFilter("rc"))
+                model: fullReleases.filter(filterElement)
+                reuseItems: true
                 rightMargin: scrollview.vScrollbarVisible ? Kirigami.Units.largeSpacing * 2 : 0
                 topMargin: 0
 
