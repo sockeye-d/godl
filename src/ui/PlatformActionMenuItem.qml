@@ -1,7 +1,7 @@
 import Qt.labs.platform as Platform
 
-import org.fishy.godl
-import org.fishy.godl.qwidgets
+import dev.fishies.godl
+import dev.fishies.godl.qwidgets
 
 Platform.MenuItem {
     required property QAction action

@@ -6,8 +6,8 @@ import org.kde.kirigamiaddons.components as KirigamiAddons
 import org.kde.kirigamiaddons.formcard as FormCard
 import QtQuick.Effects as Effects
 
-import org.fishy.godl
-import org.fishy.godl.qwidgets as QWidgets
+import dev.fishies.godl
+import dev.fishies.godl.qwidgets as QWidgets
 
 Kirigami.Card {
     id: root

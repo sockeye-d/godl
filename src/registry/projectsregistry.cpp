@@ -126,7 +126,7 @@ QStringList ProjectsRegistry::tags() const
 {
     QStringList tags;
     for (int i = 0; i < m_model->rowCount(); i++) {
-        const QStringList &projectTags = m_model->project(i)->tags();
+        const QStringList &projectTags = m_model->getProject(i)->tags();
         for (const QString &tag : projectTags) {
             if (!tags.contains(tag))
                 tags << tag;

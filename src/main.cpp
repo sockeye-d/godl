@@ -78,34 +78,39 @@ int main(int argc, char *argv[])
 
     aboutData.setHomepage(QStringLiteral("https://github.com/sockeye-d/godl"));
     aboutData.setBugAddress("https://github.com/sockeye-d/godl/issues/new"_ba);
-    aboutData.setDesktopFileName("org.fishy.godl");
+    aboutData.setDesktopFileName("dev.fishies.godl");
 
     KAboutData::setApplicationData(aboutData);
-    registerType("org.fishy.godl", 0, 1, ChainedJsonRequest);
-    registerType("org.fishy.godl", 0, 1, DownloadManager);
-    registerType("org.fishy.godl", 0, 1, DownloadManagerModel);
-    registerType("org.fishy.godl", 0, 1, DownloadInfo);
-    registerType("org.fishy.godl", 0, 1, GodlApp);
-    registerType("org.fishy.godl", 0, 1, BetterFileDialog);
-    registerType("org.fishy.godl", 0, 1, GodotVersion);
-    registerType("org.fishy.godl", 0, 1, GodotProject);
-    registerType("org.fishy.godl", 0, 1, ProjectsRegistryModel);
-    registerType("org.fishy.godl.qwidgets", 0, 1, QFileDialog);
-    registerType("org.fishy.godl.qwidgets", 0, 1, QDir);
-    registerType("org.fishy.godl.qwidgets", 0, 1, QAction);
-    registerType("org.fishy.godl.qwidgets", 0, 1, QIcon);
-    qmlRegisterType<Template>("org.fishy.godl", 0, 1, "projectTemplate");
+    registerType("dev.fishies.godl", 0, 1, ChainedJsonRequest);
+    registerType("dev.fishies.godl", 0, 1, DownloadManager);
+    registerType("dev.fishies.godl", 0, 1, DownloadManagerModel);
+    registerType("dev.fishies.godl", 0, 1, DownloadInfo);
+    registerType("dev.fishies.godl", 0, 1, GodlApp);
+    registerType("dev.fishies.godl", 0, 1, BetterFileDialog);
+    registerType("dev.fishies.godl", 0, 1, GodotVersion);
+    registerType("dev.fishies.godl", 0, 1, GodotProject);
+    registerType("dev.fishies.godl", 0, 1, ProjectsRegistryModel);
+    registerType("dev.fishies.godl.qwidgets", 0, 1, QFileDialog);
+    registerType("dev.fishies.godl.qwidgets", 0, 1, QDir);
+    registerType("dev.fishies.godl.qwidgets", 0, 1, QAction);
+    registerType("dev.fishies.godl.qwidgets", 0, 1, QIcon);
+    qmlRegisterType<Template>("dev.fishies.godl", 0, 1, "projectTemplate");
 
-    registerSingletonPtr("org.fishy.godl", 0, 1, ConfigSignals);
-    registerSingletonPtr("org.fishy.godl", 0, 1, DateConverter);
-    registerSingletonPtr("org.fishy.godl", 0, 1, IconConverter);
-    registerSingletonPtr("org.fishy.godl", 0, 1, SizeConverter);
-    registerSingletonPtr("org.fishy.godl", 0, 1, NetworkResponseCode);
-    registerSingletonPtr("org.fishy.godl", 0, 1, ProjectsRegistry);
-    registerSingletonPtr("org.fishy.godl", 0, 1, ProjectTemplates);
-    registerSingletonPtr("org.fishy.godl", 0, 1, VersionInfo);
-    registerSingletonPtr("org.fishy.godl", 0, 1, VersionRegistry);
-    registerSingletonPtrSpecialNamed("org.fishy.godl", 0, 1, Config, "Configuration", Config::self());
+    registerSingletonPtr("dev.fishies.godl", 0, 1, ConfigSignals);
+    registerSingletonPtr("dev.fishies.godl", 0, 1, DateConverter);
+    registerSingletonPtr("dev.fishies.godl", 0, 1, IconConverter);
+    registerSingletonPtr("dev.fishies.godl", 0, 1, SizeConverter);
+    registerSingletonPtr("dev.fishies.godl", 0, 1, NetworkResponseCode);
+    registerSingletonPtr("dev.fishies.godl", 0, 1, ProjectsRegistry);
+    registerSingletonPtr("dev.fishies.godl", 0, 1, ProjectTemplates);
+    registerSingletonPtr("dev.fishies.godl", 0, 1, VersionInfo);
+    registerSingletonPtr("dev.fishies.godl", 0, 1, VersionRegistry);
+    registerSingletonPtrSpecialNamed("dev.fishies.godl",
+                                     0,
+                                     1,
+                                     Config,
+                                     "Configuration",
+                                     Config::self());
     QQmlApplicationEngine engine;
     Main::engine = &engine;
 

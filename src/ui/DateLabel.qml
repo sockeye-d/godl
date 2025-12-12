@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls as Controls
 
-import org.fishy.godl
+import dev.fishies.godl
 
 Controls.Label {
     required property date dateTime

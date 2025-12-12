@@ -5,8 +5,8 @@ import org.kde.kirigami as Kirigami
 import org.kde.kirigamiaddons.components as KirigamiAddons
 import org.kde.kirigamiaddons.formcard as FormCard
 
-import org.fishy.godl
-import org.fishy.godl.qwidgets as QWidgets
+import dev.fishies.godl
+import dev.fishies.godl.qwidgets as QWidgets
 
 import "."
 

@@ -3,7 +3,7 @@ import QtQuick.Layouts
 import QtQuick.Controls as Controls
 import org.kde.kirigami as Kirigami
 
-import org.fishy.godl
+import dev.fishies.godl
 
 Kirigami.Page {
     id: root
@@ -36,7 +36,8 @@ Kirigami.Page {
             return;
         }
 
-        request.releases.length = 0;
+        // request.releases.length = 0;
+        versionsModel.clear();
         request.errorString = "";
         request.currentPage = 0;
         request.totalPages = -1;
@@ -207,8 +208,18 @@ Kirigami.Page {
         property int currentPage: 0
         property string errorString: ""
         property var lastResult
-        property list<var> releases
+        // property list<var> releases
         property int totalPages: -1
+
+        function removeEmpty(obj) {
+            for (let [k, v] of Object.entries(obj)) {
+                if (v === null) {
+                    delete obj[k];
+                } else if (typeof v === "object") {
+                    removeEmpty(v);
+                }
+            }
+        }
 
         Component.onCompleted: {
             for (var i = 0; i < 1000; i++) {
@@ -221,8 +232,13 @@ Kirigami.Page {
                         }
                     }
 
-                    releases = [...releases, ...r];
-                    resultList.fullReleases = releases;
+                    // releases = [...releases, ...r];
+                    // resultList.fullReleases = releases;
+                    for (let item of r) {
+                        // console.log(JSON.stringify(item));
+                        removeEmpty(item);
+                        versionsModel.append(item);
+                    }
 
                     if (r.length === requestCount) {
                         currentPage++;
@@ -245,7 +261,7 @@ Kirigami.Page {
         onFinished: result => {
             lastResult = result[0];
             currentPage = 0;
-            resultList.fullReleases = releases;
+            // resultList.fullReleases = releases;
             hasContent = true;
         }
     }
@@ -348,8 +364,6 @@ Kirigami.Page {
                 }
             }
 
-            model: dlDialog.assets.filter(platformFilter).filter(nameFilter).filter(dotnetFilter)
-
             delegate: Kirigami.Card {
                 id: assetCard
 
@@ -414,8 +428,55 @@ Kirigami.Page {
                     target: VersionRegistry
                 }
             }
+            model: SortFilterProxyModel {
+                id: assetProxyModel
+
+                model: dlDialog.assets
+
+                filters: [
+                    FunctionFilter {
+                        function filter(e: AssetElement): bool {
+                            return dlDialogModel.platformFilter(e);
+                        }
+                    },
+                    FunctionFilter {
+                        function filter(e: AssetElement): bool {
+                            return dlDialogModel.nameFilter(e);
+                        }
+                    },
+                    FunctionFilter {
+                        function filter(e: AssetElement): bool {
+                            return dlDialogModel.dotnetFilter(e);
+                        }
+                    }
+                ]
+            }
 
             onModelChanged: refresh++
+
+            Connections {
+                target: Configuration
+
+                onDownloadFilterChanged: assetProxyModel.invalidate()
+            }
+
+            Connections {
+                target: currentPlatformOnlyFilterChip
+
+                onCheckedChanged: assetProxyModel.invalidate()
+            }
+
+            Connections {
+                target: assetsFilter
+
+                onTextChanged: assetProxyModel.invalidate()
+            }
+
+            Connections {
+                target: monoOnlyFilterChip
+
+                onCheckedChanged: assetProxyModel.invalidate()
+            }
         }
     }
 
@@ -423,7 +484,7 @@ Kirigami.Page {
         anchors.fill: parent
 
         Controls.ScrollView {
-            id: scrollview
+            id: scrollView
 
             property bool vScrollbarVisible: Controls.ScrollBar.vertical.visible
 
@@ -439,23 +500,22 @@ Kirigami.Page {
                 property string filterText
                 property list<var> fullReleases
 
-                function filterElement(e) {
-                    if (filterText === "" || e.tag_name.indexOf(filterText) !== -1) {
-                        return true;
+                function filterElement(e: FilterElement): bool {
+                    if (filterText !== "" && e.tag_name.indexOf(filterText) === -1) {
+                        return false;
                     }
                     return getFilter("stable", e) && getFilter("dev", e) && getFilter("alpha", e) && getFilter("beta", e) && getFilter("rc", e);
                 }
 
-                function getFilter(el, filter) {
-                    return root[`show_${filter}`] || el.tag_name.indexOf(filter) === -1;
+                function getFilter(filter, e: FilterElement): bool {
+                    return root[`show_${filter}`] || e.tag_name.indexOf(filter) === -1;
                 }
 
                 Layout.fillWidth: true
                 clip: true
                 leftMargin: 0
-                model: fullReleases.filter(filterElement)
                 reuseItems: true
-                rightMargin: scrollview.vScrollbarVisible ? Kirigami.Units.largeSpacing * 2 : 0
+                rightMargin: scrollView.vScrollbarVisible ? Kirigami.Units.largeSpacing * 2 : 0
                 topMargin: 0
 
                 delegate: Kirigami.Card {
@@ -528,6 +588,35 @@ Kirigami.Page {
                         }
                     }
                 }
+                model: SortFilterProxyModel {
+                    id: filterProxyModel
+
+                    filters: FunctionFilter {
+                        function filter(e: FilterElement): bool {
+                            return resultList.filterElement(e);
+                        }
+                    }
+                    model: ListModel {
+                        id: versionsModel
+
+                    }
+                }
+
+                Connections {
+                    target: root
+
+                    onShow_alphaChanged: filterProxyModel.invalidate()
+                    onShow_betaChanged: filterProxyModel.invalidate()
+                    onShow_devChanged: filterProxyModel.invalidate()
+                    onShow_rcChanged: filterProxyModel.invalidate()
+                    onShow_stableChanged: filterProxyModel.invalidate()
+                }
+
+                Connections {
+                    target: resultList
+
+                    onFilterTextChanged: filterProxyModel.invalidate()
+                }
             }
         }
 
@@ -566,5 +655,12 @@ Kirigami.Page {
             text: i18n("No results found 😢")
             visible: resultList.model.length === 0 && !request.running
         }
+    }
+
+    component AssetElement: QtObject {
+        property string name
+    }
+    component FilterElement: QtObject {
+        property string tag_name
     }
 }

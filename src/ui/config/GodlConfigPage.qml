@@ -5,7 +5,7 @@ import org.kde.kirigami as Kirigami
 import org.kde.kirigamiaddons.formcard as FormCard
 import org.kde.kirigamiaddons.settings as KirigamiSettings
 
-import org.fishy.godl
+import dev.fishies.godl
 
 FormCard.FormCardPage {
     topPadding: Kirigami.Units.largeSpacing

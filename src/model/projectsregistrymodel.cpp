@@ -38,7 +38,7 @@ ProjectsRegistryModel::ProjectsRegistryModel(InternalProjectsRegistryModel *mode
             &InternalProjectsRegistryModel::rowsInserted,
             this,
             [this](QModelIndex, int first, int) {
-                auto obj = project(first);
+                auto obj = getProject(first);
                 if (obj) {
                     connect(obj,
                             &GodotProject::favoriteChanged,
@@ -53,10 +53,7 @@ ProjectsRegistryModel::ProjectsRegistryModel(InternalProjectsRegistryModel *mode
                             &GodotProject::lastEditedTimeChanged,
                             this,
                             &ProjectsRegistryModel::resort);
-                    connect(obj,
-                            &GodotProject::tagsChanged,
-                            this,
-                            &ProjectsRegistryModel::invalidateFilter);
+                    connect(obj, &GodotProject::tagsChanged, this, &ProjectsRegistryModel::resort);
                 }
             });
 }
@@ -67,7 +64,7 @@ bool ProjectsRegistryModel::filterAcceptsRow(int source_row, const QModelIndex &
     if (filter() == "") {
         return true;
     }
-    const GodotProject *item = project(source_row);
+    const GodotProject *item = getProject(source_row);
     if (filter().startsWith("tag:")) {
         auto tagFilter = filter().sliced(4);
         const QStringList &tags = item->tags();
@@ -93,8 +90,8 @@ bool ProjectsRegistryModel::filterAcceptsRow(int source_row, const QModelIndex &
 bool ProjectsRegistryModel::lessThan(const QModelIndex &source_left,
                                      const QModelIndex &source_right) const
 {
-    const GodotProject *a = project(source_left.row());
-    const GodotProject *b = project(source_right.row());
+    const GodotProject *a = getProject(source_left.row());
+    const GodotProject *b = getProject(source_right.row());
 
     if (!a->favorite() && b->favorite()) {
         return !ascending();
@@ -119,7 +116,7 @@ bool ProjectsRegistryModel::lessThan(const QModelIndex &source_left,
     return a->name().toLower() < b->name().toLower();
 }
 
-const GodotProject *ProjectsRegistryModel::project(int index) const
+const GodotProject *ProjectsRegistryModel::getProject(int index) const
 {
     return static_cast<InternalProjectsRegistryModel *>(sourceModel())->m_data[index];
 }

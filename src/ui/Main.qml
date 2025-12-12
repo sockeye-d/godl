@@ -8,7 +8,7 @@ import org.kde.kirigamiaddons.settings as KirigamiSettings
 import org.kde.kirigamiaddons.statefulapp as StatefulApp
 import org.kde.desktop as KdeDesktop
 
-import org.fishy.godl
+import dev.fishies.godl
 
 import "config" as Configuration
 

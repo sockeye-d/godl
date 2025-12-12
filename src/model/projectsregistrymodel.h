@@ -12,7 +12,7 @@ class ProjectsRegistryModel : public QSortFilterProxyModel
     friend class ProjectsRegistry;
     Q_OBJECT
 private:
-    const GodotProject *project(int index) const;
+    const GodotProject *getProject(int index) const;
 
 public:
     enum SortBy {

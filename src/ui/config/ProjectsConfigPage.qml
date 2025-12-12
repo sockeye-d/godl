@@ -6,8 +6,8 @@ import org.kde.kirigami as Kirigami
 import org.kde.kirigamiaddons.formcard as FormCard
 import org.kde.kirigamiaddons.settings as KirigamiSettings
 
-import org.fishy.godl
-import org.fishy.godl.qwidgets as QWidgets
+import dev.fishies.godl
+import dev.fishies.godl.qwidgets as QWidgets
 
 GodlConfigPage {
     title: i18n("General")
