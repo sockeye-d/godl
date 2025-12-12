@@ -14,7 +14,7 @@ if (IS_READABLE "${CMAKE_SOURCE_DIR}/local.properties")
 endif()
 
 qt_add_qml_module(godl
-    URI org.fishy.godl
+    URI dev.fishies.godl
     VERSION 0.1
     SOURCES main.cpp main.h
     SOURCES util/util.h util/util.cpp
@@ -50,6 +50,20 @@ qt_add_qml_module(godl
     SOURCES cli/installcommand.h cli/installcommand.cpp
     SOURCES cli/parser.h cli/parser.cpp
     SOURCES cli/interface.h cli/interface.cpp
+    SOURCES cli/ansi.h cli/ansi.cpp
+    SOURCES cli/testcommand.h cli/testcommand.cpp
+    SOURCES cli/versioncommand.h cli/versioncommand.cpp
+    SOURCES cli/remotecommand.h cli/remotecommand.cpp
+    SOURCES cli/editcommand.h cli/editcommand.cpp
+    SOURCES cli/gconfigcommand.h cli/gconfigcommand.cpp
+    SOURCES cli/importcommand.h cli/importcommand.cpp
+    SOURCES cli/cliutil.h cli/cliutil.cpp
+    SOURCES cli/createcommand.h cli/createcommand.cpp
+    SOURCES templatedata.h templatedata.cpp
+    SOURCES versioninfo.h versioninfo.cpp
+    SOURCES util/singleton.h util/singleton.cpp
+    SOURCES cli/run.h cli/run.cpp
+    SOURCES util/sizeconverter.h util/sizeconverter.cpp
     QML_FILES ui/Main.qml
     QML_FILES ui/RemoteVersionsPage.qml
     QML_FILES ui/LocalVersionsPage.qml
@@ -66,20 +80,6 @@ qt_add_qml_module(godl
     QML_FILES ui/NewProjectPage.qml
     QML_FILES ui/LocalVersionCard.qml
     RESOURCES resources.qrc
-    SOURCES cli/ansi.h cli/ansi.cpp
-    SOURCES cli/testcommand.h cli/testcommand.cpp
-    SOURCES cli/versioncommand.h cli/versioncommand.cpp
-    SOURCES cli/remotecommand.h cli/remotecommand.cpp
-    SOURCES cli/editcommand.h cli/editcommand.cpp
-    SOURCES cli/gconfigcommand.h cli/gconfigcommand.cpp
-    SOURCES cli/importcommand.h cli/importcommand.cpp
-    SOURCES cli/cliutil.h cli/cliutil.cpp
-    SOURCES cli/createcommand.h cli/createcommand.cpp
-    SOURCES templatedata.h templatedata.cpp
-    SOURCES versioninfo.h versioninfo.cpp
-    SOURCES util/singleton.h util/singleton.cpp
-    SOURCES cli/run.h cli/run.cpp
-    SOURCES util/sizeconverter.h util/sizeconverter.cpp
 )
 
 file(GLOB_RECURSE qml_modules CONFIGURE_DEPENDS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ui/*.qml)

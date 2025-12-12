@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Controls as Controls
+import QtQuick.Controls
 import org.kde.kirigami as Kirigami
 import org.kde.kirigamiaddons.components as KirigamiAddons
 import org.kde.kirigamiaddons.formcard as FormCard
@@ -95,7 +95,7 @@ Kirigami.Card {
                 ColumnLayout {
                     Layout.fillWidth: false
 
-                    Controls.Label {
+                    Label {
                         property bool hasDescription: root.modelData.description !== ""
 
                         Layout.fillWidth: true
@@ -113,7 +113,7 @@ Kirigami.Card {
                         prefix: "Last edited "
                     }
 
-                    Controls.Label {
+                    Label {
                         id: versionLabel
 
                         property int forceColor: 0
@@ -170,14 +170,14 @@ Kirigami.Card {
                         Kirigami.Action {
                             visible: root.modelData.lastOpenError === 2
 
-                            displayComponent: Controls.ToolButton {
+                            displayComponent: ToolButton {
                                 icon.name: "download"
 
                                 onClicked: root.goFindVersion()
                             }
                         },
                         Kirigami.Action {
-                            displayComponent: Controls.ToolButton {
+                            displayComponent: ToolButton {
                                 icon.name: "dialog-close"
 
                                 onClicked: root.modelData.clearError()
@@ -194,9 +194,9 @@ Kirigami.Card {
                 height: Kirigami.Units.largeSpacing
             }
 
-            Controls.ScrollView {
+            ScrollView {
                 Layout.fillWidth: true
-                Layout.preferredHeight: tags.height + Controls.ScrollBar.horizontal.height + Kirigami.Units.smallSpacing
+                Layout.preferredHeight: tags.height + ScrollBar.horizontal.height + Kirigami.Units.smallSpacing
                 clip: true
                 contentWidth: tags.width
 
@@ -207,7 +207,7 @@ Kirigami.Card {
 
                     spacing: Kirigami.Units.mediumSpacing
 
-                    Controls.ToolButton {
+                    ToolButton {
                         id: addTag
 
                         Layout.preferredHeight: measureChip.height
@@ -224,7 +224,7 @@ Kirigami.Card {
                         }
                     }
 
-                    Controls.ComboBox {
+                    ComboBox {
                         id: addTagField
 
                         Layout.maximumHeight: measureChip.height
@@ -291,7 +291,7 @@ Kirigami.Card {
 
             onYChanged: y = 0
 
-            Controls.Button {
+            Button {
                 id: projectIconEditButton
 
                 anchors.fill: parent
@@ -359,13 +359,13 @@ Kirigami.Card {
             ColumnLayout {
                 Layout.fillWidth: true
 
-                Controls.Label {
+                Label {
                     Layout.fillWidth: true
                     text: moveToTrash.checked ? i18n("This will move the project to the trash and remove it from the list.") : i18n("This will remove it from the list, but you can add the project back later")
                     wrapMode: Text.Wrap
                 }
 
-                Controls.CheckBox {
+                CheckBox {
                     id: moveToTrash
 
                     checked: false
@@ -548,7 +548,7 @@ Kirigami.Card {
         standardButtons: Kirigami.Dialog.Ok
         title: i18n("Invalid icon")
 
-        contentItem: Controls.Label {
+        contentItem: Label {
             text: i18n("Selecting icons outside of the project directory is unsupported.")
         }
     }

@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
     Main::engine = &engine;
 
     engine.rootContext()->setContextObject(new KLocalizedContext(&engine));
-    engine.load(QUrl("qrc:/org/fishy/godl/ui/Main.qml"));
+    engine.load(QUrl("qrc:/dev/fishies/godl/ui/Main.qml"));
 
     if (engine.rootObjects().isEmpty()) {
         Main::engine = nullptr;

@@ -144,7 +144,6 @@ Kirigami.Page {
                 property int recomputeHeight: 0
 
                 Layout.fillWidth: true
-                cacheBuffer: 2147483647
                 cellHeight: {
                     recomputeHeight;
                     return Math.max(...[...Array(projectsView.count).keys()].map(x => projectsView.itemAtIndex(x)?.height)) + Kirigami.Units.largeSpacing;

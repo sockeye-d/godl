@@ -455,27 +455,35 @@ Kirigami.Page {
             onModelChanged: refresh++
 
             Connections {
+                function onDownloadFilterChanged() {
+                    assetProxyModel.invalidate();
+                }
+
                 target: Configuration
-
-                onDownloadFilterChanged: assetProxyModel.invalidate()
             }
 
             Connections {
+                function onCheckedChanged() {
+                    assetProxyModel.invalidate();
+                }
+
                 target: currentPlatformOnlyFilterChip
-
-                onCheckedChanged: assetProxyModel.invalidate()
             }
 
             Connections {
+                function onTextChanged() {
+                    assetProxyModel.invalidate();
+                }
+
                 target: assetsFilter
-
-                onTextChanged: assetProxyModel.invalidate()
             }
 
             Connections {
-                target: monoOnlyFilterChip
+                function onCheckedChanged() {
+                    assetProxyModel.invalidate();
+                }
 
-                onCheckedChanged: assetProxyModel.invalidate()
+                target: monoOnlyFilterChip
             }
         }
     }
@@ -527,7 +535,15 @@ Kirigami.Page {
                     required property string html_url
                     required property string tag_name
 
+                    function showDownloadCard() {
+                        dlDialog.assets = card.assets;
+                        dlDialog.title = `${i18n("Assets for")} ${card.tag_name}`;
+                        dlDialog.tagName = card.tag_name;
+                        dlDialog.open();
+                    }
+
                     banner.title: tag_name
+                    showClickFeedback: true
 
                     actions: [
                         Kirigami.Action {
@@ -545,12 +561,7 @@ Kirigami.Page {
                             icon.name: "download"
                             text: i18n("Download")
 
-                            onTriggered: {
-                                dlDialog.assets = card.assets;
-                                dlDialog.title = `${i18n("Assets for")} ${card.tag_name}`;
-                                dlDialog.tagName = card.tag_name;
-                                dlDialog.open();
-                            }
+                            onTriggered: card.showDownloadCard()
                         },
                         Kirigami.Action {
                             icon.name: "link"
@@ -560,9 +571,13 @@ Kirigami.Page {
                         }
                     ]
                     contentItem: DateLabel {
+                        Layout.fillWidth: false
                         dateTime: new Date(card.created_at)
+                        enabled: false
                         prefix: "Released "
                     }
+
+                    onClicked: showDownloadCard()
 
                     Rectangle {
                         id: highlight
@@ -603,19 +618,35 @@ Kirigami.Page {
                 }
 
                 Connections {
-                    target: root
+                    function onShow_alphaChanged() {
+                        filterProxyModel.invalidate();
+                    }
 
-                    onShow_alphaChanged: filterProxyModel.invalidate()
-                    onShow_betaChanged: filterProxyModel.invalidate()
-                    onShow_devChanged: filterProxyModel.invalidate()
-                    onShow_rcChanged: filterProxyModel.invalidate()
-                    onShow_stableChanged: filterProxyModel.invalidate()
+                    function onShow_betaChanged() {
+                        filterProxyModel.invalidate();
+                    }
+
+                    function onShow_devChanged() {
+                        filterProxyModel.invalidate();
+                    }
+
+                    function onShow_rcChanged() {
+                        filterProxyModel.invalidate();
+                    }
+
+                    function onShow_stableChanged() {
+                        filterProxyModel.invalidate();
+                    }
+
+                    target: root
                 }
 
                 Connections {
-                    target: resultList
+                    function onFilterTextChanged() {
+                        filterProxyModel.invalidate();
+                    }
 
-                    onFilterTextChanged: filterProxyModel.invalidate()
+                    target: resultList
                 }
             }
         }
