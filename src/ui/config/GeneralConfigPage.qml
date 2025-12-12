@@ -24,8 +24,8 @@ GodlConfigPage {
                     icon.name: "folder-open"
 
                     onTriggered: {
-                        folderDialog.startDirectory = Configuration.godotLocation;
-                        folderDialog.open();
+                        godotLocationFolderDialog.startDirectory = Configuration.godotLocation;
+                        godotLocationFolderDialog.open();
                     }
                 },
                 Kirigami.Action {
@@ -58,8 +58,8 @@ GodlConfigPage {
                     icon.name: "folder-open"
 
                     onTriggered: {
-                        folderDialog.startDirectory = Configuration.projectLocation;
-                        folderDialog.open();
+                        projectLocationFolderDialog.startDirectory = Configuration.projectLocation;
+                        projectLocationFolderDialog.open();
                     }
                 },
                 Kirigami.Action {
@@ -96,11 +96,20 @@ GodlConfigPage {
     }
 
     BetterFileDialog {
-        id: folderDialog
+        id: godotLocationFolderDialog
 
         fileFilters: BetterFileDialog.Hidden | BetterFileDialog.NoDotAndDotDot
         mode: QWidgets.QFileDialog.Directory
 
         onAccepted: path => Configuration.godotLocation = path
+    }
+
+    BetterFileDialog {
+        id: projectLocationFolderDialog
+
+        fileFilters: BetterFileDialog.Hidden | BetterFileDialog.NoDotAndDotDot
+        mode: QWidgets.QFileDialog.Directory
+
+        onAccepted: path => Configuration.projectLocation = path
     }
 }
