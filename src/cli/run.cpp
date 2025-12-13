@@ -92,7 +92,7 @@ int cli::run::runCli(int argc, char *argv[])
                                     {{"template", "The template to use", true}}));
     parser.addOption(
         Parser::Option(Command, "show-version", {"show-version"}, "Show version information"));
-#ifdef DEBUG
+#ifndef QT_NO_DEBUG
     parser.addOption(Parser::Option(Command, "test", {"test"}, "Test CLI tool"));
 #endif
     nonTerminalParse();

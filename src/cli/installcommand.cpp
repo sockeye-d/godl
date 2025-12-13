@@ -19,9 +19,9 @@ namespace cli::install {
 
 int install(const Parser &parser)
 {
-    const QString &repo = parser.op("install").param("repo");
-    const QString &tag = parser.op("install").param("tag");
-    const QString &asset = parser.op("install").param("asset");
+    const QString repo = parser.op("install").param("repo");
+    const QString tag = parser.op("install").param("tag");
+    const QString asset = parser.op("install").param("asset");
     const bool force = parser.set("force");
     auto bgv = new BoundGodotVersion();
     bgv->setRepo(repo);
@@ -117,7 +117,7 @@ int install(const Parser &parser)
                   << progressBar(nowTime,
                                  caption,
                                  dlInfo->progress(),
-                                 u"{progress}% ⤓%1 MB/s"_s.arg(SizeConverter::instance()->formatSize(
+                                 u"{progress}% ⤓%1/s"_s.arg(SizeConverter::instance()->formatSize(
                                      dlInfo->downloadSpeed())));
         qStdOut().flush();
         QThread::sleep(10ms);

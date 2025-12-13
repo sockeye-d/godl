@@ -9,7 +9,7 @@ namespace cli {
 int general(const Parser &parser)
 {
     if (parser.set("godot-location")) {
-        const QString &newValue = parser.op("godot-location").param("value");
+        const QString newValue = parser.op("godot-location").param("value");
         if (newValue.isEmpty()) {
             qStdOut() << Config::godotLocation();
             return 0;
@@ -20,7 +20,7 @@ int general(const Parser &parser)
         return 0;
     }
     if (parser.set("project-location")) {
-        const QString &newValue = parser.op("project-location").param("value");
+        const QString newValue = parser.op("project-location").param("value");
         if (newValue.isEmpty()) {
             qStdOut() << Config::projectLocation();
             return 0;
@@ -31,7 +31,7 @@ int general(const Parser &parser)
         return 0;
     }
     if (parser.set("template-location")) {
-        const QString &newValue = parser.op("template-location").param("value");
+        const QString newValue = parser.op("template-location").param("value");
         if (newValue.isEmpty()) {
             qStdOut() << Config::templateLocation();
             return 0;
@@ -47,7 +47,7 @@ int general(const Parser &parser)
 int versionConfig(const Parser &parser)
 {
     if (parser.set("default-command")) {
-        const QString &newValue = parser.op("default-command").param("value");
+        const QString newValue = parser.op("default-command").param("value");
         if (newValue.isEmpty()) {
             qStdOut() << Config::defaultCommand();
             return 0;
@@ -58,7 +58,7 @@ int versionConfig(const Parser &parser)
         return 0;
     }
     if (parser.set("cache")) {
-        const QString &newValue = parser.op("cache").param("value");
+        const QString newValue = parser.op("cache").param("value");
         if (newValue.isEmpty()) {
             qStdOut() << Config::cacheVersions();
             return 0;
@@ -78,7 +78,7 @@ int versionConfig(const Parser &parser)
 
 int filter::add(const Parser &parser)
 {
-    const QStringList &values = parser.op("add").param("filter").split(",");
+    const QStringList values = parser.op("add").param("filter").split(",");
     for (const QString &value : values) {
         if (Config::downloadFilter().contains(value)) {
             qStdOut() << error() << "already has filter " << value << ansi::nl;
@@ -94,7 +94,7 @@ int filter::add(const Parser &parser)
 
 int filter::remove(const Parser &parser)
 {
-    const QStringList &values = parser.op("remove").param("filter").split(",");
+    const QStringList values = parser.op("remove").param("filter").split(",");
 
     for (const QString &value : values)
         if (!Config::downloadFilter().contains(value)) {
@@ -124,7 +124,7 @@ int filter::list(const Parser &)
 
 int source::add(const Parser &parser)
 {
-    const QStringList &values = parser.op("add").param("source").split(",");
+    const QStringList values = parser.op("add").param("source").split(",");
     for (const QString &value : values) {
         if (Config::sources().contains(value)) {
             qStdOut() << error() << "already has filter " << value << ansi::nl;
@@ -140,7 +140,7 @@ int source::add(const Parser &parser)
 
 int source::remove(const Parser &parser)
 {
-    const QStringList &values = parser.op("remove").param("source").split(",");
+    const QStringList values = parser.op("remove").param("source").split(",");
 
     for (const QString &value : values)
         if (!Config::sources().contains(value)) {

@@ -14,7 +14,7 @@ namespace cli {
 int import(const Parser &parser)
 {
     QString defaultPath = QDir::currentPath();
-    const QString &path = makeAbsolute(parser.op("import").param("path", defaultPath));
+    const QString path = makeAbsolute(parser.op("import").param("path", defaultPath));
     bool scan = parser.set("recursive");
     bool dryRun = parser.set("dry-run");
 
@@ -32,7 +32,7 @@ int import(const Parser &parser)
 
         std::chrono::nanoseconds nowTime = std::chrono::system_clock::now().time_since_epoch();
         bool scanned = false;
-        QString caption = "Scanning " + path;
+        const QString caption = "Scanning " + path;
         while (ProjectsRegistry::instance()->scanning()) {
             QCoreApplication::processEvents();
             qStdOut() << ansi::cr << ansi::eraseInLine << progressBar(nowTime, caption);

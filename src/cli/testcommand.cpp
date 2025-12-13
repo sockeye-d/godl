@@ -46,10 +46,12 @@ int testBars(const Parser &parser)
     }
 
     if (parser.set("determinate")) {
-        for (double p = 0.0; p < 1.0; p += 1.0 / ticks) {
+        for (int i = 0; i < ticks; i++) {
             QCoreApplication::processEvents();
             qStdOut() << ansi::cr << ansi::eraseInLine
-                      << cli::progressBar(nowTime, "Determinate progress bar", p);
+                      << cli::progressBar(nowTime,
+                                          "Determinate progress bar",
+                                          static_cast<double>(i) / ticks);
             qStdOut().flush();
             QThread::sleep(10ms);
         }

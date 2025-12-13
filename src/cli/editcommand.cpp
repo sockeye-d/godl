@@ -88,7 +88,7 @@ int configure(const Parser &parser)
     }
     auto projDeleter = qScopeGuard([proj]() { delete proj; });
     if (parser.set("name")) {
-        const QString &newValue = parser.op("name").param("value");
+        const QString newValue = parser.op("name").param("value");
         if (newValue.isEmpty()) {
             qStdOut() << proj->name() << ansi::nl;
         } else {
@@ -96,7 +96,7 @@ int configure(const Parser &parser)
         }
     }
     if (parser.set("description")) {
-        const QString &newValue = parser.op("description").param("value");
+        const QString newValue = parser.op("description").param("value");
         if (newValue.isEmpty()) {
             qStdOut() << proj->description() << ansi::nl;
         } else {
@@ -104,7 +104,7 @@ int configure(const Parser &parser)
         }
     }
     if (parser.set("favorite")) {
-        const QString &newValue = parser.op("favorite").param("value");
+        const QString newValue = parser.op("favorite").param("value");
         if (newValue.isEmpty()) {
             qStdOut() << strBool(proj->favorite()) << ansi::nl;
         } else {

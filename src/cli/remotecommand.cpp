@@ -16,10 +16,10 @@ namespace cli::remote {
 
 int list(const Parser &parser)
 {
-    const QString &repo = parser.op("repo").param("repo",
-                                                  firstOrDefault(Config::sources(),
-                                                                 u"/godotengine/godot-builds"_s));
-    const QString &tag = parser.op("list").param("tag");
+    const QString repo = parser.op("repo").param("repo",
+                                                 firstOrDefault(Config::sources(),
+                                                                u"/godotengine/godot-builds"_s));
+    const QString tag = parser.op("list").param("tag");
     bool listAll = parser.set("list-all");
     auto req = new ChainedJsonRequest;
     auto del = qScopeGuard([req]() { delete req; });
@@ -95,9 +95,9 @@ int list(const Parser &parser)
 int listTags(const Parser &parser)
 {
     const static QRegularExpression nextPageRegex{"page=(\\d+)>; rel=\"last\""};
-    const QString &repo = parser.op("repo").param("repo",
-                                                  firstOrDefault(Config::sources(),
-                                                                 u"/godotengine/godot-builds"_s));
+    const QString repo = parser.op("repo").param("repo",
+                                                 firstOrDefault(Config::sources(),
+                                                                u"/godotengine/godot-builds"_s));
     bool listAll = parser.set("list-all");
     auto req = new ChainedJsonRequest;
     auto del = qScopeGuard([req]() { delete req; });
@@ -117,7 +117,7 @@ int listTags(const Parser &parser)
         if (lastPage == -1) {
             const auto &match = nextPageRegex.match(headers.toMap().value("link").toString());
             if (match.hasMatch()) {
-                lastPage = match.capturedTexts()[1].toInt();
+                lastPage = match.capturedTexts().at(1).toInt();
             }
         }
         tagsVariant.append(result.toList());

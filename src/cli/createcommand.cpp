@@ -44,7 +44,7 @@ VerificationResult verifyParameter(const TemplateData &data,
 
 int cli::create(const Parser &parser)
 {
-    const QString &templateName = parser.op("create").param("template");
+    const QString templateName = parser.op("create").param("template");
     bool force = parser.set("force");
     if (!ProjectTemplates::instance()->hasTemplate(templateName)) {
         qStdOut() << error() << "can't find template " << templateName;

@@ -286,6 +286,7 @@ Parser::Option::Option(Mode _mode,
     , parameters{_parameterDescriptions}
 {
     parameterCount = _parameterDescriptions.size();
+#ifndef QT_NO_DEBUG
     bool atOptional = false;
     for (const Param &param : std::as_const(parameters)) {
         if (param.optional) {
@@ -293,6 +294,7 @@ Parser::Option::Option(Mode _mode,
         }
         Q_ASSERT(param.optional == atOptional);
     }
+#endif
 }
 
 const QString &Parser::Option::param(const QString &name, const QString &defaultValue) const
