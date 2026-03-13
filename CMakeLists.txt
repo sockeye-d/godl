@@ -40,6 +40,7 @@ find_package(Qt6 REQUIRED COMPONENTS
 find_package(KF6 REQUIRED COMPONENTS
     Kirigami
     KirigamiAddons
+    BreezeIcons
     I18n
     CoreAddons
     QQC2DesktopStyle

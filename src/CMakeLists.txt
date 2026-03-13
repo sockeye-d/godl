@@ -97,18 +97,20 @@ target_link_libraries(godl
     Qt6::Concurrent
     KF6::I18n
     KF6::CoreAddons
-    KF6::IconThemes
+    KF6::BreezeIcons
     KF6::ConfigCore
     KF6::ConfigGui
     KF6::ConfigWidgets
     KF6::Archive
     KF6::IconThemes
+    KF6KirigamiTemplates
     KirigamiAddonsStatefulApp
 )
 
 if (WIN32)
     set(ADDITIONAL_DLLS
         "libbzip2.dll"
+        "libbz2.dll"
         "libcrypto-3-x64.dll"
         "liblzma-5.dll"
         "zlib1.dll"
@@ -134,6 +136,7 @@ if (WIN32)
         "libKF6ConfigQml.dll"
         "libKF6SonnetCore.dll"
         "libKirigami.dll"
+        "libKirigamiPolyfill.dll"
         "libKirigamiDelegates.dll"
         "libKirigamiDialogs.dll"
         "libKirigamiLayouts.dll"
