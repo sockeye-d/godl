@@ -92,7 +92,6 @@ add_subdirectory(src)
 if (LINUX)
     include(GNUInstallDirs)
     install(FILES io.github.sockeye_d.godl.desktop       DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
-    install(FILES io.github.sockeye_d.godl.metainfo.xml  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/metainfo)
 endif()
 
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)
