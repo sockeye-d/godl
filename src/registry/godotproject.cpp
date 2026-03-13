@@ -164,7 +164,7 @@ GodotProject::OpenError GodotProject::open()
     }
 
     setLastEditedTime(QDateTime::currentDateTime());
-    ProjectsRegistry::instance()->model()->resort();
+    // ProjectsRegistry::instance()->model()->resort();
 
     setLastOpenError(NoError);
     return NoError;

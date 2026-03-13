@@ -118,7 +118,8 @@ bool ProjectsRegistryModel::lessThan(const QModelIndex &source_left,
 
 const GodotProject *ProjectsRegistryModel::getProject(int index) const
 {
-    return static_cast<InternalProjectsRegistryModel *>(sourceModel())->m_data[index];
+    return static_cast<GodotProject *>(
+        static_cast<InternalProjectsRegistryModel *>(sourceModel())->m_data[index]);
 }
 
 void ProjectsRegistryModel::resort()

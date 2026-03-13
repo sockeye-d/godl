@@ -279,7 +279,8 @@ void DownloadManager::remove(const QUuid &id)
 {
     DownloadInfo *foundInfo = nullptr;
     print_debug() << model()->m_data;
-    for (DownloadInfo *info : std::as_const(model()->m_data)) {
+    for (void *v_info : std::as_const(model()->m_data)) {
+        DownloadInfo *info = static_cast<DownloadInfo *>(v_info);
         if (info->id() == id) {
             foundInfo = info;
             break;

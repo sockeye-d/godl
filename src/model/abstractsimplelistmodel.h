@@ -1,57 +1,40 @@
 #ifndef ABSTRACTSIMPLELISTMODEL_H
 #define ABSTRACTSIMPLELISTMODEL_H
 
-#include <QAbstractListModel>
+#include <QAbstractItemModel>
+#include <QtQmlIntegration/QtQmlIntegration>
 
-template<typename T>
-class AbstractSimpleListModel : public QAbstractListModel
+class AbstractSimpleListModel : public QAbstractItemModel
 {
+    Q_OBJECT
+
 protected:
-    QList<T> m_data;
+    QList<void *> m_data;
 
 public:
     static constexpr int DataRole = Qt::UserRole + 1;
 
     explicit AbstractSimpleListModel(QObject *parent = nullptr)
-        : QAbstractListModel{parent}
+        : QAbstractItemModel{parent}
     {}
-    void append(T data)
-    {
-        const auto index = m_data.size();
 
-        beginInsertRows(QModelIndex(), index, index);
-        m_data.append(data);
-        endInsertRows();
-    }
-    void remove(T data)
-    {
-        const auto index = m_data.indexOf(data);
-        if (index == -1) {
-            return;
-        }
-        beginRemoveRows(QModelIndex(), index, index);
-        m_data.remove(index);
-        endRemoveRows();
-    }
-    void clear()
-    {
-        beginRemoveRows(QModelIndex(), 0, m_data.size() - 1);
-        m_data.clear();
-        endRemoveRows();
-    }
+    void append(void *data);
 
-    QHash<int, QByteArray> roleNames() const override { return {{DataRole, "modelData"}}; }
-    int rowCount(const QModelIndex &parent) const override
-    {
-        return parent.isValid() ? 0 : m_data.length();
-    }
-    QVariant data(const QModelIndex &index, int role) const override
-    {
-        if (role == DataRole) {
-            return QVariant::fromValue(m_data[index.row()]);
-        }
-        return {};
-    };
+    void remove(void *data);
+
+    void clear();
+
+    QHash<int, QByteArray> roleNames() const override;
+
+    int rowCount(const QModelIndex &parent) const override;
+
+    QVariant data(const QModelIndex &index, int role) const override;
+
+    QModelIndex index(int row, int column, const QModelIndex &parent) const override;
+
+    QModelIndex parent(const QModelIndex &) const override;
+
+    int columnCount(const QModelIndex &parent) const override;
 };
 
 #endif // ABSTRACTSIMPLELISTMODEL_H

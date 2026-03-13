@@ -7,7 +7,7 @@
 #include <QUrl>
 #include <QtQml/qqmlregistration.h>
 
-class DownloadManagerModel : public AbstractSimpleListModel<DownloadInfo *>
+class DownloadManagerModel : public AbstractSimpleListModel
 {
     Q_OBJECT
 
@@ -15,7 +15,7 @@ class DownloadManagerModel : public AbstractSimpleListModel<DownloadInfo *>
 
 public:
     explicit DownloadManagerModel(QObject *parent = nullptr)
-        : AbstractSimpleListModel<DownloadInfo *>(parent)
+        : AbstractSimpleListModel(parent)
     {}
 };
 

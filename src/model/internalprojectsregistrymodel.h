@@ -6,13 +6,13 @@
 #include "abstractsimplelistmodel.h"
 #include "godotproject.h"
 
-class InternalProjectsRegistryModel : public AbstractSimpleListModel<const GodotProject *>
+class InternalProjectsRegistryModel : public AbstractSimpleListModel
 {
     friend class ProjectsRegistryModel;
     Q_OBJECT
 public:
     explicit InternalProjectsRegistryModel(QObject *parent = nullptr)
-        : AbstractSimpleListModel<const GodotProject *>(parent)
+        : AbstractSimpleListModel(parent)
     {}
 };
 

@@ -5,12 +5,12 @@
 #include "abstractsimplelistmodel.h"
 #include "godotversion.h"
 
-class VersionRegistryModel : public AbstractSimpleListModel<const GodotVersion *>
+class VersionRegistryModel : public AbstractSimpleListModel
 {
     Q_OBJECT
 public:
     explicit VersionRegistryModel(QObject *parent = nullptr)
-        : AbstractSimpleListModel<const GodotVersion *>(parent) {};
+        : AbstractSimpleListModel(parent) {};
 };
 
 #endif // VERSIONREGISTRYMODEL_H

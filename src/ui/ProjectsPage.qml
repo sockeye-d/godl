@@ -150,7 +150,6 @@ Kirigami.Page {
                 }
                 cellWidth: Math.floor(width / Math.max(1, Math.round(root.width / (Kirigami.Units.gridUnit * 40))))
                 clip: true
-                model: ProjectsRegistry.model
 
                 // reuseItems: true
 
@@ -159,6 +158,52 @@ Kirigami.Page {
 
                     onFindVersion: (a, b) => root.findVersion(a, b)
                     onTagSelected: tag => ProjectsRegistry.model.filter = `tag:${tag}`
+                }
+                model: SortFilterProxyModel {
+                    id: projectsViewModel
+
+                    property bool ascending
+                    property bool caseInsensitive
+                    property string filter
+
+                    model: ProjectsRegistry.model
+
+                    sorters: FunctionSorter {
+                        function sort(a: GodotProject, b: GodotProject): int {
+                            if (!a.favorite && b.favorite) {
+                                return 1;
+                            }
+                            if (a.favorite && !b.favorite) {
+                                return -1;
+                            }
+                            if (projectsViewModel.filter != "") {
+                                const l = sortPrecedence(a);
+                                const r = sortPrecedence(b);
+                                // if (r > l)
+                            }
+                            return 0;
+                        }
+
+                        function sortPrecedence(item: GodotProject): int {
+                            if (projectsViewModel.filter.indexOf("tag:") === 0) {
+                                const tagFilter = projectsViewModel.filter.slice(4);
+                                if (item.tags.indexOf(tagFilter) !== -1) {
+                                    return 4;
+                                }
+                                return 0;
+                            }
+                            if (projectsViewModel.caseInsensitive) {
+                                if (item.name.toLowerCase().indexOf(projectsViewModel.filter.toLowerCase()) !== -1) {
+                                    return 3;
+                                }
+                                return 2;
+                            }
+                            if (item.name.indexOf(projectsViewModel.filter) !== -1) {
+                                return 1;
+                            }
+                            return 0;
+                        }
+                    }
                 }
 
                 onCountChanged: recomputeHeightTimer.restart()
@@ -170,7 +215,7 @@ Kirigami.Page {
                         projectsView.width -= 1;
                     }
 
-                    target: ProjectsRegistry.model
+                    target: projectsViewModel
                 }
 
                 Timer {

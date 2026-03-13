@@ -21,7 +21,7 @@ public:
     Q_ENUM(ImportError)
 
     Q_OBJECT
-    Q_PROPERTY(ProjectsRegistryModel *model READ model CONSTANT FINAL)
+    Q_PROPERTY(QAbstractItemModel *model READ model CONSTANT FINAL)
 private:
     Q_PROPERTY(bool scanning READ scanning NOTIFY scanningChanged FINAL)
     bool m_scanning = false;
@@ -53,7 +53,7 @@ private:
 public:
     ProjectsRegistry(QObject *parent = nullptr);
 
-    ProjectsRegistryModel *model() { return m_model; }
+    QAbstractItemModel *model() { return &m_internalModel; }
 
     GodotProject *loadCli(const QString &filepath);
     /**
