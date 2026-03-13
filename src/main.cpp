@@ -53,19 +53,24 @@ int main(int argc, char *argv[])
         return cli::run::runCli(argc, argv);
     }
 
+    if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
+#ifdef Q_OS_LINUX
+        QQuickStyle::setStyle(QStringLiteral("org.kde.desktop"));
+#else
+        QQuickStyle::setStyle(QStringLiteral("FluentWinUI3"));
+#endif
+    }
+
     KIconTheme::initTheme();
+
     QApplication app(argc, argv);
-    app.setWindowIcon(QIcon::fromTheme("godl"));
+    QApplication::setStyle(QStringLiteral("Breeze"));
+    QApplication::setWindowIcon(QIcon::fromTheme("godl"));
 
     KLocalizedString::setApplicationDomain("godl");
     cli::run::setAppMetadata();
     QApplication::setDesktopFileName(QStringLiteral("io.github.sockeye_d.godl"));
     QIcon::setFallbackSearchPaths(QIcon::fallbackSearchPaths() << ":/");
-
-    QApplication::setStyle(QStringLiteral("Breeze"));
-    if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
-        QQuickStyle::setStyle(QStringLiteral("org.kde.desktop"));
-    }
 
     ProjectTemplates::instance()->extractDefault();
 
