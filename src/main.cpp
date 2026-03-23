@@ -56,6 +56,8 @@ int main(int argc, char *argv[])
     if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
 #ifdef Q_OS_LINUX
         QQuickStyle::setStyle(QStringLiteral("org.kde.desktop"));
+#elif defined(Q_OS_MACOS)
+        QQuickStyle::setStyle(QStringLiteral("macOS"));
 #else
         QQuickStyle::setStyle(QStringLiteral("FluentWinUI3"));
 #endif
