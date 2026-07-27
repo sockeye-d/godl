@@ -29,25 +29,20 @@ include(ECMFindQmlModule)
 
 find_package(Qt6 REQUIRED COMPONENTS
     Core
-    Quick
     Test
-    Gui
-    QuickControls2
     Widgets
     Concurrent
+    Network
 )
 
 find_package(KF6 REQUIRED COMPONENTS
-    Kirigami
-    KirigamiAddons
     BreezeIcons
-    I18n
     CoreAddons
-    QQC2DesktopStyle
-    IconThemes
     Config
     ConfigWidgets
     Archive
+    WidgetsAddons
+    XmlGui
 )
 
 ecm_find_qmlmodule(org.kde.kirigami REQUIRED)

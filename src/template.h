@@ -4,13 +4,11 @@
 #include <QMetaObject>
 #include <QString>
 #include <qcontainerfwd.h>
-#include <qqmlintegration.h>
 #include <qtmetamacros.h>
 
 struct Template
 {
     Q_GADGET
-    QML_VALUE_TYPE(projectTemplate)
 public:
     Q_PROPERTY(QString name MEMBER name CONSTANT FINAL)
     QString name{};

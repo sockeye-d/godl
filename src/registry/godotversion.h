@@ -2,7 +2,6 @@
 #define GODOTVERSION_H
 
 #include <QObject>
-#include <QQmlEngine>
 #include "boundgodotversion.h"
 #include <KSharedConfig>
 #include <config.h>
@@ -12,7 +11,6 @@ class GodotVersion : public QObject
 {
     friend class VersionRegistry;
     Q_OBJECT
-    QML_ELEMENT
 
     QString m_configGroupName = "";
 

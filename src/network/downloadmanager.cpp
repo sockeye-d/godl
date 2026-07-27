@@ -4,7 +4,6 @@
 #include "registry/versionregistry.h"
 #include "util/util.h"
 #include <KArchive>
-#include <KLocalization>
 #include <KTar>
 #include <KZip>
 #include <config.h>
@@ -93,7 +92,7 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
             } else {
                 print_debug() << "Failed to open archive at " << sourceFilePath;
                 info->setStage(DownloadInfo::UnzipError);
-                info->setError(i18n("Failed to unzip archive"));
+                info->setError("Failed to unzip archive");
                 promise.finish();
                 return;
             }

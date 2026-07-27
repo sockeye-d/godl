@@ -7,7 +7,6 @@
 #include "boundgodotversion.h"
 #include "serializable.h"
 #include <KConfigGroup>
-#include <qqmlintegration.h>
 #include <qtmetamacros.h>
 
 class ProjectsRegistry;

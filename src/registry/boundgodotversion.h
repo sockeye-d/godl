@@ -2,7 +2,6 @@
 #define BOUNDVERSION_H
 #include <QObject>
 #include "serializable.h"
-#include <qqmlintegration.h>
 #include <qtmetamacros.h>
 
 /**

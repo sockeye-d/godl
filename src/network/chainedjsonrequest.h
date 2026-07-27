@@ -1,7 +1,6 @@
 #ifndef CHAINEDJSONREQUEST_H
 #define CHAINEDJSONREQUEST_H
 
-#include <QJSValue>
 #include <QNetworkReply>
 #include <QtQml/qqmlregistration.h>
 
@@ -33,8 +32,7 @@ public:
 
 public:
     explicit ChainedJsonRequest(QObject *parent = nullptr) : QObject(parent) {}
-    Q_INVOKABLE ChainedJsonRequest *add(const QJSValue &transformer);
-    ChainedJsonRequest &addStep(std::function<JsonTransformer> transformer);
+    ChainedJsonRequest &addStep(const std::function<JsonTransformer> &transformer);
 
     Q_SIGNAL void error(size_t step, const QNetworkReply::NetworkError &error,
                         const QString &errorString);

@@ -5,7 +5,6 @@
 #include <QObject>
 #include "singleton.h"
 #include "template.h"
-#include <qqmlintegration.h>
 
 class ProjectTemplates : public QObject, public Singleton<ProjectTemplates>
 {

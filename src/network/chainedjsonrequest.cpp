@@ -33,21 +33,7 @@ void ChainedJsonRequest::execute(const QList<QUrl> &baseUrls) {
     executeInternal(baseUrls);
 }
 
-ChainedJsonRequest *ChainedJsonRequest::add(const QJSValue &transformer) {
-    // if (transformer.isCallable()) {
-    transformers.push_back(
-        [transformer](const QVariant &result, const QVariant &headers) -> QVariant {
-            auto args = QJSValueList();
-            args << Main::engine->toScriptValue(result);
-            args << Main::engine->toScriptValue(headers);
-            auto ret = transformer.call(args);
-            return ret.toVariant();
-        });
-    // }
-    return this;
-}
-
-ChainedJsonRequest &ChainedJsonRequest::addStep(std::function<JsonTransformer> transformer)
+ChainedJsonRequest &ChainedJsonRequest::addStep(const std::function<JsonTransformer> &transformer)
 {
     transformers.push_back(transformer);
     return *this;
