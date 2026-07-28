@@ -13,5 +13,6 @@
         <file>templates/default (Godot 3)/project.godot</file>
         <file>templates/default (Godot 3)/metatemplate.json</file>
         <file>godl.svg</file>
+        <file>main.css</file>
     </qresource>
 </RCC>

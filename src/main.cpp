@@ -23,15 +23,15 @@ int main(int argc, char *argv[])
         return cli::run::runCli(argc, argv);
     }
 
-//     if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
-// #ifdef Q_OS_LINUX
-//         QQuickStyle::setStyle(QStringLiteral("org.kde.desktop"));
-// #elif defined(Q_OS_MACOS)
-//         QQuickStyle::setStyle(QStringLiteral("macOS"));
-// #else
-//         QQuickStyle::setStyle(QStringLiteral("FluentWinUI3"));
-// #endif
-//     }
+    //     if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
+    // #ifdef Q_OS_LINUX
+    //         QQuickStyle::setStyle(QStringLiteral("org.kde.desktop"));
+    // #elif defined(Q_OS_MACOS)
+    //         QQuickStyle::setStyle(QStringLiteral("macOS"));
+    // #else
+    //         QQuickStyle::setStyle(QStringLiteral("FluentWinUI3"));
+    // #endif
+    //     }
 
     // KIconTheme::initTheme();
 
@@ -59,8 +59,18 @@ int main(int argc, char *argv[])
 
     KAboutData::setApplicationData(aboutData);
 
+    QFile file{":/main.css"};
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        qInfo() << "Couldn't open stylesheet";
+        return 1;
+    }
+
+    const QString stylesheet{file.readAll()};
+
     GodlWindow window{};
+    window.setStyleSheet(stylesheet);
     window.show();
+
     const int returnCode = app.exec();
 
     if (returnCode == 0)

@@ -1,0 +1,7 @@
+CardWidget {
+    background: palette(base);
+}
+
+QListView > QWidget::nth-child(1) {
+    background-color: transparent;
+}

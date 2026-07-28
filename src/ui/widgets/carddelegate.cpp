@@ -1,41 +1,30 @@
 #include "carddelegate.h"
 
+#include "cardwidget.h"
 #include "versionregistrymodel.h"
 
-QList<QWidget *> CardDelegate::createItemWidgets(const QModelIndex &index) const
+QList<QWidget *> CardDelegate::createItemWidgets(const QModelIndex &) const
 {
-    QList<QAction *> actions;
-    for (size_t i = 0; i < 10; i++) {
-        const auto action = new QAction();
-        action->setText(QString("Action %1").arg(i));
-        action->setIcon(QIcon::fromTheme("document-edit"));
-        actions << action;
-    }
-    const auto cardWidget = new CardWidget();
-    cardWidget->addActions(actions);
-    return {cardWidget};
+    auto card = new CardWidget();
+    setupCard(card);
+    return {card};
 }
 
 void CardDelegate::updateItemWidgets(const QList<QWidget *> &widgets,
                                      const QStyleOptionViewItem &option,
                                      const QPersistentModelIndex &index) const
 {
-    const GodotVersion *version
-        = qSharedPointerFromVariant<GodotVersion>(index.data(VersionRegistryModel::DataRole)).data();
-    for (const auto &widget : widgets) {
-        if (auto card = qobject_cast<CardWidget *>(widget)) {
-            card->title()->setText(version->toString());
-        }
-        widget->setGeometry(QRect({0, 0}, option.rect.size()));
-    }
+    const auto card = qobject_cast<CardWidget *>(widgets[0]);
+    updateCard(card, index);
+    card->setGeometry(QRect({0, 0}, option.rect.size()));
 }
 
-QSize CardDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+QSize CardDelegate::sizeHint(const QStyleOptionViewItem &, const QModelIndex &) const
 {
-    return {0, 200};
+    return m_size;
 }
 
-void CardDelegate::paint(QPainter *painter,
-                         const QStyleOptionViewItem &option,
-                         const QModelIndex &index) const
+void CardDelegate::paint(QPainter *,
+                         const QStyleOptionViewItem &,
+                         const QModelIndex &) const
 {}

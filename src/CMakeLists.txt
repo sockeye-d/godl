@@ -1,6 +1,3 @@
-find_package(Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core)
-
 kconfig_add_kcfg_files(config_SRCS config.kcfgc GENERATE_MOC)
 
 if (IS_READABLE "${CMAKE_SOURCE_DIR}/local.properties")
@@ -11,7 +8,11 @@ if (IS_READABLE "${CMAKE_SOURCE_DIR}/local.properties")
     add_definitions(-DGITHUB_TOKEN="${CMAKE_MATCH_1}")
 endif ()
 
+set(CMAKE_AUTORCC ON)
+
 qt_add_executable(godl
+        resources.qrc
+
         main.cpp main.h
         util/util.h util/util.cpp
         util/fileutil.h util/fileutil.cpp
@@ -72,13 +73,9 @@ qt_add_executable(godl
         ui/widgets/cardwidget.h
         ui/widgets/carddelegate.cpp
         ui/widgets/carddelegate.h
+        util/units.cpp
+        util/units.h
 )
-
-qt_add_resources(godl resources.qrc)
-
-file(GLOB_RECURSE qml_modules CONFIGURE_DEPENDS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ui/*.qml)
-qt_add_resources(godl "qml_modules" PREFIX "/" FILES ${qml_modules})
-message(NOTICE "Adding the modules in ${qml_modules}")
 
 target_link_libraries(godl
         PRIVATE

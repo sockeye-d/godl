@@ -7,6 +7,9 @@
 
 #include <QTimer>
 
+#include "units.h"
+#include <KColorScheme>
+
 void CardWidget::actionEvent(QActionEvent *event)
 {
     QApplication::sendEvent(m_toolbar, event);
@@ -17,9 +20,19 @@ QLabel *CardWidget::title() const
     return m_title;
 }
 
-QLayout *CardWidget::innerLayout() const
+QVBoxLayout *CardWidget::innerLayout() const
 {
     return m_content;
+}
+
+QToolBar *CardWidget::toolbar() const
+{
+    return m_toolbar;
+}
+
+void CardWidget::setMiddleHidden(const bool hidden) const
+{
+    m_middleWidget->setHidden(!hidden);
 }
 
 CardWidget::CardWidget(QWidget *parent)
@@ -27,23 +40,22 @@ CardWidget::CardWidget(QWidget *parent)
     , m_title{new QLabel(this)}
     , m_content{new QVBoxLayout()}
     , m_toolbar{new QToolBar()}
+    , m_middleWidget{new QWidget()}
 {
+    setObjectName("CardWidget");
+
     const auto outer = new QVBoxLayout();
     setLayout(outer);
+    outer->setSpacing(Units::smallSpacing);
 
-    QFont f = m_title->font();
-    f.setBold(true);
-    f.setPointSize(f.pointSize() + 1);
-    m_title->setFont(f);
-    m_title->setContentsMargins(12, 10, 12, 6);
-    m_title->setText("Hi");
+    m_title->setFont(Units::heading(m_title->font(), 1));
+    m_title->setContentsMargins(Units::smallSpacing, Units::smallSpacing, Units::smallSpacing, 0);
     outer->addWidget(m_title);
 
-    const auto contentWrapper = new QWidget(this);
-    contentWrapper->setContentsMargins(12, 0, 12, 0);
-    contentWrapper->setLayout(m_content);
+    m_middleWidget->setContentsMargins(Units::smallSpacing, 0, Units::smallSpacing, 0);
+    m_middleWidget->setLayout(m_content);
 
-    outer->addWidget(contentWrapper, 1);
+    outer->addWidget(m_middleWidget, 1);
 
     const auto toolbarContainer = new QWidget();
     const auto toolbarLayout = new QBoxLayout(QBoxLayout::LeftToRight);
