@@ -53,15 +53,7 @@ CardWidget::CardWidget(QWidget *parent)
     m_toolbar = new QToolBar();
     toolbarLayout->addWidget(m_toolbar, 1, Qt::AlignLeft);
 
-    // toolbar->addActions(actions);
     m_toolbar->setToolButtonStyle(Qt::ToolButtonFollowStyle);
-    m_toolbar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-    QTimer::singleShot(0, m_toolbar, [this]() {
-        // god please save us all
-        m_toolbar->setMovable(true);
-        m_toolbar->setMovable(false);
-    });
 
     outer->addWidget(toolbarContainer);
 }

@@ -1,5 +1,7 @@
 #include "carddelegate.h"
 
+#include "versionregistrymodel.h"
+
 QList<QWidget *> CardDelegate::createItemWidgets(const QModelIndex &index) const
 {
     QList<QAction *> actions;
@@ -18,8 +20,13 @@ void CardDelegate::updateItemWidgets(const QList<QWidget *> &widgets,
                                      const QStyleOptionViewItem &option,
                                      const QPersistentModelIndex &index) const
 {
-    for (const auto &widget: widgets) {
-        widget->setGeometry(option.rect);
+    const GodotVersion *version
+        = qSharedPointerFromVariant<GodotVersion>(index.data(VersionRegistryModel::DataRole)).data();
+    for (const auto &widget : widgets) {
+        if (auto card = qobject_cast<CardWidget *>(widget)) {
+            card->title()->setText(version->toString());
+        }
+        widget->setGeometry(QRect({0, 0}, option.rect.size()));
     }
 }
 

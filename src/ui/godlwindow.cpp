@@ -40,10 +40,6 @@ GodlWindow::GodlWindow(QWidget *parent)
     actions[1]->trigger();
 
     const auto toolbar = new KToolBar(this, true);
-    QTimer::singleShot(0.1, [toolbar]() {
-        toolbar->setMovable(true);
-        toolbar->setMovable(false);
-    });
     toolbar->addActions(actions);
     addToolBar(Qt::TopToolBarArea, toolbar);
 
@@ -55,4 +51,5 @@ GodlWindow::~GodlWindow()
     for (const auto &page : pages) {
         page->deleteLater();
     }
+    pages.clear();
 }
