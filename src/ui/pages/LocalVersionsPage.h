@@ -4,6 +4,7 @@
 
 class LocalVersionsPage : public Page
 {
+    Q_OBJECT
 public:
     explicit LocalVersionsPage(QWidget *parent);
     ~LocalVersionsPage() override = default;

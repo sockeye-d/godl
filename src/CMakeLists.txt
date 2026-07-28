@@ -68,6 +68,10 @@ qt_add_executable(godl
         ui/pages/LocalVersionsPage.cpp
         ui/pages/RemoteVersionsPage.h
         ui/pages/RemoteVersionsPage.cpp
+        ui/widgets/cardwidget.cpp
+        ui/widgets/cardwidget.h
+        ui/widgets/carddelegate.cpp
+        ui/widgets/carddelegate.h
 )
 
 qt_add_resources(godl resources.qrc)
@@ -91,6 +95,8 @@ target_link_libraries(godl
         KF6::Archive
         KF6::WidgetsAddons
         KF6::XmlGui
+        KF6::ColorScheme
+        KF6::ItemViews
 )
 
 if (WIN32)

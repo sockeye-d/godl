@@ -18,8 +18,8 @@ list(REMOVE_DUPLICATES QML_IMPORT_PATH)
 # The variable is cached in ${BUILD_DIR}/CMakeCache.txt. We need FORCE to
 # change it there immediately. Also, add a comment to the cache file.
 set(QML_IMPORT_PATH ${QML_IMPORT_PATH}
-    CACHE STRING "Qt Creator 4.1 extra qml import paths"
-    FORCE
+        CACHE STRING "Qt Creator 4.1 extra qml import paths"
+        FORCE
 )
 
 include(KDEInstallDirs)
@@ -28,21 +28,23 @@ include(KDECompilerSettings NO_POLICY_SCOPE)
 include(ECMFindQmlModule)
 
 find_package(Qt6 REQUIRED COMPONENTS
-    Core
-    Test
-    Widgets
-    Concurrent
-    Network
+        Core
+        Test
+        Widgets
+        Concurrent
+        Network
 )
 
 find_package(KF6 REQUIRED COMPONENTS
-    BreezeIcons
-    CoreAddons
-    Config
-    ConfigWidgets
-    Archive
-    WidgetsAddons
-    XmlGui
+        BreezeIcons
+        CoreAddons
+        Config
+        ConfigWidgets
+        Archive
+        WidgetsAddons
+        XmlGui
+        ColorScheme
+        ItemViews
 )
 
 ecm_find_qmlmodule(org.kde.kirigami REQUIRED)
@@ -53,41 +55,41 @@ ecm_find_qmlmodule(org.kde.desktop REQUIRED)
 message(NOTICE "Build type is " ${CMAKE_BUILD_TYPE})
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     add_definitions(-DDEBUG=ON)
-endif()
+endif ()
 
 execute_process(
-    COMMAND git rev-parse --short HEAD
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_COMMIT_HASH
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    RESULT_VARIABLE GIT_COMMIT_HASH_RESULT
+        COMMAND git rev-parse --short HEAD
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE GIT_COMMIT_HASH
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        RESULT_VARIABLE GIT_COMMIT_HASH_RESULT
 )
 
-if(GIT_COMMIT_HASH_RESULT EQUAL 0)
+if (GIT_COMMIT_HASH_RESULT EQUAL 0)
     add_definitions(-DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}")
-else()
+else ()
     add_definitions(-DGIT_COMMIT_HASH="unknown")
-endif()
+endif ()
 
 execute_process(
-    COMMAND git describe --tags --abbrev=1
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_TAG
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    RESULT_VARIABLE GIT_TAG_RESULT
+        COMMAND git describe --tags --abbrev=1
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE GIT_TAG
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        RESULT_VARIABLE GIT_TAG_RESULT
 )
 
-if(GIT_TAG_RESULT EQUAL 0)
+if (GIT_TAG_RESULT EQUAL 0)
     add_definitions(-DGIT_TAG="${GIT_TAG}")
-else()
+else ()
     add_definitions(-DGIT_TAG="unknown")
-endif()
+endif ()
 
 add_subdirectory(src)
 
 if (LINUX)
     include(GNUInstallDirs)
-    install(FILES io.github.sockeye_d.godl.desktop       DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
-endif()
+    install(FILES io.github.sockeye_d.godl.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
+endif ()
 
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)
