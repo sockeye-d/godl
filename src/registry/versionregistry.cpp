@@ -158,13 +158,13 @@ const GodotVersion *VersionRegistry::findVersion(const BoundGodotVersion *v) con
     return version(findUniqueName(v));
 }
 
-bool VersionRegistry::canAutodetect() const
+bool VersionRegistry::canAutodetect()
 {
     static bool hasGit = !QStandardPaths::findExecutable("git").isEmpty();
     return hasGit;
 }
 
-QString execute(const QString &executable, const QString &cwd, const QStringList &args)
+static QString execute(const QString &executable, const QString &cwd, const QStringList &args)
 {
     QProcess proc;
     proc.setWorkingDirectory(cwd);
@@ -173,7 +173,7 @@ QString execute(const QString &executable, const QString &cwd, const QStringList
     return proc.readAllStandardOutput();
 }
 
-bool VersionRegistry::canAutodetectFile(const QString &path) const
+bool VersionRegistry::canAutodetectFile(const QString &path)
 {
     if (path.isEmpty()) {
         return false;
@@ -279,7 +279,7 @@ QStringList VersionRegistry::detectLeakedVersions() const
     return leakedExecutables;
 }
 
-void VersionRegistry::deleteLeakedVersions(QStringList versions) const
+void VersionRegistry::deleteLeakedVersions(QStringList versions)
 {
     for (const QString &version : versions) {
         print_debug() << "Removing" << version;
@@ -287,12 +287,9 @@ void VersionRegistry::deleteLeakedVersions(QStringList versions) const
     }
 }
 
-QString VersionRegistry::resolveSourceUrl(QString source) const
+QString VersionRegistry::resolveSourceUrl(QString source)
 {
-    if (source.startsWith("/"))
-        return "https://api.github.com/repos" + source;
-    else
-        return source;
+    return source.startsWith("/") ? "https://api.github.com/repos" + source : source;
 }
 
 void VersionRegistry::registerLocalVersion(

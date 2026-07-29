@@ -3,10 +3,10 @@
 #include "cardwidget.h"
 #include "versionregistrymodel.h"
 
-QList<QWidget *> CardDelegate::createItemWidgets(const QModelIndex &) const
+QList<QWidget *> CardDelegate::createItemWidgets(const QModelIndex &index) const
 {
     auto card = new CardWidget();
-    setupCard(card);
+    setupCard(card, index);
     return {card};
 }
 

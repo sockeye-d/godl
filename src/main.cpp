@@ -12,6 +12,7 @@
 #include "projecttemplates.h"
 #include "versionregistry.h"
 #include <QtSystemDetection>
+#include <QStyleFactory>
 
 #include "ui/godlwindow.h"
 
@@ -23,20 +24,7 @@ int main(int argc, char *argv[])
         return cli::run::runCli(argc, argv);
     }
 
-    //     if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
-    // #ifdef Q_OS_LINUX
-    //         QQuickStyle::setStyle(QStringLiteral("org.kde.desktop"));
-    // #elif defined(Q_OS_MACOS)
-    //         QQuickStyle::setStyle(QStringLiteral("macOS"));
-    // #else
-    //         QQuickStyle::setStyle(QStringLiteral("FluentWinUI3"));
-    // #endif
-    //     }
-
-    // KIconTheme::initTheme();
-
     QApplication app(argc, argv);
-    QApplication::setStyle(QStringLiteral("Breeze"));
     QApplication::setWindowIcon(QIcon::fromTheme("godl"));
 
     // KLocalizedString::setApplicationDomain("godl");
@@ -46,8 +34,8 @@ int main(int argc, char *argv[])
 
     ProjectTemplates::instance()->extractDefault();
 
-    KAboutData aboutData(QStringLiteral("godl"),
-                         "godl",
+    KAboutData aboutData(QStringLiteral("godl2"),
+                         "godl2",
                          VersionInfo::instance()->tag(),
                          "Godot version manager and downloader",
                          KAboutLicense::MIT,
@@ -71,7 +59,7 @@ int main(int argc, char *argv[])
     window.setStyleSheet(stylesheet);
     window.show();
 
-    const int returnCode = app.exec();
+    const int returnCode = QApplication::exec();
 
     if (returnCode == 0)
         Config::self()->save();

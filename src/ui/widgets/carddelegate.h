@@ -16,11 +16,11 @@ protected:
                            const QStyleOptionViewItem &option,
                            const QPersistentModelIndex &index) const override;
 
-    virtual void setupCard(CardWidget *card) const = 0;
+    virtual void setupCard(CardWidget *card, const QModelIndex &index) const = 0;
     virtual void updateCard(CardWidget *card, const QPersistentModelIndex &index) const = 0;
 
     template<typename T>
-    T *getData(const QPersistentModelIndex &index, const int role = Qt::UserRole + 1) const
+    T *getDataPtr(const QPersistentModelIndex &index, const int role = Qt::UserRole + 1) const
         requires(std::convertible_to<T *, QObject *>)
     {
         return qSharedPointerFromVariant<T>(index.data(role)).data();

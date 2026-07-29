@@ -11,7 +11,7 @@ class DateConverter : public QObject, public Singleton<DateConverter>
 public:
     explicit DateConverter(QObject *parent = nullptr);
 
-    Q_INVOKABLE QString relativeFormat(QDateTime date);
+    Q_INVOKABLE QString relativeFormat(const QDateTime &date);
 };
 
 #endif // DATECONVERTER_H

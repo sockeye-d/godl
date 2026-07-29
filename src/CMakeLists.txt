@@ -75,6 +75,8 @@ qt_add_executable(godl
         ui/widgets/carddelegate.h
         util/units.cpp
         util/units.h
+        ui/widgets/filelineedit.cpp
+        ui/widgets/filelineedit.h
 )
 
 target_link_libraries(godl

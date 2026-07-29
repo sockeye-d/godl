@@ -6,7 +6,7 @@ class ProjectsPage : public Page
 {
     Q_OBJECT
 public:
-    explicit ProjectsPage(QWidget *parent);
+    explicit ProjectsPage(QWidget *parent = nullptr);
     ~ProjectsPage() override = default;
 
     QString name() override;

@@ -53,6 +53,7 @@ CardWidget::CardWidget(QWidget *parent)
     outer->addWidget(m_title);
 
     m_middleWidget->setContentsMargins(Units::smallSpacing, 0, Units::smallSpacing, 0);
+    m_content->setContentsMargins(0, 0, 0, 0);
     m_middleWidget->setLayout(m_content);
 
     outer->addWidget(m_middleWidget, 1);

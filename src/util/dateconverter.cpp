@@ -6,7 +6,7 @@ DateConverter::DateConverter(QObject *parent)
     : QObject{parent}
 {}
 
-QString DateConverter::relativeFormat(QDateTime date)
+QString DateConverter::relativeFormat(const QDateTime &date)
 {
     using std::chrono::milliseconds;
     using std::chrono::seconds;

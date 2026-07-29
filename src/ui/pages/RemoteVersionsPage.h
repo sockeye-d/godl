@@ -6,7 +6,7 @@ class RemoteVersionsPage : public Page
 {
     Q_OBJECT
 public:
-    explicit RemoteVersionsPage(QWidget *parent);
+    explicit RemoteVersionsPage(QWidget *parent = nullptr);
     ~RemoteVersionsPage() override = default;
 
     QString name() override;

@@ -1,20 +1,17 @@
 #ifndef VERSIONREGISTRY_H
 #define VERSIONREGISTRY_H
 
-#include <QMap>
-#include <QProcess>
-#include <QString>
-#include <QtQml/qqmlregistration.h>
 #include "boundgodotversion.h"
 #include "config.h"
 #include "godotversion.h"
 #include "model/versionregistrymodel.h"
 #include "singleton.h"
-#include <KConfig>
-#include <KConfigGroup>
 #include <KSharedConfig>
 #include <qobject.h>
 #include <qtmetamacros.h>
+#include <QProcess>
+#include <QString>
+#include <QtQml/qqmlregistration.h>
 
 class VersionRegistry : public QObject, public Singleton<VersionRegistry>
 {
@@ -31,6 +28,7 @@ class VersionRegistry : public QObject, public Singleton<VersionRegistry>
 
 public:
     const QString location() const { return locationDirectory() / "godlversions"; }
+
     const QString locationDirectory() const { return Config::godotLocation(); }
 
 private:
@@ -63,16 +61,16 @@ public:
     Q_SIGNAL void hasVersionChanged();
 
     Q_PROPERTY(bool canAutodetect READ canAutodetect CONSTANT FINAL)
-    bool canAutodetect() const;
-    Q_INVOKABLE bool canAutodetectFile(const QString &path) const;
-    Q_INVOKABLE QString detectRepository(const QString &path) const;
-    Q_INVOKABLE QString detectTag(const QString &path) const;
-    Q_INVOKABLE QString detectAsset(const QString &path) const;
-    Q_INVOKABLE bool detectMono(const QString &path) const;
+    static bool canAutodetect();
+    Q_INVOKABLE static bool canAutodetectFile(const QString &path);
+    Q_INVOKABLE [[nodiscard]] QString detectRepository(const QString &path) const;
+    Q_INVOKABLE [[nodiscard]] QString detectTag(const QString &path) const;
+    Q_INVOKABLE [[nodiscard]] QString detectAsset(const QString &path) const;
+    Q_INVOKABLE [[nodiscard]] bool detectMono(const QString &path) const;
 
-    Q_INVOKABLE QStringList detectLeakedVersions() const;
-    Q_INVOKABLE void deleteLeakedVersions(QStringList versions) const;
-    Q_INVOKABLE QString resolveSourceUrl(QString source) const;
+    Q_INVOKABLE [[nodiscard]] QStringList detectLeakedVersions() const;
+    Q_INVOKABLE static void deleteLeakedVersions(QStringList versions);
+    Q_INVOKABLE static QString resolveSourceUrl(QString source);
 
     Q_INVOKABLE void registerLocalVersion(const QString &path,
                                           const QString &repo,
@@ -80,8 +78,9 @@ public:
                                           const QString &asset,
                                           bool isMono);
 
-    QString sanitizeAssetName(const QString &assetName, const QString &withWhat = "-") const;
-    QString getUniqueName(const QString &assetName) const;
+    [[nodiscard]] QString sanitizeAssetName(const QString &assetName,
+                                            const QString &withWhat = "-") const;
+    [[nodiscard]] QString getUniqueName(const QString &assetName) const;
 };
 
 #endif // VERSIONREGISTRY_H
