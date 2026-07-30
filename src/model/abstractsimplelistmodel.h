@@ -10,6 +10,7 @@ protected:
     QList<T> m_data;
 
 public:
+    using DataType = T;
     static constexpr int DataRole = Qt::UserRole + 1;
 
     explicit AbstractSimpleListModel(QObject *parent = nullptr)

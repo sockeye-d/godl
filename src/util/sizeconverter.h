@@ -11,7 +11,7 @@ public:
     explicit SizeConverter(QObject *parent = nullptr)
         : QObject(parent) {};
 
-    Q_INVOKABLE QString formatSize(qint64 bytes, int decimalPlaces = 2);
+    Q_INVOKABLE static QString formatSize(qint64 bytes, int decimalPlaces = 2);
 };
 
 #endif // SIZECONVERTER_H

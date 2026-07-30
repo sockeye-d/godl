@@ -29,20 +29,19 @@
 #include <QSortFilterProxyModel>
 #include <QStackedLayout>
 #include <QString>
-#include <QTimer>
 #include <QToolButton>
 
 #include "dateconverter.h"
+#include "downloadmanager.h"
 #include "macros.h"
 #include "network.h"
 #include "networkresponsecode.h"
+#include "sizeconverter.h"
 #include "ui/style.h"
 
 using namespace Qt::StringLiterals;
 
 namespace {
-int allocated = 0;
-
 struct VersionJson
 {
     struct AssetJson
@@ -52,6 +51,7 @@ struct VersionJson
         int size;
     };
 
+    QString repo;
     QString tagName;
     QString patchNotes;
     QUrl pageUrl;
@@ -110,7 +110,7 @@ public:
         : AbstractSimpleListModel(parent)
         , m_page{page} {};
 
-    static QList<VersionJson> parseData(const QByteArray &json)
+    QList<VersionJson> parseData(const QByteArray &json) const
     {
         QList<VersionJson> data;
         for (const auto &value : QJsonDocument::fromJson(json).array()) {
@@ -123,7 +123,8 @@ public:
                                                      .size = asset[u"size"_s].toInt()});
             }
 
-            data << VersionJson{.tagName = d[u"tag_name"_s].toString(),
+            data << VersionJson{.repo = m_page->m_currentRepo,
+                                .tagName = d[u"tag_name"_s].toString(),
                                 .patchNotes = d[u"body"_s].toString(),
                                 .pageUrl = QUrl(d[u"html_url"_s].toString()),
                                 .createdAt = parseIsoDt(d[u"created_at"_s].toString()),
@@ -212,10 +213,12 @@ public:
 QDialog *createPatchNoteDialog(const VersionJson *info, QWidget *parent)
 {
     const auto dialog = new QDialog(parent, Qt::Dialog);
+    dialog->setModal(true);
+
     const auto layout = new QVBoxLayout(dialog);
 
     using enum QDialogButtonBox::StandardButton;
-    const auto buttons = new QDialogButtonBox(Ok | Cancel);
+    const auto buttons = new QDialogButtonBox(Close);
 
     const auto patchNotes = new QTextBrowser();
     const auto document = new QTextDocument();
@@ -227,13 +230,140 @@ QDialog *createPatchNoteDialog(const VersionJson *info, QWidget *parent)
     layout->addWidget(patchNotes);
     layout->addWidget(buttons);
 
-    QObject::connect(buttons, &QDialogButtonBox::accepted, dialog, &QDialog::accept);
-    QObject::connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+    QObject::connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::accept);
 
     dialog->resize(400, 300);
     dialog->setWindowTitle(u"Patch notes for %1"_s.arg(info->tagName));
     return dialog;
 }
+
+template<typename T>
+auto getDataFrom(const QPersistentModelIndex &index)
+    requires(std::is_base_of_v<AbstractSimpleListModel<typename T::DataType, true>, T>)
+{
+    return reinterpret_cast<T::DataType *>(index.data(T::DataRole).toULongLong());
+}
+
+QDialog *createDownloadDialog(const QPersistentModelIndex &infoIndex, const QString &repo, QWidget *parent)
+{
+    const auto dialog = new QDialog(parent, Qt::Dialog);
+    const auto layout = new QVBoxLayout(dialog);
+    dialog->setModal(true);
+
+    using enum QDialogButtonBox::StandardButton;
+    const auto buttons = new QDialogButtonBox(Close);
+
+    const auto topBarWidget = new QWidget();
+    layout->addWidget(topBarWidget);
+
+    const auto topBar = new QHBoxLayout();
+    topBar->setContentsMargins(0, 0, 0, 0);
+    topBarWidget->setLayout(topBar);
+
+    const auto filterLineEdit = new QLineEdit();
+    filterLineEdit->setPlaceholderText("Filter...");
+    topBar->addWidget(filterLineEdit, 1);
+
+    const auto supportedOnly = new QPushButton();
+    supportedOnly->setIcon(QIcon::fromTheme("view-filter"));
+    supportedOnly->setText("Current platform only");
+    supportedOnly->setCheckable(true);
+    supportedOnly->setChecked(true);
+    supportedOnly->setFlat(true);
+    topBar->addWidget(supportedOnly);
+
+    const auto monoOnly = new QPushButton();
+    monoOnly->setIcon(QIcon::fromTheme("view-filter"));
+    monoOnly->setText(".NET (Mono) versions only");
+    monoOnly->setCheckable(true);
+    monoOnly->setFlat(true);
+    topBar->addWidget(monoOnly);
+
+    const auto inner = new QScrollArea();
+    layout->addWidget(inner);
+
+    // the inner inner
+    //
+    // having trouble organizing your inners? well, look no further
+    const auto innerInner = new QWidget();
+    inner->setWidget(innerInner);
+    inner->setWidgetResizable(true);
+    inner->setAlignment(Qt::AlignTop);
+    inner->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    innerInner->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    const auto cardLayout = new QVBoxLayout();
+    cardLayout->setAlignment(Qt::AlignTop);
+    innerInner->setLayout(cardLayout);
+
+    const auto info = *getDataFrom<VersionListModel>(infoIndex);
+    QList<std::pair<CardWidget *, VersionJson::AssetJson>> cards;
+    for (const auto &asset : info.assets) {
+        const auto card = new CardWidget();
+        card->title()->setText(asset.name);
+        card->setFixedHeight(Units::gridUnit * 6);
+
+        if (VersionRegistry::instance()->downloadedAsset(info.tagName, repo, asset.name)) {
+            card->setHighlightMode(CardWidget::HighlightPositive);
+        }
+
+        const auto label = new QLabel(asset.downloadUrl.toDisplayString());
+        card->innerLayout()->addWidget(label);
+
+        const auto downloadAction = new QAction(QIcon::fromTheme("download"),
+                                                u"Download (%1)"_s.arg(SizeConverter::formatSize(asset.size, 0)));
+
+        QObject::connect(downloadAction, &QAction::triggered, dialog, [asset, tagName = info.tagName, repo]() {
+            // DownloadManager::instance()->download(asset.name, info->tagName, asset.downloadUrl, repo);
+            qDebug() << asset.name << tagName << asset.downloadUrl << repo;
+        });
+
+        card->addAction(downloadAction);
+        cardLayout->addWidget(card);
+        cards << std::pair{card, asset};
+    }
+
+    const auto updateFilters = [cards, filterLineEdit, supportedOnly, monoOnly] {
+        for (const auto &[card, asset] : cards) {
+            bool passesFilter = false;
+            if (monoOnly->isChecked() && !asset.name.contains(u"mono"_s)) {
+                goto fail;
+            }
+            if (!asset.name.contains(filterLineEdit->text())) {
+                goto fail;
+            }
+            if (supportedOnly->isChecked()) {
+                bool wasContained = false;
+                for (const auto &filter : Config::downloadFilter()) {
+                    if (asset.name.contains(filter)) {
+                        wasContained = true;
+                        break;
+                    }
+                }
+                if (!wasContained) {
+                    goto fail;
+                }
+            }
+            passesFilter = true;
+
+        fail:
+            card->setVisible(passesFilter);
+        }
+    };
+
+    QObject::connect(filterLineEdit, &QLineEdit::textChanged, dialog, updateFilters);
+    QObject::connect(supportedOnly, &QPushButton::clicked, dialog, updateFilters);
+    QObject::connect(monoOnly, &QPushButton::clicked, dialog, updateFilters);
+
+    updateFilters();
+
+    QObject::connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::accept);
+
+    dialog->resize(700, 500);
+    dialog->setWindowTitle(u"Download %1"_s.arg(info.tagName));
+    return dialog;
+}
+} // namespace
 
 class VersionCardDelegate : public CardDelegate
 {
@@ -242,8 +372,6 @@ class VersionCardDelegate : public CardDelegate
 protected:
     void setupCard(CardWidget *card, const QModelIndex &index) const override
     {
-        // allocated++;
-        // connect(card, &QObject::destroyed, [] { --allocated; });
         auto showPatchNotes = new QAction(QIcon::fromTheme("document-preview"), "Show patch notes");
         auto download = new QAction(QIcon::fromTheme("download"), "Download");
         auto open = new QAction(QIcon::fromTheme("link"), "Open");
@@ -255,14 +383,16 @@ protected:
 
         QPersistentModelIndex modelIndex{index};
 
-        connect(showPatchNotes, &QAction::triggered, this, [this, modelIndex] {
+        connect(showPatchNotes, &QAction::triggered, card, [this, modelIndex] {
             const auto info = reinterpret_cast<VersionJson *>(modelIndex.data(VersionListModel::DataRole).toULongLong());
             const auto dialog = createPatchNoteDialog(info, itemView());
             dialog->open();
             connect(dialog, &QDialog::finished, dialog, [dialog](const int) { dialog->deleteLater(); });
         });
 
-        connect(open, &QAction::triggered, this, [modelIndex] {
+        connect(download, &QAction::triggered, card, [this, modelIndex] { Q_EMIT downloadRequested(modelIndex); });
+
+        connect(open, &QAction::triggered, card, [modelIndex] {
             const auto info = reinterpret_cast<VersionJson *>(modelIndex.data(VersionListModel::DataRole).toULongLong());
             QDesktopServices::openUrl(info->pageUrl);
         });
@@ -275,6 +405,9 @@ protected:
         card->title()->setText(data->tagName);
         const auto label = qobject_cast<QLabel *>(card->innerLayout()->itemAt(0)->widget());
         label->setText(DateConverter::instance()->relativeFormat(data->createdAt));
+
+        const bool isDownloaded = VersionRegistry::instance()->downloaded(data->tagName, data->repo);
+        card->setHighlightMode(isDownloaded ? CardWidget::HighlightPositive : CardWidget::HighlightNone);
     }
 
 public:
@@ -283,9 +416,9 @@ public:
     {
         m_size = {0, Units::gridUnit * 6};
     }
-};
 
-} // namespace
+    Q_SIGNAL void downloadRequested(const QPersistentModelIndex &index) const;
+};
 
 QString RemoteVersionsPage::getUrlForRepo(const QString &repo)
 {
@@ -315,6 +448,12 @@ RemoteVersionsPage::RemoteVersionsPage(QWidget *parent)
 
     m_delegate = new VersionCardDelegate(view);
     view->setItemDelegate(m_delegate);
+
+    connect(m_delegate, &VersionCardDelegate::downloadRequested, this, [this](const QPersistentModelIndex &index) {
+        const auto dialog = createDownloadDialog(index, m_currentRepo, this);
+        connect(dialog, &QDialog::finished, dialog, [dialog] { dialog->deleteLater(); });
+        dialog->open();
+    });
 
     view->setVerticalScrollMode(QAbstractItemView::ScrollMode::ScrollPerPixel);
     view->setAutoFillBackground(false);
@@ -423,14 +562,18 @@ QList<std::variant<QAction *, QWidget *>> RemoteVersionsPage::actions()
 
     repoComboBox->setModel(repoModel);
 
+    if (m_currentRepo.isEmpty()) {
+        m_currentRepo = repoComboBox->currentText();
+    } else {
+        repoComboBox->setCurrentText(m_currentRepo);
+    }
+
     connect(repoComboBox, &QComboBox::textActivated, repoModel, [this](const QString &text) {
+        m_currentRepo = text;
         m_versionListModel->fetchFrom(getUrlForRepo(text));
     });
 
-    const auto printAction = new QAction("Print allocated");
-    connect(printAction, &QAction::triggered, [] { qDebug() << "Allocated:" << allocated; });
-
-    return {filterLineEdit, filterAction, repoComboBox, printAction};
+    return {filterLineEdit, filterAction, repoComboBox};
 }
 
 #if __has_include("RemoteVersionsPage.moc")

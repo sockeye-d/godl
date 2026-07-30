@@ -4,11 +4,13 @@
 #include <QStandardItemModel>
 #include <QUrl>
 #include <QtQml/qqmlregistration.h>
+
 #include "model/downloadmanagermodel.h"
+#include "singleton.h"
 
 using namespace Qt::Literals::StringLiterals;
 
-class DownloadManager : public QObject
+class DownloadManager : public QObject, public Singleton<DownloadManager>
 {
     Q_OBJECT
     QML_ELEMENT

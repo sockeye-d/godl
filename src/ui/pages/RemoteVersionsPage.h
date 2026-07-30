@@ -12,6 +12,7 @@ class QSortFilterProxyModel;
 class QLineEdit;
 class QProgressBar;
 class VersionListModel;
+class VersionCardDelegate;
 
 class RemoteVersionsPage : public Page
 {
@@ -19,13 +20,15 @@ class RemoteVersionsPage : public Page
     Q_OBJECT
 
     QSortFilterProxyModel *m_sorter{};
-    KWidgetItemDelegate *m_delegate{};
+    VersionCardDelegate *m_delegate{};
     QLabel *m_errorIconLabel{};
     QLabel *m_errorLabel{};
     QProgressBar *m_bar{};
     QWidget *m_barWrapper{};
     VersionListModel *m_versionListModel{};
     QPointer<QTimer> m_filterTimer{};
+
+    QString m_currentRepo{};
 
 public:
     static QString getUrlForRepo(const QString &repo);

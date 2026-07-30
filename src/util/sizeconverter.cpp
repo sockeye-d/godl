@@ -2,7 +2,7 @@
 
 #include <QMap>
 
-QString SizeConverter::formatSize(qint64 bytes, int decimalPlaces)
+QString SizeConverter::formatSize(const qint64 bytes, const int decimalPlaces)
 {
     static QList<QPair<qint64, QString>> units = {
         {1LL << 00, "B"},

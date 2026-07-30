@@ -11,10 +11,14 @@
 #include "main.h"
 #include "projecttemplates.h"
 #include "versionregistry.h"
-#include <QtSystemDetection>
 #include <QStyleFactory>
+#include <QtSystemDetection>
 
 #include "ui/godlwindow.h"
+
+namespace {
+QtMessageHandler originalHandler = nullptr;
+}
 
 int main(int argc, char *argv[])
 {
@@ -46,6 +50,14 @@ int main(int argc, char *argv[])
     aboutData.setDesktopFileName("dev.fishies.godl");
 
     KAboutData::setApplicationData(aboutData);
+
+    originalHandler = qInstallMessageHandler([](QtMsgType type, const QMessageLogContext &ctx, const QString &msg) {
+        if (type == QtWarningMsg && qstrcmp(ctx.category, "kf.itemviews") == 0) {
+            return;
+        }
+
+        originalHandler(type, ctx, msg);
+    });
 
     GodlWindow window{};
     window.show();

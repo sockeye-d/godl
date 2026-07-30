@@ -8,24 +8,9 @@ set(BUILD_WITH_QT6 ON)
 find_package(ECM REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 
-# Directories where Qt Creator can find QML files.
-# (Not needed for builds, but makes Qt Creator code completion happy.)
-list(APPEND QML_IMPORT_PATH "/usr/lib/qt6/qml" "C:/CraftRoot/qml")
-
-# Prevent adding duplicate values at each run of CMake.
-list(REMOVE_DUPLICATES QML_IMPORT_PATH)
-
-# The variable is cached in ${BUILD_DIR}/CMakeCache.txt. We need FORCE to
-# change it there immediately. Also, add a comment to the cache file.
-set(QML_IMPORT_PATH ${QML_IMPORT_PATH}
-        CACHE STRING "Qt Creator 4.1 extra qml import paths"
-        FORCE
-)
-
 include(KDEInstallDirs)
 include(KDECMakeSettings)
 include(KDECompilerSettings NO_POLICY_SCOPE)
-include(ECMFindQmlModule)
 
 find_package(Qt6 REQUIRED COMPONENTS
         Core
@@ -46,11 +31,6 @@ find_package(KF6 REQUIRED COMPONENTS
         ColorScheme
         ItemViews
 )
-
-ecm_find_qmlmodule(org.kde.kirigami REQUIRED)
-ecm_find_qmlmodule(org.kde.kirigamiaddons.components REQUIRED)
-ecm_find_qmlmodule(org.kde.kirigamiaddons.formcard REQUIRED)
-ecm_find_qmlmodule(org.kde.desktop REQUIRED)
 
 message(NOTICE "Build type is " ${CMAKE_BUILD_TYPE})
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")

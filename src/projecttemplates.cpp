@@ -59,7 +59,7 @@ void copyTemplateRecursive(const QString &src,
                 content.replace("{" % r.first % "}", r.second.toString());
             }
             QFile f(dest / file.fileName());
-            f.open(QFile::WriteOnly);
+            std::ignore = f.open(QFile::WriteOnly);
             f.write(content.toUtf8());
             f.close();
         } else {
