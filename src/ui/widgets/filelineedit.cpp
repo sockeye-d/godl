@@ -31,7 +31,7 @@ FileLineEdit::FileLineEdit(QWidget *parent)
     button->setIcon(QIcon::fromTheme("document-open"));
 
     m_fileDialog->setModal(true);
-    connect(button, &QToolButton::pressed, this, [this] {
+    connect(button, &QToolButton::clicked, this, [this] {
         m_fileDialog->selectFile(m_lineEdit->text());
         m_fileDialog->show();
     });

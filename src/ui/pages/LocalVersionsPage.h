@@ -12,7 +12,7 @@ public:
     QString name() override;
     QString iconName() override;
 
-    QList<QAction *> actions() override;
+    QList<std::variant<QAction *, QWidget *>> actions() override;
 };
 
 #endif //LOCALVERSIONSPAGE_H

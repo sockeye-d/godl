@@ -3,9 +3,10 @@
 #include <KXmlGuiWindow>
 #include <QObject>
 
+class QStackedLayout;
 class Page;
 
-class GodlWindow : public KXmlGuiWindow
+class GodlWindow : public QMainWindow
 {
     Q_OBJECT
 
@@ -13,10 +14,11 @@ class GodlWindow : public KXmlGuiWindow
     QList<QAction *> builtinActions{};
     QList<QAction *> pageActions{};
     KToolBar *toolbar = nullptr;
+    QStackedLayout *m_layout;
 
 public:
     void activatePage(Page *page);
 
     explicit GodlWindow(QWidget *parent = nullptr);
-    ~GodlWindow() override;
+    // ~GodlWindow() override;
 };

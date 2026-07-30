@@ -15,6 +15,7 @@
 #include <QTextEdit>
 #include <QToolButton>
 
+#include "ui/style.h"
 #include "ui/widgets/carddelegate.h"
 #include "ui/widgets/filelineedit.h"
 
@@ -140,7 +141,7 @@ QDialog *createImportVersionWindow(QWidget *parent)
         buttons->button(Ok)->setDisabled(disabled);
     };
 
-    QObject::connect(autodetect, &QToolButton::pressed, dialog, onAutodetect);
+    QObject::connect(autodetect, &QToolButton::clicked, dialog, onAutodetect);
 
     QObject::connect(location->lineEdit(), &QLineEdit::textChanged, dialog, updateSubmittable);
     QObject::connect(repository, &QLineEdit::textChanged, dialog, updateSubmittable);
@@ -243,14 +244,14 @@ protected:
             const auto version = getDataPtr<GodotVersion>(modelIndex);
             const auto dialog = createCommandEditWindow(version, itemView());
             dialog->open();
-            connect(dialog, &QDialog::finished, dialog, [modelIndex, dialog](const int) {
+            connect(dialog, &QDialog::finished, dialog, [dialog](const int) {
                 dialog->deleteLater();
             });
         });
         connect(remove, &QAction::triggered, card, [modelIndex, this] {
             VersionRegistry::instance()->removeVersion(getDataPtr<GodotVersion>(modelIndex));
         });
-        connect(card, &CardWidget::pressed, this, [modelIndex, this] {
+        connect(card, &CardWidget::clicked, this, [modelIndex, this] {
             getDataPtr<GodotVersion>(modelIndex)->showExternally();
         });
     }
@@ -277,6 +278,7 @@ LocalVersionsPage::LocalVersionsPage(QWidget *parent)
 {
     const auto layout = new QVBoxLayout(this);
     const auto view = new QListView(this);
+    view->setStyleSheet(Style::listViewStylesheet());
 
     view->setModel(VersionRegistry::instance()->model());
     view->setItemDelegate(new VersionCardDelegate(view));
@@ -299,7 +301,7 @@ QString LocalVersionsPage::iconName()
     return "drive";
 }
 
-QList<QAction *> LocalVersionsPage::actions()
+QList<std::variant<QAction *, QWidget *>> LocalVersionsPage::actions()
 {
     auto manualVersion = new QAction(QIcon::fromTheme("document-import"), "Add version from file");
     auto cleanLeakedBinaries = new QAction(QIcon::fromTheme("edit-clear-all"),

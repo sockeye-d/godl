@@ -3,7 +3,7 @@
 
 #include <QAbstractListModel>
 
-template<typename T>
+template<typename T, bool ptr = false>
 class AbstractSimpleListModel : public QAbstractListModel
 {
 protected:
@@ -15,6 +15,7 @@ public:
     explicit AbstractSimpleListModel(QObject *parent = nullptr)
         : QAbstractListModel{parent}
     {}
+
     void append(T data)
     {
         const auto index = m_data.size();
@@ -23,6 +24,16 @@ public:
         m_data.append(data);
         endInsertRows();
     }
+
+    void appendRange(const QList<T> &data)
+    {
+        const auto index = m_data.size();
+
+        beginInsertRows(QModelIndex(), index, index + data.size() - 1);
+        m_data.append(data);
+        endInsertRows();
+    }
+
     void remove(T data)
     {
         const auto index = m_data.indexOf(data);
@@ -33,6 +44,7 @@ public:
         m_data.remove(index);
         endRemoveRows();
     }
+
     void clear()
     {
         beginRemoveRows(QModelIndex(), 0, m_data.size() - 1);
@@ -41,14 +53,21 @@ public:
     }
 
     QHash<int, QByteArray> roleNames() const override { return {{DataRole, "modelData"}}; }
+
     int rowCount(const QModelIndex &parent) const override
     {
         return parent.isValid() ? 0 : m_data.length();
     }
+
     QVariant data(const QModelIndex &index, int role) const override
     {
         if (role == DataRole) {
-            return QVariant::fromValue(m_data[index.row()]);
+            if constexpr (ptr) {
+                static_assert(sizeof(qulonglong) >= sizeof(uintptr_t));
+                return QVariant(reinterpret_cast<qulonglong>(&m_data[index.row()]));
+            } else {
+                return QVariant::fromValue(m_data[index.row()]);
+            }
         }
         return {};
     };

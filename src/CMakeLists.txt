@@ -77,6 +77,8 @@ qt_add_executable(godl
         util/units.h
         ui/widgets/filelineedit.cpp
         ui/widgets/filelineedit.h
+        ui/style.cpp
+        ui/style.h
 )
 
 target_link_libraries(godl

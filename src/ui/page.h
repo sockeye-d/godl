@@ -13,7 +13,7 @@ public:
     virtual QString name() = 0;
     virtual QString iconName() = 0;
 
-    virtual QList<QAction *> actions() { return {}; };
+    virtual QList<std::variant<QAction *, QWidget *>> actions() { return {}; };
 };
 
 #endif //PAGE_H

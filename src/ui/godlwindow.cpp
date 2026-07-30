@@ -5,43 +5,58 @@
 #include <QDockWidget>
 #include <QLabel>
 #include <QPushButton>
+#include <QStackedLayout>
 #include <QStatusBar>
 #include <QToolButton>
 
 #include "pages/LocalVersionsPage.h"
 #include "pages/ProjectsPage.h"
 #include "pages/RemoteVersionsPage.h"
+#include "units.h"
 #include "versioninfo.h"
 #include <qboxlayout.h>
 
 void GodlWindow::activatePage(Page *page)
 {
-    if (centralWidget() == page)
-        return;
-    takeCentralWidget();
-    setCentralWidget(page);
+    m_layout->setCurrentWidget(page);
 
     for (const auto &action : pageActions) {
         toolbar->removeAction(action);
     }
+
+    pageActions.clear();
+
     const auto newPageActions = page->actions();
     if (newPageActions.isEmpty()) {
         return;
     }
-    toolbar->addSeparator();
-    toolbar->addActions(newPageActions);
-    pageActions = newPageActions;
+
+    pageActions.append(toolbar->addSeparator());
+
+    for (const auto &actionVariant : newPageActions) {
+        if (const auto action = std::get_if<QAction *>(&actionVariant)) {
+            pageActions.append(*action);
+            toolbar->addAction(*action);
+        } else if (const auto widgetPtr = std::get_if<QWidget *>(&actionVariant)) {
+            const auto widget = *widgetPtr;
+            widget->setSizePolicy(widget->sizePolicy().horizontalPolicy(), QSizePolicy::Expanding);
+
+            pageActions.append(toolbar->addWidget(widget));
+        }
+    }
 }
 
 GodlWindow::GodlWindow(QWidget *parent)
-    : KXmlGuiWindow(parent)
+    : QMainWindow(parent, Qt::Window)
     , pages{
           new ProjectsPage(),
           new LocalVersionsPage(),
           new RemoteVersionsPage(),
       }
     , toolbar{new KToolBar(this, true)}
+    , m_layout{new QStackedLayout()}
 {
+    setMinimumSize(Units::gridUnit * 60, Units::gridUnit * 45);
     const auto tabActionGroup = new QActionGroup(this);
 
     for (const auto &page : pages) {
@@ -50,13 +65,21 @@ GodlWindow::GodlWindow(QWidget *parent)
         action->setActionGroup(tabActionGroup);
         connect(action, &QAction::triggered, this, [page, this]() { activatePage(page); });
         builtinActions.append(action);
+
+        m_layout->addWidget(page);
     }
+
+    const auto centralWidget = new QWidget();
+    centralWidget->setLayout(m_layout);
+    setCentralWidget(centralWidget);
 
     addToolBar(Qt::TopToolBarArea, toolbar);
     toolbar->addActions(builtinActions);
-    builtinActions[1]->trigger();
 
-    setupGUI(ToolBar | Keys | StatusBar | Save);
+    m_layout->setCurrentWidget(pages[2]);
+    builtinActions[2]->trigger();
+
+    // setupGUI(ToolBar | Keys | StatusBar | Save);
 
     const auto footer = new QWidget();
 
@@ -83,10 +106,10 @@ GodlWindow::GodlWindow(QWidget *parent)
     statusBar()->setSizeGripEnabled(false);
 }
 
-GodlWindow::~GodlWindow()
-{
-    for (const auto &page : pages) {
-        page->deleteLater();
-    }
-    pages.clear();
-}
+// GodlWindow::~GodlWindow()
+// {
+//     for (const auto &page : pages) {
+//         delete page;
+//     }
+//     pages.clear();
+// }

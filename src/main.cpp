@@ -47,16 +47,7 @@ int main(int argc, char *argv[])
 
     KAboutData::setApplicationData(aboutData);
 
-    QFile file{":/main.css"};
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        qInfo() << "Couldn't open stylesheet";
-        return 1;
-    }
-
-    const QString stylesheet{file.readAll()};
-
     GodlWindow window{};
-    window.setStyleSheet(stylesheet);
     window.show();
 
     const int returnCode = QApplication::exec();
