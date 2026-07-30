@@ -198,7 +198,7 @@ protected:
     [[nodiscard]] bool filterAcceptsRow(const int source_row, const QModelIndex &source_parent) const override
     {
         const auto index = sourceModel()->index(source_row, 0, source_parent);
-        const auto data = reinterpret_cast<VersionJson *>(index.data(VersionListModel::DataRole).toULongLong());
+        const auto data = getDataFrom<VersionListModel>(index);
         return data->tagName.contains(filterRegularExpression());
     }
 
@@ -237,14 +237,7 @@ QDialog *createPatchNoteDialog(const VersionJson *info, QWidget *parent)
     return dialog;
 }
 
-template<typename T>
-auto getDataFrom(const QPersistentModelIndex &index)
-    requires(std::is_base_of_v<AbstractSimpleListModel<typename T::DataType, true>, T>)
-{
-    return reinterpret_cast<T::DataType *>(index.data(T::DataRole).toULongLong());
-}
-
-QDialog *createDownloadDialog(const QPersistentModelIndex &infoIndex, const QString &repo, QWidget *parent)
+QDialog *createDownloadDialog(const QPersistentModelIndex &infoIndex, QWidget *parent)
 {
     const auto dialog = new QDialog(parent, Qt::Dialog);
     const auto layout = new QVBoxLayout(dialog);
@@ -303,7 +296,7 @@ QDialog *createDownloadDialog(const QPersistentModelIndex &infoIndex, const QStr
         card->title()->setText(asset.name);
         card->setFixedHeight(Units::gridUnit * 6);
 
-        if (VersionRegistry::instance()->downloadedAsset(info.tagName, repo, asset.name)) {
+        if (VersionRegistry::instance()->downloadedAsset(info.tagName, info.repo, asset.name)) {
             card->setHighlightMode(CardWidget::HighlightPositive);
         }
 
@@ -313,10 +306,11 @@ QDialog *createDownloadDialog(const QPersistentModelIndex &infoIndex, const QStr
         const auto downloadAction = new QAction(QIcon::fromTheme("download"),
                                                 u"Download (%1)"_s.arg(SizeConverter::formatSize(asset.size, 0)));
 
-        QObject::connect(downloadAction, &QAction::triggered, dialog, [asset, tagName = info.tagName, repo]() {
-            // DownloadManager::instance()->download(asset.name, info->tagName, asset.downloadUrl, repo);
-            qDebug() << asset.name << tagName << asset.downloadUrl << repo;
-        });
+        auto onDownloaded = [assetName = asset.name, assetDownloadUrl = asset.downloadUrl, tagName = info.tagName, repo = info.repo]() {
+            DownloadManager::instance()->download(assetName, tagName, assetDownloadUrl, repo);
+        };
+
+        QObject::connect(downloadAction, &QAction::triggered, dialog, onDownloaded);
 
         card->addAction(downloadAction);
         cardLayout->addWidget(card);
@@ -384,23 +378,30 @@ protected:
         QPersistentModelIndex modelIndex{index};
 
         connect(showPatchNotes, &QAction::triggered, card, [this, modelIndex] {
-            const auto info = reinterpret_cast<VersionJson *>(modelIndex.data(VersionListModel::DataRole).toULongLong());
+            const auto info = getDataFrom<VersionListModel>(modelIndex);
             const auto dialog = createPatchNoteDialog(info, itemView());
             dialog->open();
             connect(dialog, &QDialog::finished, dialog, [dialog](const int) { dialog->deleteLater(); });
         });
 
+        connect(card, &CardWidget::clicked, card, [this, modelIndex] { Q_EMIT downloadRequested(modelIndex); });
         connect(download, &QAction::triggered, card, [this, modelIndex] { Q_EMIT downloadRequested(modelIndex); });
 
         connect(open, &QAction::triggered, card, [modelIndex] {
-            const auto info = reinterpret_cast<VersionJson *>(modelIndex.data(VersionListModel::DataRole).toULongLong());
+            const auto info = getDataFrom<VersionListModel>(modelIndex);
             QDesktopServices::openUrl(info->pageUrl);
+        });
+
+        connect(VersionRegistry::instance(), &VersionRegistry::hasVersionChanged, card, [card, index] {
+            const auto data = getDataFrom<VersionListModel>(index);
+            const bool isDownloaded = VersionRegistry::instance()->downloaded(data->tagName, data->repo);
+            card->setHighlightMode(isDownloaded ? CardWidget::HighlightPositive : CardWidget::HighlightNone);
         });
     }
 
     void updateCard(CardWidget *card, const QPersistentModelIndex &index) const override
     {
-        const auto data = reinterpret_cast<VersionJson *>(index.data(VersionListModel::DataRole).toULongLong());
+        const auto data = getDataFrom<VersionListModel>(index);
 
         card->title()->setText(data->tagName);
         const auto label = qobject_cast<QLabel *>(card->innerLayout()->itemAt(0)->widget());
@@ -450,7 +451,7 @@ RemoteVersionsPage::RemoteVersionsPage(QWidget *parent)
     view->setItemDelegate(m_delegate);
 
     connect(m_delegate, &VersionCardDelegate::downloadRequested, this, [this](const QPersistentModelIndex &index) {
-        const auto dialog = createDownloadDialog(index, m_currentRepo, this);
+        const auto dialog = createDownloadDialog(index, this);
         connect(dialog, &QDialog::finished, dialog, [dialog] { dialog->deleteLater(); });
         dialog->open();
     });

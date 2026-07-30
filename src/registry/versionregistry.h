@@ -57,7 +57,6 @@ public:
     Q_INVOKABLE bool hasVersion(const BoundGodotVersion *version) const;
     Q_INVOKABLE QString findUniqueName(const BoundGodotVersion *version) const;
     Q_INVOKABLE const GodotVersion *findVersion(const BoundGodotVersion *version) const;
-    Q_SIGNAL void downloadedChanged();
     Q_SIGNAL void hasVersionChanged();
 
     Q_PROPERTY(bool canAutodetect READ canAutodetect CONSTANT FINAL)

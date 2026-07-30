@@ -14,7 +14,6 @@ void VersionRegistry::add(GodotVersion *version)
     });
     m_versions[version->m_configGroupName] = version;
     model()->append(version);
-    Q_EMIT downloadedChanged();
     Q_EMIT hasVersionChanged();
 }
 
@@ -38,7 +37,6 @@ void VersionRegistry::removeVersion(GodotVersion *version)
     } else {
         print_debug() << "not deleting";
     }
-    Q_EMIT downloadedChanged();
     Q_EMIT hasVersionChanged();
     m_versions.remove(version->m_configGroupName);
     version->deleteLater();

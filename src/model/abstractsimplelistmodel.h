@@ -74,4 +74,11 @@ public:
     };
 };
 
+template<typename T>
+auto getDataFrom(const QPersistentModelIndex &index)
+    requires(std::is_base_of_v<AbstractSimpleListModel<typename T::DataType, true>, T>)
+{
+    return reinterpret_cast<T::DataType *>(index.data(T::DataRole).toULongLong());
+}
+
 #endif // ABSTRACTSIMPLELISTMODEL_H
