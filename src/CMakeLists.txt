@@ -19,7 +19,7 @@ qt_add_executable(godl
         configsignals.h configsignals.cpp
         model/downloadmanagermodel.h model/downloadmanagermodel.cpp
         network/downloadmanager.h network/downloadmanager.cpp
-        network/downloadinfo.h
+        network/downloadinfo.h network/downloadinfo.cpp
         network/chainedjsonrequest.h network/chainedjsonrequest.cpp
         network/network.h network/network.h
         network/networkresponsecode.h network/networkresponsecode.cpp
@@ -79,6 +79,11 @@ qt_add_executable(godl
         ui/widgets/filelineedit.h
         ui/style.cpp
         ui/style.h
+        ui/widgets/searchlineedit.cpp
+        ui/widgets/searchlineedit.h
+        ui/widgets/downloadspopup.cpp
+        ui/widgets/downloadspopup.h
+        network/downloadinfo.cpp
 )
 
 target_link_libraries(godl

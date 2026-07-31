@@ -35,9 +35,8 @@ QDialog *createCommandEditWindow(GodotVersion *version, QWidget *parent)
     footer->setLayout(footerLayout);
     footer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-    const auto footerText = new QLabel(
-        "<code>{executable}</code> expands to the absolute executable "
-        "path<br><code>{projectPath}</code> expands to the absolute project.godot path");
+    const auto footerText = new QLabel("<code>{executable}</code> expands to the absolute executable "
+                                       "path<br><code>{projectPath}</code> expands to the absolute project.godot path");
     footerText->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     footerText->setMinimumWidth(footerText->sizeHint().width());
     footerLayout->addWidget(footerText, 1);
@@ -110,16 +109,14 @@ QDialog *createImportVersionWindow(QWidget *parent)
     form->addRow("Mono (C#):", mono);
 
     auto updateAutodetectable = [autodetect, location] {
-        autodetect->setDisabled(
-            !VersionRegistry::canAutodetect()
-            || !VersionRegistry::canAutodetectFile(location->lineEdit()->text()));
+        autodetect->setDisabled(!VersionRegistry::canAutodetect() || !VersionRegistry::canAutodetectFile(location->text()));
     };
 
-    QObject::connect(location->lineEdit(), &QLineEdit::textChanged, dialog, updateAutodetectable);
+    QObject::connect(location, &QLineEdit::textChanged, dialog, updateAutodetectable);
     updateAutodetectable();
 
     auto onAutodetect = [location, repository, tag, asset, mono] {
-        const auto path = location->lineEdit()->text();
+        const auto path = location->text();
         repository->setText(VersionRegistry::instance()->detectRepository(path));
         tag->setText(VersionRegistry::instance()->detectTag(path));
         asset->setText(VersionRegistry::instance()->detectAsset(path));
@@ -128,7 +125,7 @@ QDialog *createImportVersionWindow(QWidget *parent)
 
     auto updateSubmittable = [buttons, location, repository, tag, asset] {
         bool disabled = true;
-        if (location->lineEdit()->text().isEmpty())
+        if (location->text().isEmpty())
             goto exit;
         if (repository->text().isEmpty())
             goto exit;
@@ -143,14 +140,14 @@ QDialog *createImportVersionWindow(QWidget *parent)
 
     QObject::connect(autodetect, &QToolButton::clicked, dialog, onAutodetect);
 
-    QObject::connect(location->lineEdit(), &QLineEdit::textChanged, dialog, updateSubmittable);
+    QObject::connect(location, &QLineEdit::textChanged, dialog, updateSubmittable);
     QObject::connect(repository, &QLineEdit::textChanged, dialog, updateSubmittable);
     QObject::connect(tag, &QLineEdit::textChanged, dialog, updateSubmittable);
     QObject::connect(asset, &QLineEdit::textChanged, dialog, updateSubmittable);
     QObject::connect(mono, &QPushButton::toggled, dialog, updateSubmittable);
 
     auto onAccepted = [location, repository, tag, asset, mono, dialog] {
-        VersionRegistry::instance()->registerLocalVersion(location->lineEdit()->text(),
+        VersionRegistry::instance()->registerLocalVersion(location->text(),
                                                           repository->text(),
                                                           tag->text(),
                                                           asset->text(),
@@ -191,8 +188,7 @@ QDialog *createCleanOrphansDialog(QWidget *parent)
 
     if (leakedBinaries.isEmpty()) {
         const auto label = new QLabel();
-        label->setPixmap(
-            QIcon::fromTheme("edit-clear-all").pixmap(Units::gridUnit * 2, Units::gridUnit * 2));
+        label->setPixmap(QIcon::fromTheme("edit-clear-all").pixmap(Units::gridUnit * 2, Units::gridUnit * 2));
         innerLayout->addWidget(label, 1, Qt::AlignCenter);
         innerLayout->addWidget(new QLabel("You're all clean!"), 1, Qt::AlignCenter);
     }
@@ -200,10 +196,9 @@ QDialog *createCleanOrphansDialog(QWidget *parent)
     layout->addWidget(inner, 1);
 
     auto onAccepted = [leakedBinaries, leakedBinaryCheckboxes, dialog] {
-        auto toClear = leakedBinaries
-                       | std::views::filter([leakedBinaryCheckboxes](const QString &path) {
-                             return leakedBinaryCheckboxes.contains(path);
-                         });
+        auto toClear = leakedBinaries | std::views::filter([leakedBinaryCheckboxes](const QString &path) {
+                           return leakedBinaryCheckboxes.contains(path);
+                       });
         VersionRegistry::deleteLeakedVersions(QStringList(toClear.begin(), toClear.end()));
         dialog->deleteLater();
     };
@@ -234,26 +229,18 @@ protected:
         card->innerLayout()->addWidget(label);
 
         QPersistentModelIndex modelIndex{index};
-        connect(showFolder, &QAction::triggered, card, [modelIndex, this] {
-            getDataPtr<GodotVersion>(modelIndex)->showExternally();
-        });
-        connect(run, &QAction::triggered, card, [modelIndex, this] {
-            getDataPtr<GodotVersion>(modelIndex)->start();
-        });
+        connect(showFolder, &QAction::triggered, card, [modelIndex, this] { getDataPtr<GodotVersion>(modelIndex)->showExternally(); });
+        connect(run, &QAction::triggered, card, [modelIndex, this] { getDataPtr<GodotVersion>(modelIndex)->start(); });
         connect(editCommand, &QAction::triggered, card, [modelIndex, this] {
             const auto version = getDataPtr<GodotVersion>(modelIndex);
             const auto dialog = createCommandEditWindow(version, itemView());
             dialog->open();
-            connect(dialog, &QDialog::finished, dialog, [dialog](const int) {
-                dialog->deleteLater();
-            });
+            connect(dialog, &QDialog::finished, dialog, [dialog](const int) { dialog->deleteLater(); });
         });
         connect(remove, &QAction::triggered, card, [modelIndex, this] {
             VersionRegistry::instance()->removeVersion(getDataPtr<GodotVersion>(modelIndex));
         });
-        connect(card, &CardWidget::clicked, this, [modelIndex, this] {
-            getDataPtr<GodotVersion>(modelIndex)->showExternally();
-        });
+        connect(card, &CardWidget::clicked, this, [modelIndex, this] { getDataPtr<GodotVersion>(modelIndex)->showExternally(); });
     }
 
     void updateCard(CardWidget *card, const QPersistentModelIndex &index) const override
@@ -304,8 +291,7 @@ QString LocalVersionsPage::iconName()
 QList<std::variant<QAction *, QWidget *>> LocalVersionsPage::actions()
 {
     auto manualVersion = new QAction(QIcon::fromTheme("document-import"), "Add version from file");
-    auto cleanLeakedBinaries = new QAction(QIcon::fromTheme("edit-clear-all"),
-                                           "Clean leaked binaries");
+    auto cleanLeakedBinaries = new QAction(QIcon::fromTheme("edit-clear-all"), "Clean leaked binaries");
 
     connect(manualVersion, &QAction::triggered, this, [this] {
         const auto dialog = createImportVersionWindow(this);

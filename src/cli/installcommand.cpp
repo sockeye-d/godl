@@ -12,6 +12,8 @@
 #include <QJsonObject>
 #include <QThread>
 
+#include "downloadinfo.h"
+
 using namespace Qt::StringLiterals;
 using namespace std::chrono_literals;
 
@@ -65,7 +67,7 @@ int install(const Parser &parser)
         qStdOut().flush();
         QThread::sleep(10ms);
     }
-    req->disconnect(connection);
+    QObject::disconnect(connection);
     // qStdOut() << ansi::cursorShow;
 
     // print_debug() << fetchResult;

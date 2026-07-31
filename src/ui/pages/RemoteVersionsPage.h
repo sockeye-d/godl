@@ -42,6 +42,9 @@ public:
     QString name() override;
     QString iconName() override;
     QList<std::variant<QAction *, QWidget *>> actions() override;
+
+    // ReSharper disable once CppFunctionIsNotImplemented
+    Q_SIGNAL void downloadStarted() const;
 };
 
 #endif //REMOTEVERSIONSPAGE_H

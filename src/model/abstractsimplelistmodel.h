@@ -17,13 +17,20 @@ public:
         : QAbstractListModel{parent}
     {}
 
-    void append(T data)
+    template<typename Return = void>
+    Return append(T data)
     {
         const auto index = m_data.size();
 
         beginInsertRows(QModelIndex(), index, index);
         m_data.append(data);
         endInsertRows();
+
+        if constexpr (std::is_same_v<Return, QPersistentModelIndex>) {
+            return QPersistentModelIndex{createIndex(index, 0)};
+        } else {
+            return;
+        }
     }
 
     void appendRange(const QList<T> &data)
@@ -53,14 +60,11 @@ public:
         endRemoveRows();
     }
 
-    QHash<int, QByteArray> roleNames() const override { return {{DataRole, "modelData"}}; }
+    [[nodiscard]] QHash<int, QByteArray> roleNames() const override { return {{DataRole, "modelData"}}; }
 
-    int rowCount(const QModelIndex &parent) const override
-    {
-        return parent.isValid() ? 0 : m_data.length();
-    }
+    [[nodiscard]] int rowCount(const QModelIndex &parent) const override { return parent.isValid() ? 0 : m_data.length(); }
 
-    QVariant data(const QModelIndex &index, int role) const override
+    [[nodiscard]] QVariant data(const QModelIndex &index, int role) const override
     {
         if (role == DataRole) {
             if constexpr (ptr) {
@@ -72,6 +76,8 @@ public:
         }
         return {};
     };
+
+    [[nodiscard]] const QList<T> &data() const { return m_data; }
 };
 
 template<typename T>
@@ -79,6 +85,14 @@ auto getDataFrom(const QPersistentModelIndex &index)
     requires(std::is_base_of_v<AbstractSimpleListModel<typename T::DataType, true>, T>)
 {
     return reinterpret_cast<T::DataType *>(index.data(T::DataRole).toULongLong());
+}
+
+template<typename T>
+auto getDataPtrFrom(const QPersistentModelIndex &index)
+    requires(std::is_base_of_v<AbstractSimpleListModel<typename T::DataType, false>, T>,
+             std::is_base_of_v<QObject, std::remove_pointer_t<typename T::DataType>>)
+{
+    return index.data(T::DataRole).template value<typename T::DataType>();
 }
 
 #endif // ABSTRACTSIMPLELISTMODEL_H

@@ -15,7 +15,7 @@ class DownloadManagerModel : public AbstractSimpleListModel<DownloadInfo *>
 
 public:
     explicit DownloadManagerModel(QObject *parent = nullptr)
-        : AbstractSimpleListModel<DownloadInfo *>(parent)
+        : AbstractSimpleListModel(parent)
     {}
 };
 

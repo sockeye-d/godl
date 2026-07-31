@@ -15,7 +15,6 @@
 #include <QFileDialog>
 #include <QJsonArray>
 #include <QJsonObject>
-#include <QLineEdit>
 #include <QMenu>
 #include <QProgressBar>
 #include <QStringListModel>
@@ -38,6 +37,7 @@
 #include "networkresponsecode.h"
 #include "sizeconverter.h"
 #include "ui/style.h"
+#include "ui/widgets/searchlineedit.h"
 
 using namespace Qt::StringLiterals;
 
@@ -237,7 +237,7 @@ QDialog *createPatchNoteDialog(const VersionJson *info, QWidget *parent)
     return dialog;
 }
 
-QDialog *createDownloadDialog(const QPersistentModelIndex &infoIndex, QWidget *parent)
+QDialog *createDownloadDialog(const QPersistentModelIndex &infoIndex, RemoteVersionsPage *parent)
 {
     const auto dialog = new QDialog(parent, Qt::Dialog);
     const auto layout = new QVBoxLayout(dialog);
@@ -253,7 +253,7 @@ QDialog *createDownloadDialog(const QPersistentModelIndex &infoIndex, QWidget *p
     topBar->setContentsMargins(0, 0, 0, 0);
     topBarWidget->setLayout(topBar);
 
-    const auto filterLineEdit = new QLineEdit();
+    const auto filterLineEdit = new SearchLineEdit();
     filterLineEdit->setPlaceholderText("Filter...");
     topBar->addWidget(filterLineEdit, 1);
 
@@ -306,8 +306,9 @@ QDialog *createDownloadDialog(const QPersistentModelIndex &infoIndex, QWidget *p
         const auto downloadAction = new QAction(QIcon::fromTheme("download"),
                                                 u"Download (%1)"_s.arg(SizeConverter::formatSize(asset.size, 0)));
 
-        auto onDownloaded = [assetName = asset.name, assetDownloadUrl = asset.downloadUrl, tagName = info.tagName, repo = info.repo]() {
+        auto onDownloaded = [assetName = asset.name, assetDownloadUrl = asset.downloadUrl, tagName = info.tagName, repo = info.repo, parent]() {
             DownloadManager::instance()->download(assetName, tagName, assetDownloadUrl, repo);
+            Q_EMIT parent->downloadStarted();
         };
 
         QObject::connect(downloadAction, &QAction::triggered, dialog, onDownloaded);
@@ -345,7 +346,7 @@ QDialog *createDownloadDialog(const QPersistentModelIndex &infoIndex, QWidget *p
         }
     };
 
-    QObject::connect(filterLineEdit, &QLineEdit::textChanged, dialog, updateFilters);
+    QObject::connect(filterLineEdit, &SearchLineEdit::searchTriggered, dialog, updateFilters);
     QObject::connect(supportedOnly, &QPushButton::clicked, dialog, updateFilters);
     QObject::connect(monoOnly, &QPushButton::clicked, dialog, updateFilters);
 
@@ -526,10 +527,10 @@ QString RemoteVersionsPage::iconName()
 
 QList<std::variant<QAction *, QWidget *>> RemoteVersionsPage::actions()
 {
-    const auto filterLineEdit = new QLineEdit();
+    const auto filterLineEdit = new SearchLineEdit();
     filterLineEdit->setPlaceholderText("Filter (regex supported)");
     connect(filterLineEdit,
-            &QLineEdit::textChanged,
+            &SearchLineEdit::searchTriggered,
             m_sorter,
             qOverload<const QString &>(&QSortFilterProxyModel::setFilterRegularExpression));
     filterLineEdit->setText(m_sorter->filterRegularExpression().pattern());

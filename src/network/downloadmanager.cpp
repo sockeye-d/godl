@@ -1,11 +1,10 @@
 #include "downloadmanager.h"
+#include "downloadmanagermodel.h"
 #include "macros.h"
 #include "network.h"
 #include "registry/versionregistry.h"
 #include "util/util.h"
 #include <KArchive>
-#include <KTar>
-#include <KZip>
 #include <config.h>
 #include <QDir>
 #include <QElapsedTimer>
@@ -15,28 +14,65 @@
 #include <QMimeType>
 #include <QNetworkReply>
 #include <QNetworkRequest>
-#include <QNtfsPermissionCheckGuard>
 #include <QRegularExpression>
 #include <QUrl>
 #include <QtConcurrentRun>
 
-QString DownloadManager::getDownloadLocation(const DownloadInfo &info) const
+QString DownloadManager::getDownloadLocation(const DownloadInfo &info)
 {
     return Config::godotLocation() / QUuid::createUuid().toString(QUuid::WithoutBraces) % "-"
            % VersionRegistry::instance()->sanitizeAssetName(info.assetName());
 }
 
-DownloadInfo *DownloadManager::createDlInfo(const QString &assetName,
-                                            const QString &tagName,
-                                            const QUrl &asset,
-                                            const QString &repo)
+void DownloadManager::updateProgress()
+{
+    int progressReceived = -1;
+    int progressTotal = -1;
+
+    for (const auto &data : m_model->data()) {
+        if (data->hasError()) {
+            progressReceived = -2;
+            break;
+        }
+        if (data->stage() == DownloadInfo::Finished && (progressReceived == -1 || progressReceived == -3)) {
+            progressReceived = -3;
+            continue;
+        }
+        if (progressReceived == -1) {
+            progressReceived = 0;
+            progressTotal = 0;
+        }
+        progressReceived += static_cast<int>(data->received());
+        progressTotal += static_cast<int>(data->total());
+    }
+
+    if (progressReceived != m_progressReceived || progressTotal != m_progressTotal) {
+        m_progressReceived = progressReceived;
+        m_progressTotal = progressTotal;
+
+        Q_EMIT progressChanged(progressReceived, progressTotal);
+    }
+}
+
+DownloadManager::DownloadManager(QObject *parent)
+    : QObject(parent)
+    , m_model{new DownloadManagerModel()}
+{
+    Q_EMIT modelChanged();
+
+    connect(&m_updateProgressTimer, &QTimer::timeout, this, &DownloadManager::updateProgress);
+    m_updateProgressTimer.start(100);
+    m_updateProgressTimer.setSingleShot(false);
+}
+
+DownloadInfo *DownloadManager::createDlInfo(const QString &assetName, const QString &tagName, const QUrl &asset, const QString &repo)
 {
     auto info = new DownloadInfo(assetName, tagName, asset, repo);
     connect(
         this,
         &DownloadManager::cancelRequested,
         this,
-        [info, this](QUuid id) {
+        [info, this](const QUuid id) {
             if (info->id() == id) {
                 m_model->remove(info);
                 info->deleteLater();
@@ -46,24 +82,20 @@ DownloadInfo *DownloadManager::createDlInfo(const QString &assetName,
     return info;
 }
 
-void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString destFilePath)
+void DownloadManager::unzip(DownloadInfo *info, const QString &sourceFilePath, const QString &destFilePath)
 {
     const QString configGroupName = QFileInfo(destFilePath).fileName();
     // TODO: clean up this spaghetti
     print_debug() << "Opening archive";
     info->setStage(DownloadInfo::Unzipping);
-    info->setProgress(-1.0);
+    info->setProgress(0, 0);
 
-    auto future = QtConcurrent::run([sourceFilePath, destFilePath, info](
-                                        QPromise<QString> &promise) {
+    auto future = QtConcurrent::run([sourceFilePath, destFilePath, info](QPromise<QString> &promise) {
         using namespace std::chrono_literals;
-        auto archive = openArchive(sourceFilePath);
+        const auto archive = openArchive(sourceFilePath);
         if (!archive) {
-            const auto dl = QFileInfo(sourceFilePath);
-            if (dl.isExecutable()
-                || QMimeDatabase()
-                       .mimeTypeForFile(sourceFilePath)
-                       .inherits("application/x-executable")) {
+            if (const auto dl = QFileInfo(sourceFilePath);
+                dl.isExecutable() || QMimeDatabase().mimeTypeForFile(sourceFilePath).inherits("application/x-executable")) {
                 print_debug() << "Detected uncompressed executable";
 
 #ifdef Q_OS_WIN
@@ -75,14 +107,13 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
 
                 const auto destName = dl.fileName();
                 const auto path = destFilePath / destName / dl.fileName();
-                QDir(destFilePath).mkpath(destName);
+                if (!QDir(destFilePath).mkpath(destName)) {
+                    qFatal() << "Failed making path" << destName;
+                }
                 if (!QFile::copy(sourceFilePath, path)) {
                     print_debug() << "failed to copy executable";
                 }
-                promise.addResult(
-                    removePrefix(path,
-                                 normalizeDirectoryPath(
-                                     VersionRegistry::instance()->locationDirectory())));
+                promise.addResult(removePrefix(path, normalizeDirectoryPath(VersionRegistry::instance()->locationDirectory())));
 
                 if (!Config::cacheVersions())
                     QFile(sourceFilePath).remove();
@@ -100,11 +131,12 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
         auto dest = destFilePath;
         print_debug() << archive->directory()->entries().size();
         print_debug() << archive->directory()->name();
-        if (archive->directory()->entries().size() != 1
-            || archive->directory()->entry(archive->directory()->entries().at(0))->isFile()) {
+        if (archive->directory()->entries().size() != 1 || archive->directory()->entry(archive->directory()->entries().at(0))->isFile()) {
             print_debug() << "Cursed zip, extracting to folder";
             dest = QFileInfo(sourceFilePath).completeBaseName();
-            QDir(destFilePath).mkpath(dest);
+            if (!QDir(destFilePath).mkpath(dest)) {
+                qFatal() << "Failed making path" << dest;
+            }
             dest = destFilePath / dest;
         }
         qInfo() << "Copying file path to " << dest;
@@ -115,15 +147,12 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
                 && archive->directory()->entries().size() == 1) {
                 dest = dest / archive->directory()->entries().first();
             }
-            auto entries = QDir(dest).entryInfoList(QDir::Files | QDir::Executable);
-            for (const QFileInfo &file : std::as_const(entries)) {
+            for (auto entries = QDir(dest).entryInfoList(QDir::Files | QDir::Executable); const QFileInfo &file : std::as_const(entries)) {
                 print_debug() << file.canonicalFilePath();
                 print_debug() << file.isExecutable();
                 if (!file.fileName().contains("console")) {
                     promise.addResult(
-                        removePrefix(file.absoluteFilePath(),
-                                     normalizeDirectoryPath(
-                                         VersionRegistry::instance()->locationDirectory())));
+                        removePrefix(file.absoluteFilePath(), normalizeDirectoryPath(VersionRegistry::instance()->locationDirectory())));
                     break;
                 }
             }
@@ -136,39 +165,50 @@ void DownloadManager::unzip(DownloadInfo *info, QString sourceFilePath, QString 
     });
 
     auto watcher = new QFutureWatcher<QString>();
-    connect(watcher,
-            &QFutureWatcher<QString>::finished,
-            this,
-            [info, watcher, future, sourceFilePath, configGroupName]() {
-                if (info->stage() != DownloadInfo::UnzipError) {
-                    if (future.results().isEmpty()) {
-                        info->setStage(DownloadInfo::UnknownError);
-                        info->setError("Couldn't find Godot executable");
-                    } else {
-                        bool isMono = QFileInfo(sourceFilePath).completeBaseName().contains("mono");
-                        VersionRegistry::instance()->registerVersion(
-                            new GodotVersion(configGroupName,
-                                             info->tagName(),
-                                             info->assetName(),
-                                             info->sourceUrl().toString(),
-                                             info->repo(),
-                                             future.result(),
-                                             isMono));
-                        info->setStage(DownloadInfo::Finished);
-                    }
-                }
-                watcher->deleteLater();
-            });
+    connect(watcher, &QFutureWatcher<QString>::finished, this, [info, watcher, future, sourceFilePath, configGroupName]() {
+        if (info->stage() != DownloadInfo::UnzipError) {
+            if (future.results().isEmpty()) {
+                info->setStage(DownloadInfo::UnknownError);
+                info->setError("Couldn't find Godot executable");
+            } else {
+                const bool isMono = QFileInfo(sourceFilePath).completeBaseName().contains("mono");
+                VersionRegistry::instance()->registerVersion(new GodotVersion(configGroupName,
+                                                                              info->tagName(),
+                                                                              info->assetName(),
+                                                                              info->sourceUrl().toString(),
+                                                                              info->repo(),
+                                                                              future.result(),
+                                                                              isMono));
+                info->setStage(DownloadInfo::Finished);
+            }
+        }
+        watcher->deleteLater();
+    });
     watcher->setFuture(future);
 }
 
-const DownloadInfo *DownloadManager::download(const QString &assetName,
-                                              const QString &tagName,
-                                              const QUrl &asset,
-                                              const QString &repo)
+DownloadManagerModel *DownloadManager::model() const
 {
-    auto downloadLocation = QStandardPaths::standardLocations(QStandardPaths::TempLocation)
-                                .constFirst();
+    return m_model;
+}
+
+static void connectUpInfo(QAbstractItemModel *model, const DownloadInfo *info, const QPersistentModelIndex &index)
+{
+    const auto target = [model, index]() {
+        const QModelIndex weakIndex = model->index(index.row(), 0);
+        Q_EMIT model->dataChanged(weakIndex, weakIndex);
+    };
+
+    QObject::connect(info, &DownloadInfo::progressChanged, model, target);
+    QObject::connect(info, &DownloadInfo::downloadSpeedChanged, model, target);
+    QObject::connect(info, &DownloadInfo::stageChanged, model, target);
+    QObject::connect(info, &DownloadInfo::errorChanged, model, target);
+    QObject::connect(info, &DownloadInfo::repoChanged, model, target);
+};
+
+const DownloadInfo *DownloadManager::download(const QString &assetName, const QString &tagName, const QUrl &asset, const QString &repo)
+{
+    const auto downloadLocation = QStandardPaths::standardLocations(QStandardPaths::TempLocation).constFirst();
     auto path = downloadLocation / assetName;
 
     if (!QDir(downloadLocation).exists()) {
@@ -185,7 +225,7 @@ const DownloadInfo *DownloadManager::download(const QString &assetName,
     auto file = new QFile(path);
     if (file->exists() && Config::cacheVersions()) {
         qInfo() << "Already found downloaded godot, not downloading";
-        m_model->append(info);
+        connectUpInfo(m_model, info, m_model->append<QPersistentModelIndex>(info));
         Q_EMIT downloadStarted();
         unzip(info, path, getDownloadLocation(*info));
         return info;
@@ -205,35 +245,31 @@ const DownloadInfo *DownloadManager::download(const QString &assetName,
     request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false);
     request.setRawHeader("Connection", "close");
     request.setRawHeader("Accept-Encoding", "identity");
-    request.setHeader(QNetworkRequest::UserAgentHeader,
-                      "Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0");
+    request.setHeader(QNetworkRequest::UserAgentHeader, "Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0");
 
     QNetworkReply *const reply = Network::manager().get(request);
 
     auto time = new QElapsedTimer();
     time->start();
-    auto bytesReceivedLast = new int;
+    auto bytesReceivedLast = new qsizetype;
     *bytesReceivedLast = 0;
 
-    m_model->append(info);
+    connectUpInfo(m_model, info, m_model->append<QPersistentModelIndex>(info));
     Q_EMIT downloadStarted();
 
-    auto cancelConnection = connect(this,
-                                    &DownloadManager::cancelRequested,
-                                    this,
-                                    [info, reply](QUuid id) {
-                                        if (info->id() == id) {
-                                            reply->abort();
-                                        }
-                                    });
+    auto cancelConnection = connect(this, &DownloadManager::cancelRequested, this, [info, reply](const QUuid &id) {
+        if (info->id() == id) {
+            reply->abort();
+        }
+    });
 
     connect(reply, &QNetworkReply::readyRead, this, [reply, file, info, time, bytesReceivedLast]() {
-        auto data = reply->readAll();
+        const auto data = reply->readAll();
         file->write(data);
 
-        *bytesReceivedLast = *bytesReceivedLast + data.size();
+        *bytesReceivedLast += data.size();
         if (time->nsecsElapsed() > 100000000) {
-            info->setDownloadSpeed(*bytesReceivedLast / (time->nsecsElapsed() * 1e-9));
+            info->setDownloadSpeed(static_cast<double>(*bytesReceivedLast) / (static_cast<double>(time->nsecsElapsed()) * 1e-9));
             time->restart();
             *bytesReceivedLast = 0;
         }
@@ -243,9 +279,7 @@ const DownloadInfo *DownloadManager::download(const QString &assetName,
         reply,
         &QNetworkReply::downloadProgress,
         this,
-        [info](auto bytesReceived, auto bytesTotal) {
-            info->setProgress((qreal) bytesReceived / (qreal) bytesTotal);
-        },
+        [info](const qint64 bytesReceived, const qint64 bytesTotal) { info->setProgress(bytesReceived, bytesTotal); },
         Qt::QueuedConnection);
 
     connect(
@@ -260,8 +294,7 @@ const DownloadInfo *DownloadManager::download(const QString &assetName,
             delete time;
             delete bytesReceivedLast;
             if (reply->error() != QNetworkReply::NoError) {
-                qWarning() << "Network reply failed with error " << reply->error() << " ("
-                           << reply->errorString() << ")";
+                qWarning() << "Network reply failed with error " << reply->error() << " (" << reply->errorString() << ")";
                 QFile(path).remove();
                 info->setStage(DownloadInfo::DownloadError);
                 info->setError(reply->errorString());
@@ -274,7 +307,12 @@ const DownloadInfo *DownloadManager::download(const QString &assetName,
     return info;
 }
 
-void DownloadManager::remove(const QUuid &id)
+void DownloadManager::cancel(const QUuid &id)
+{
+    Q_EMIT cancelRequested(id);
+}
+
+void DownloadManager::remove(const QUuid &id) const
 {
     DownloadInfo *foundInfo = nullptr;
     print_debug() << model()->m_data;

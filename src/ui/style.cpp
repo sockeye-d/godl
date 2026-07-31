@@ -5,7 +5,7 @@
 
 QString Style::listViewStylesheet()
 {
-    static QString stylesheet = []() {
+    static QString stylesheet = [] {
         QFile file{":/main.css"};
         if (!file.open(QFile::ReadOnly | QFile::Text)) {
             qFatal() << "Couldn't open stylesheet";

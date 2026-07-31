@@ -6,9 +6,9 @@
 #include <QHBoxLayout>
 #include <QToolButton>
 
-QLineEdit *FileLineEdit::lineEdit() const
+QLineEdit *FileLineEdit::lineEdit()
 {
-    return m_lineEdit;
+    return this;
 }
 
 QFileDialog *FileLineEdit::fileDialog() const
@@ -17,28 +17,20 @@ QFileDialog *FileLineEdit::fileDialog() const
 }
 
 FileLineEdit::FileLineEdit(QWidget *parent)
-    : QWidget(parent)
-    , m_lineEdit{new QLineEdit()}
+    : QLineEdit(parent)
     , m_fileDialog{new QFileDialog(this)}
 {
-    const auto layout = new QHBoxLayout();
-    setLayout(layout);
-    layout->setContentsMargins(0, 0, 0, 0);
-
-    layout->addWidget(m_lineEdit, 1);
-
-    const auto button = new QToolButton();
-    button->setIcon(QIcon::fromTheme("document-open"));
+    const auto action = new QAction(QIcon::fromTheme("document-open"), "Open");
+    addAction(action, TrailingPosition);
 
     m_fileDialog->setModal(true);
-    connect(button, &QToolButton::clicked, this, [this] {
-        m_fileDialog->selectFile(m_lineEdit->text());
+    connect(action, &QAction::triggered, this, [this] {
+        m_fileDialog->selectFile(text());
         m_fileDialog->show();
     });
-    layout->addWidget(button);
 
     connect(m_fileDialog, &QFileDialog::accepted, this, [this]() {
-        m_lineEdit->setText(m_fileDialog->selectedFiles().first());
+        setText(m_fileDialog->selectedFiles().first());
     });
 }
 
