@@ -3,6 +3,8 @@
 #include <KXmlGuiWindow>
 #include <QObject>
 
+#include <KToolBar>
+
 class QStackedLayout;
 class Page;
 
@@ -13,7 +15,7 @@ class GodlWindow : public QMainWindow
     QList<Page *> pages{};
     QList<QAction *> builtinActions{};
     QList<QAction *> pageActions{};
-    KToolBar *toolbar = nullptr;
+    KToolBar toolbar;
     QStackedLayout *m_layout;
 
 public:

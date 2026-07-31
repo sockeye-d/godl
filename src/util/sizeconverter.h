@@ -4,14 +4,10 @@
 #include "singleton.h"
 #include <QObject>
 
-class SizeConverter : public QObject, public Singleton<SizeConverter>
-{
-    Q_OBJECT
-public:
-    explicit SizeConverter(QObject *parent = nullptr)
-        : QObject(parent) {};
-
-    Q_INVOKABLE static QString formatSize(qint64 bytes, int decimalPlaces = 2);
-};
+namespace SizeConverter {
+QString formatSize(qint64 bytes, int decimalPlaces = 2);
+QString formatSize(int bytes, int decimalPlaces = 2);
+QString formatSize(qreal bytes, int decimalPlaces = 2);
+}
 
 #endif // SIZECONVERTER_H

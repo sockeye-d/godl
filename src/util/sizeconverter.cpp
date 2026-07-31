@@ -2,6 +2,56 @@
 
 #include <QMap>
 
+namespace {
+qint64 pow10(const qint64 exponent)
+{
+    if (exponent < 0) {
+        return 0;
+    }
+
+    switch (exponent) {
+    case 0:
+        return 1;
+    case 1:
+        return 10;
+    case 2:
+        return 100;
+    case 3:
+        return 1000;
+    case 4:
+        return 10000;
+    case 5:
+        return 100000;
+    case 6:
+        return 1000000;
+    case 7:
+        return 10000000;
+    case 8:
+        return 100000000;
+    case 9:
+        return 1000000000;
+    case 10:
+        return 10000000000;
+    case 11:
+        return 100000000000;
+    case 12:
+        return 1000000000000;
+    case 13:
+        return 10000000000000;
+    case 14:
+        return 100000000000000;
+    case 15:
+        return 1000000000000000;
+    case 16:
+        return 10000000000000000;
+    case 17:
+        return 100000000000000000;
+    default:
+        return 1000000000000000000;
+    }
+}
+} // namespace
+
 QString SizeConverter::formatSize(const qint64 bytes, const int decimalPlaces)
 {
     static QList<QPair<qint64, QString>> units = {
@@ -21,9 +71,18 @@ QString SizeConverter::formatSize(const qint64 bytes, const int decimalPlaces)
         }
     }
 
-    qint64 decimalPlace = std::pow(10, decimalPlaces + 1);
-    return QString::number(static_cast<double>(bytes * decimalPlace / selectedUnit) / decimalPlace,
-                           'f',
-                           decimalPlaces)
-           % " " % selectedSuffix;
+    const qint64 decimalPlace = pow10(decimalPlaces + 1);
+    const double cursedExpression = static_cast<double>(bytes * decimalPlace / selectedUnit) // NOLINT(*-integer-division)
+                                    / static_cast<double>(decimalPlace);
+    return QString::number(cursedExpression, 'f', decimalPlaces) % " " % selectedSuffix;
+}
+
+QString SizeConverter::formatSize(const int bytes, const int decimalPlaces)
+{
+    return formatSize(static_cast<qint64>(bytes), decimalPlaces);
+}
+
+QString SizeConverter::formatSize(const qreal bytes, const int decimalPlaces)
+{
+    return formatSize(static_cast<qint64>(bytes), decimalPlaces);
 }

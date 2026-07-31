@@ -2,6 +2,7 @@
 #define DOWNLOADSPOPUP_H
 #include <QWidget>
 
+class QGridLayout;
 class QPushButton;
 
 class DownloadsPopup : public QWidget
@@ -10,6 +11,7 @@ class DownloadsPopup : public QWidget
 
     QPushButton *m_popupButton;
     qreal m_animationProgress = 0.0;
+    QGridLayout *m_layout;
 
     void onPopupButtonClicked(bool checked);
 
@@ -23,6 +25,8 @@ public:
     void updatePosition();
     void setAnimationProgress(qreal progress);
     void popup();
+
+    [[nodiscard]] QGridLayout *layout() const;
 
     explicit DownloadsPopup(QPushButton *popupButton, QWidget *parent = nullptr);
 };

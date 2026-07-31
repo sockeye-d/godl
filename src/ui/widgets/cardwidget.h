@@ -6,8 +6,6 @@
 #include <QPushButton>
 #include <QToolBar>
 
-class QLabel;
-
 class CardWidget : public QPushButton
 {
     Q_OBJECT
@@ -23,10 +21,11 @@ public:
     Q_ENUM(HighlightMode);
 
 private:
-    QLabel *m_title;
+    QVBoxLayout *m_outer;
+    QLabel m_title;
     QVBoxLayout *m_content;
-    QToolBar *m_toolbar;
-    QWidget *m_middleWidget;
+    QToolBar m_toolbar;
+    QWidget m_middleWidget;
 
     HighlightMode m_highlightMode = HighlightNone;
 
@@ -35,10 +34,10 @@ protected:
     void actionEvent(QActionEvent *event) override;
 
 public:
-    [[nodiscard]] QLabel *title() const;
-    [[nodiscard]] QVBoxLayout *innerLayout() const;
-    [[nodiscard]] QToolBar *toolbar() const;
-    void setMiddleHidden(bool hidden) const;
+    [[nodiscard]] QLabel *title();
+    [[nodiscard]] QVBoxLayout *innerLayout();
+    [[nodiscard]] QToolBar *toolbar();
+    void setMiddleHidden(bool hidden);
 
     [[nodiscard]] HighlightMode highlightMode() const;
     void setHighlightMode(HighlightMode highlightMode);

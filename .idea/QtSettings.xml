@@ -12,6 +12,14 @@
             </PerProfileState>
           </value>
         </entry>
+        <entry key="Debug (ASan)">
+          <value>
+            <PerProfileState>
+              <option name="myQmlPath" value="/usr/lib/qt6/qml" />
+              <option name="myQtBinPath" value="/usr/lib/qt6/bin" />
+            </PerProfileState>
+          </value>
+        </entry>
       </map>
     </option>
   </component>

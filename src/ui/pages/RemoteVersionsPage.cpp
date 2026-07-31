@@ -38,6 +38,7 @@
 #include "sizeconverter.h"
 #include "ui/style.h"
 #include "ui/widgets/searchlineedit.h"
+#include "ui/widgets/timestamplabel.h"
 
 using namespace Qt::StringLiterals;
 
@@ -306,10 +307,11 @@ QDialog *createDownloadDialog(const QPersistentModelIndex &infoIndex, RemoteVers
         const auto downloadAction = new QAction(QIcon::fromTheme("download"),
                                                 u"Download (%1)"_s.arg(SizeConverter::formatSize(asset.size, 0)));
 
-        auto onDownloaded = [assetName = asset.name, assetDownloadUrl = asset.downloadUrl, tagName = info.tagName, repo = info.repo, parent]() {
-            DownloadManager::instance()->download(assetName, tagName, assetDownloadUrl, repo);
-            Q_EMIT parent->downloadStarted();
-        };
+        auto onDownloaded =
+            [assetName = asset.name, assetDownloadUrl = asset.downloadUrl, tagName = info.tagName, repo = info.repo, parent]() {
+                DownloadManager::instance()->download(assetName, tagName, assetDownloadUrl, repo);
+                Q_EMIT parent->downloadStarted();
+            };
 
         QObject::connect(downloadAction, &QAction::triggered, dialog, onDownloaded);
 
@@ -371,7 +373,8 @@ protected:
         auto download = new QAction(QIcon::fromTheme("download"), "Download");
         auto open = new QAction(QIcon::fromTheme("link"), "Open");
 
-        const auto label = new QLabel();
+        const auto label = new TimestampLabel([](const auto &formatted) { return QStringLiteral("Created %1").arg(formatted); });
+
         card->innerLayout()->addWidget(label);
 
         card->addActions({showPatchNotes, download, open});
@@ -405,8 +408,8 @@ protected:
         const auto data = getDataFrom<VersionListModel>(index);
 
         card->title()->setText(data->tagName);
-        const auto label = qobject_cast<QLabel *>(card->innerLayout()->itemAt(0)->widget());
-        label->setText(DateConverter::instance()->relativeFormat(data->createdAt));
+        const auto label = qobject_cast<TimestampLabel *>(card->innerLayout()->itemAt(0)->widget());
+        label->setTimestamp(data->createdAt);
 
         const bool isDownloaded = VersionRegistry::instance()->downloaded(data->tagName, data->repo);
         card->setHighlightMode(isDownloaded ? CardWidget::HighlightPositive : CardWidget::HighlightNone);

@@ -84,6 +84,8 @@ qt_add_executable(godl
         ui/widgets/downloadspopup.cpp
         ui/widgets/downloadspopup.h
         network/downloadinfo.cpp
+        ui/widgets/timestamplabel.cpp
+        ui/widgets/timestamplabel.h
 )
 
 target_link_libraries(godl

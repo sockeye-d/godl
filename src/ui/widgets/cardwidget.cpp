@@ -1,7 +1,6 @@
 #include "cardwidget.h"
 
 #include <QLabel>
-#include <QPaintEvent>
 #include <QVBoxLayout>
 
 #include <KColorScheme>
@@ -35,29 +34,27 @@ void CardWidget::paintEvent(QPaintEvent *event)
 
 void CardWidget::actionEvent(QActionEvent *event)
 {
-    if (m_toolbar) {
-        QApplication::sendEvent(m_toolbar, event);
-    }
+    QApplication::sendEvent(&m_toolbar, event);
 }
 
-QLabel *CardWidget::title() const
+QLabel *CardWidget::title()
 {
-    return m_title;
+    return &m_title;
 }
 
-QVBoxLayout *CardWidget::innerLayout() const
+QVBoxLayout *CardWidget::innerLayout()
 {
     return m_content;
 }
 
-QToolBar *CardWidget::toolbar() const
+QToolBar *CardWidget::toolbar()
 {
-    return m_toolbar;
+    return &m_toolbar;
 }
 
-void CardWidget::setMiddleHidden(const bool hidden) const
+void CardWidget::setMiddleHidden(const bool hidden)
 {
-    m_middleWidget->setHidden(!hidden);
+    m_middleWidget.setHidden(!hidden);
 }
 
 CardWidget::HighlightMode CardWidget::highlightMode() const
@@ -75,37 +72,34 @@ void CardWidget::setHighlightMode(HighlightMode highlightMode)
 
 CardWidget::CardWidget(QWidget *parent)
     : QPushButton(parent)
-    , m_title{new QLabel(this)}
-    , m_content{new QVBoxLayout()}
-    , m_toolbar{new QToolBar()}
-    , m_middleWidget{new QWidget()}
+    , m_outer{new QVBoxLayout}
+    , m_content{new QVBoxLayout}
 {
     setObjectName("CardWidget");
 
-    const auto outer = new QVBoxLayout();
-    setLayout(outer);
-    outer->setSpacing(Units::smallSpacing);
+    setLayout(m_outer);
+    m_outer->setSpacing(Units::smallSpacing);
 
-    m_title->setFont(Units::heading(m_title->font(), 1));
-    m_title->setContentsMargins(Units::smallSpacing, Units::smallSpacing, Units::smallSpacing, 0);
-    outer->addWidget(m_title);
+    m_title.setFont(Units::heading(m_title.font(), 1));
+    m_title.setContentsMargins(Units::smallSpacing, Units::smallSpacing, Units::smallSpacing, 0);
+    m_outer->addWidget(&m_title);
 
-    m_middleWidget->setContentsMargins(Units::smallSpacing, 0, Units::smallSpacing, 0);
+    m_middleWidget.setContentsMargins(Units::smallSpacing, 0, Units::smallSpacing, 0);
     m_content->setContentsMargins(0, 0, 0, 0);
-    m_middleWidget->setLayout(m_content);
+    m_middleWidget.setLayout(m_content);
 
-    outer->addWidget(m_middleWidget, 1);
+    m_outer->addWidget(&m_middleWidget, 1);
 
     const auto toolbarContainer = new QWidget();
     const auto toolbarLayout = new QBoxLayout(QBoxLayout::LeftToRight);
     toolbarLayout->setContentsMargins(0, 0, 0, 0);
     toolbarContainer->setLayout(toolbarLayout);
 
-    toolbarLayout->addWidget(m_toolbar, 1, Qt::AlignLeft);
+    toolbarLayout->addWidget(&m_toolbar, 1, Qt::AlignLeft);
 
-    m_toolbar->setToolButtonStyle(Qt::ToolButtonFollowStyle);
+    m_toolbar.setToolButtonStyle(Qt::ToolButtonFollowStyle);
 
-    outer->addWidget(toolbarContainer);
+    m_outer->addWidget(toolbarContainer);
 
     setStyleSheet("CardWidget { background: palette(base); }");
 }

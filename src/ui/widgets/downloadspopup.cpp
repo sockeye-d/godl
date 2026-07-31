@@ -78,6 +78,10 @@ protected:
         dlProgressBar->setRange(0, 100);
         wrapperLayout->addWidget(dlProgressBar, 1);
 
+        const auto dlProgressLabel = new QLabel();
+        dlProgressLabel->setMinimumWidth(Units::gridUnit * 3);
+        wrapperLayout->addWidget(dlProgressLabel);
+
         card->innerLayout()->addWidget(wrapper);
 
         connect(cancelAction, &QAction::triggered, this, [index = QPersistentModelIndex{weakIndex}] {
@@ -88,12 +92,14 @@ protected:
 
     void updateCard(CardWidget *card, const QPersistentModelIndex &index) const override
     {
+        using namespace SizeConverter;
         const auto data = getDataPtrFrom<DownloadManagerModel>(index);
         card->title()->setText(data->assetName());
 
         const auto innerInnerLayout = card->innerLayout()->itemAt(0)->widget()->layout();
         const auto dlSpeedLabel = qobject_cast<QLabel *>(innerInnerLayout->itemAt(0)->widget());
         const auto dlProgressBar = qobject_cast<QProgressBar *>(innerInnerLayout->itemAt(1)->widget());
+        const auto dlProgressLabel = qobject_cast<QLabel *>(innerInnerLayout->itemAt(2)->widget());
 
         switch (data->stage()) {
         case DownloadInfo::Downloading: {
@@ -101,16 +107,19 @@ protected:
             card->setHighlightMode(CardWidget::HighlightNone);
             dlSpeedLabel->show();
             dlProgressBar->show();
+            dlProgressLabel->show();
 
-            dlSpeedLabel->setText(QStringLiteral("%1/s").arg(SizeConverter::formatSize(static_cast<qint64>(data->downloadSpeed()))));
+            dlSpeedLabel->setText(QStringLiteral("%1/s").arg(formatSize(static_cast<qint64>(data->downloadSpeed()))));
             dlProgressBar->setRange(0, static_cast<int>(data->total()));
             dlProgressBar->setValue(static_cast<int>(data->received()));
+            dlProgressLabel->setText(QStringLiteral("%1/%2").arg(formatSize(data->received(), 1), formatSize(data->total(), 1)));
         } break;
         case DownloadInfo::Unzipping: {
             card->actions().first()->setIcon(QIcon::fromTheme("process-stop"));
             card->setHighlightMode(CardWidget::HighlightNone);
             dlSpeedLabel->show();
             dlProgressBar->show();
+            dlProgressLabel->hide();
 
             dlSpeedLabel->setText(QStringLiteral("Extracting"));
             dlProgressBar->setValue(0);
@@ -121,6 +130,7 @@ protected:
             card->setHighlightMode(CardWidget::HighlightPositive);
             dlSpeedLabel->show();
             dlProgressBar->hide();
+            dlProgressLabel->hide();
 
             dlSpeedLabel->setText(QStringLiteral("Done!"));
         } break;
@@ -131,6 +141,7 @@ protected:
             card->setHighlightMode(CardWidget::HighlightNegative);
             dlSpeedLabel->show();
             dlProgressBar->hide();
+            dlProgressLabel->hide();
 
             dlSpeedLabel->setText(data->error());
         } break;
@@ -184,6 +195,11 @@ void DownloadsPopup::popup()
     onPopupButtonClicked(true);
 }
 
+QGridLayout *DownloadsPopup::layout() const
+{
+    return m_layout;
+}
+
 void DownloadsPopup::onPopupButtonClicked(const bool checked)
 {
     const auto animation = new QPropertyAnimation(this, "animationProgress", parent());
@@ -200,11 +216,11 @@ DownloadsPopup::DownloadsPopup(QPushButton *popupButton, QWidget *parent)
     m_popupButton->installEventFilter(new PositionEventFilter(this));
     setMinimumSize(400, 0);
 
-    const auto layout = new QGridLayout();
-    layout->setContentsMargins(0, 0, 0, 0);
-    setLayout(layout);
+    m_layout = new QGridLayout();
+    m_layout->setContentsMargins(0, 0, 0, 0);
+    setLayout(m_layout);
     const auto view = new QListView();
-    layout->addWidget(view, 0, 0, 1, 1);
+    m_layout->addWidget(view, 0, 0, 1, 1);
 
     view->setVerticalScrollMode(QAbstractItemView::ScrollMode::ScrollPerPixel);
     view->setAutoFillBackground(false);
@@ -214,15 +230,6 @@ DownloadsPopup::DownloadsPopup(QPushButton *popupButton, QWidget *parent)
 
     view->setItemDelegate(new DownloadsDelegate(view));
     view->setModel(DownloadManager::instance()->model());
-
-    // DownloadInfo *x;
-    // for (int i = 0; i < 10; i++) {
-    //     x = new DownloadInfo(QStringLiteral("Asset name %1").arg(i),
-    //                          "tag name",
-    //                          QUrl("https://goodUrl.com/hi"),
-    //                          "/godotengine/godot-builds");
-    //     DownloadManager::instance()->model()->append(x);
-    // }
 
     connect(m_popupButton, &QPushButton::clicked, this, &DownloadsPopup::onPopupButtonClicked);
 }

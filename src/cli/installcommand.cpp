@@ -46,17 +46,15 @@ int install(const Parser &parser)
     });
     bool finished = false;
     QVariant fetchResult = QVariant();
-    const auto &connection
-        = req->connect(req,
-                       &ChainedJsonRequest::finished,
-                       req,
-                       [&finished,                              // clazy:exclude=lambda-in-connect
-                        &fetchResult](const QVariant &result) { // clazy:exclude=lambda-in-connect
-                           fetchResult = result;
-                           finished = true;
-                       });
-    req->execute(
-        {u"%1/releases/tags/%2"_s.arg(VersionRegistry::instance()->resolveSourceUrl(repo), tag)});
+    const auto &connection = req->connect(req,
+                                          &ChainedJsonRequest::finished,
+                                          req,
+                                          [&finished,                              // clazy:exclude=lambda-in-connect
+                                           &fetchResult](const QVariant &result) { // clazy:exclude=lambda-in-connect
+                                              fetchResult = result;
+                                              finished = true;
+                                          });
+    req->execute({u"%1/releases/tags/%2"_s.arg(VersionRegistry::instance()->resolveSourceUrl(repo), tag)});
 
     std::chrono::nanoseconds nowTime = std::chrono::system_clock::now().time_since_epoch();
     qStdOut() << ansi::cursorHide;
@@ -73,8 +71,7 @@ int install(const Parser &parser)
     // print_debug() << fetchResult;
 
     QString dlUrl;
-    for (const auto &arr = fetchResult.toList().constFirst().toMap().value("assets").toList();
-         const auto &assetVar : arr) {
+    for (const auto &arr = fetchResult.toList().constFirst().toMap().value("assets").toList(); const auto &assetVar : arr) {
         if (assetVar.toMap().value("name").toString() == asset) {
             dlUrl = assetVar.toMap().value("browser_download_url").toString();
         }
@@ -119,8 +116,7 @@ int install(const Parser &parser)
                   << progressBar(nowTime,
                                  caption,
                                  dlInfo->progress(),
-                                 u"{progress}% ⤓%1/s"_s.arg(SizeConverter::instance()->formatSize(
-                                     dlInfo->downloadSpeed())));
+                                 u"{progress}% ⤓%1/s"_s.arg(SizeConverter::formatSize(dlInfo->downloadSpeed())));
         qStdOut().flush();
         QThread::sleep(10ms);
     }

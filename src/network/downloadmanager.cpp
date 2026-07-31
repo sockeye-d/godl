@@ -26,31 +26,33 @@ QString DownloadManager::getDownloadLocation(const DownloadInfo &info)
 
 void DownloadManager::updateProgress()
 {
-    int progressReceived = -1;
-    int progressTotal = -1;
+    qint64 progressReceived = -1;
+    qint64 progressTotal = -1;
+    qint64 progressDone = 0;
+    qint64 progressFailed = 0;
 
     for (const auto &data : m_model->data()) {
         if (data->hasError()) {
-            progressReceived = -2;
-            break;
-        }
-        if (data->stage() == DownloadInfo::Finished && (progressReceived == -1 || progressReceived == -3)) {
-            progressReceived = -3;
-            continue;
+            progressFailed++;
+        } else if (data->stage() == DownloadInfo::Finished) {
+            progressDone++;
         }
         if (progressReceived == -1) {
             progressReceived = 0;
             progressTotal = 0;
         }
-        progressReceived += static_cast<int>(data->received());
-        progressTotal += static_cast<int>(data->total());
+        progressReceived += data->received();
+        progressTotal += data->total();
     }
 
-    if (progressReceived != m_progressReceived || progressTotal != m_progressTotal) {
+    if (progressReceived != m_progressReceived || progressTotal != m_progressTotal || progressDone != m_progressDone
+        || progressFailed != m_progressFailed) {
         m_progressReceived = progressReceived;
         m_progressTotal = progressTotal;
+        m_progressDone = progressDone;
+        m_progressFailed = progressFailed;
 
-        Q_EMIT progressChanged(progressReceived, progressTotal);
+        Q_EMIT progressChanged(progressReceived, progressTotal, progressDone, progressFailed);
     }
 }
 
@@ -73,6 +75,7 @@ DownloadInfo *DownloadManager::createDlInfo(const QString &assetName, const QStr
         &DownloadManager::cancelRequested,
         this,
         [info, this](const QUuid id) {
+            // ASan crashed sometimes here. TODO: investigate
             if (info->id() == id) {
                 m_model->remove(info);
                 info->deleteLater();
@@ -88,7 +91,6 @@ void DownloadManager::unzip(DownloadInfo *info, const QString &sourceFilePath, c
     // TODO: clean up this spaghetti
     print_debug() << "Opening archive";
     info->setStage(DownloadInfo::Unzipping);
-    info->setProgress(0, 0);
 
     auto future = QtConcurrent::run([sourceFilePath, destFilePath, info](QPromise<QString> &promise) {
         using namespace std::chrono_literals;

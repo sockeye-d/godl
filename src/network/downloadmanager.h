@@ -20,8 +20,10 @@ class DownloadManager : public QObject, public Singleton<DownloadManager>
 
     DownloadManagerModel *m_model;
     QTimer m_updateProgressTimer;
-    int m_progressReceived{0};
-    int m_progressTotal{0};
+    qint64 m_progressReceived{0};
+    qint64 m_progressTotal{0};
+    qint64 m_progressDone{0};
+    qint64 m_progressFailed{0};
 
     Q_SIGNAL void cancelRequested(QUuid id);
 
@@ -37,7 +39,7 @@ public:
 
     Q_SIGNAL void modelChanged();
     Q_SIGNAL void downloadStarted();
-    Q_SIGNAL void progressChanged(int progress, int progressTotal);
+    Q_SIGNAL void progressChanged(qint64 progress, qint64 progressTotal, qint64 numberDone, qint64 numberFailed);
 
     [[nodiscard]] DownloadManagerModel *model() const;
 
